@@ -66,32 +66,30 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
     }
 
     /**
-     * Renders a curved cable between two points (from OverheadRedstoneWires).
+     * Renders a curved cable between two points.
      * Enhanced with power-based coloring.
      */
     public static void renderCurvedCuboid(PoseStack poseStack, MultiBufferSource buffer,
                                           Vec3 from, Vec3 to, int light, int overlay, int power) {
         VertexConsumer builder = buffer.getBuffer(CABLE_RENDER_TYPE);
 
-        int segments = 12;
+        int segments = 30;
         float thickness = 0.03F;
 
-        PoseStack.Pose pose = poseStack.last();
+        PoseStack.Pose pose = poseStack.last();y
         Matrix4f matrix = pose.pose();
         Matrix3f normal = pose.normal();
 
-        // Enhanced cable colors - looks more like insulated wire
+        // Power-based coloring
         float red, green, blue;
         if (power > 0) {
-            // Powered: Bright red insulation (like hot wire)
-            red = 0.9f + (power / 15.0f) * 0.1f;  // 0.9 to 1.0
+            red = 0.9f + (power / 15.0f) * 0.1f;
             green = 0.0f;
             blue = 0.0f;
         } else {
-            // Unpowered: Dark gray/black insulation
-            red = 0.2f;
-            green = 0.2f;
-            blue = 0.2f;
+            red = 0.3f;
+            green = 0.0f;
+            blue = 0.0f;
         }
 
         for (int i = 0; i < segments; i++) {
@@ -105,160 +103,59 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
         }
     }
 
-    /**
-     * Interpolates along a curved path (from OverheadRedstoneWires).
-     * Creates realistic cable sag.
-     */
     private static Vec3 interpolateCurved(Vec3 from, Vec3 to, float t) {
         Vec3 linear = from.lerp(to, t);
         if (Math.abs(from.x - to.x) < 0.001 && Math.abs(from.z - to.z) < 0.001) {
             return linear;
         }
         double curveAmplitude = 0.4;
-        double curve = Math.sin(t * Math.PI) * -curveAmplitude; // Sag downward
+        double curve = Math.sin(t * Math.PI) * -curveAmplitude;
         return new Vec3(linear.x, linear.y + curve, linear.z);
     }
 
-    /**
-     * Draws a smooth cylindrical cable segment.
-     * Creates a round cable appearance instead of rectangular segments.
-     */
     private static void drawThickSegment(VertexConsumer builder, Matrix4f matrix, Matrix3f normal,
                                          Vec3 p1, Vec3 p2, float thickness, int light, int overlay,
                                          float r, float g, float b) {
-        // Calculate direction vector
         Vec3 dir = p2.subtract(p1).normalize();
         Vec3 up = Math.abs(dir.y) > 0.999 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
-        Vec3 right = dir.cross(up).normalize();
-        Vec3 forward = dir.cross(right).normalize();
+        Vec3 right = dir.cross(up).normalize().scale(thickness);
+        Vec3 forward = dir.cross(right).normalize().scale(thickness);
 
-        // Number of sides for the cylinder (more = smoother, but more vertices)
-        int sides = 8; // Octagonal cross-section looks smooth enough
+        // Rectangular box corners
+        Vec3[] corners = new Vec3[]{
+                p1.add(right).add(forward),
+                p1.add(right).subtract(forward),
+                p1.subtract(right).subtract(forward),
+                p1.subtract(right).add(forward),
 
-        // Generate circle vertices at both ends
-        Vec3[] circle1 = new Vec3[sides];
-        Vec3[] circle2 = new Vec3[sides];
+                p2.add(right).add(forward),
+                p2.add(right).subtract(forward),
+                p2.subtract(right).subtract(forward),
+                p2.subtract(right).add(forward),
+        };
 
-        for (int i = 0; i < sides; i++) {
-            double angle = (Math.PI * 2.0 * i) / sides;
-            double cos = Math.cos(angle);
-            double sin = Math.sin(angle);
+        int[][] faces = {
+                {0, 1, 2, 3}, // bottom
+                {7, 6, 5, 4}, // top
+                {0, 4, 5, 1}, // right
+                {1, 5, 6, 2}, // front
+                {2, 6, 7, 3}, // left
+                {3, 7, 4, 0}, // back
+        };
 
-            Vec3 offset = right.scale(cos * thickness).add(forward.scale(sin * thickness));
-            circle1[i] = p1.add(offset);
-            circle2[i] = p2.add(offset);
-        }
-
-        // Draw the cylinder surface as quads between the two circles
-        for (int i = 0; i < sides; i++) {
-            int next = (i + 1) % sides;
-
-            // Calculate normal for this face (pointing outward from cylinder center)
-            double angle = (Math.PI * 2.0 * i) / sides;
-            Vec3 normalVec = right.scale(Math.cos(angle)).add(forward.scale(Math.sin(angle))).normalize();
-
-            // Calculate shading based on angle (top brighter, bottom darker)
-            // This makes it look like a round cable catching light from above
-            double angleFromTop = Math.abs(angle - Math.PI / 2);
-            float shadeFactor = (float) (0.7 + 0.3 * Math.cos(angleFromTop));
-
-            // UV coordinates wrap around the cylinder
-            float u1 = (float) i / sides;
-            float u2 = (float) next / sides;
-
-            // Draw quad as two triangles in BOTH winding orders
-            // This ensures visibility from all angles (prevents disappearing)
-
-            // FRONT-FACING triangles (clockwise winding)
-            // Triangle 1: circle1[i], circle2[i], circle2[next]
-            builder.addVertex(matrix, (float) circle1[i].x, (float) circle1[i].y, (float) circle1[i].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u1, 0)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-
-            builder.addVertex(matrix, (float) circle2[i].x, (float) circle2[i].y, (float) circle2[i].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u1, 1)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-
-            builder.addVertex(matrix, (float) circle2[next].x, (float) circle2[next].y, (float) circle2[next].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u2, 1)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-
-            // Triangle 2: circle1[i], circle2[next], circle1[next]
-            builder.addVertex(matrix, (float) circle1[i].x, (float) circle1[i].y, (float) circle1[i].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u1, 0)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-
-            builder.addVertex(matrix, (float) circle2[next].x, (float) circle2[next].y, (float) circle2[next].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u2, 1)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-
-            builder.addVertex(matrix, (float) circle1[next].x, (float) circle1[next].y, (float) circle1[next].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u2, 0)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-
-            // BACK-FACING triangles (counter-clockwise winding)
-            // Same triangles but reversed vertex order
-            // Triangle 1 reversed: circle2[next], circle2[i], circle1[i]
-            builder.addVertex(matrix, (float) circle2[next].x, (float) circle2[next].y, (float) circle2[next].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u2, 1)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
-
-            builder.addVertex(matrix, (float) circle2[i].x, (float) circle2[i].y, (float) circle2[i].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u1, 1)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
-
-            builder.addVertex(matrix, (float) circle1[i].x, (float) circle1[i].y, (float) circle1[i].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u1, 0)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
-
-            // Triangle 2 reversed: circle1[next], circle2[next], circle1[i]
-            builder.addVertex(matrix, (float) circle1[next].x, (float) circle1[next].y, (float) circle1[next].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u2, 0)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
-
-            builder.addVertex(matrix, (float) circle2[next].x, (float) circle2[next].y, (float) circle2[next].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u2, 1)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
-
-            builder.addVertex(matrix, (float) circle1[i].x, (float) circle1[i].y, (float) circle1[i].z)
-                    .setColor(r * shadeFactor, g * shadeFactor, b * shadeFactor, 1.0f)
-                    .setUv(u1, 0)
-                    .setOverlay(overlay)
-                    .setLight(light)
-                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
+        for (int[] face : faces) {
+            for (int idx : face) {
+                Vec3 normalVec = corners[face[1]].subtract(corners[face[0]])
+                        .cross(corners[face[2]].subtract(corners[face[1]]))
+                        .normalize();
+                Vec3 v = corners[idx];
+                builder.addVertex(matrix, (float) v.x, (float) v.y, (float) v.z)
+                        .setColor(r, g, b, 1f)
+                        .setUv(0, 0)
+                        .setOverlay(overlay)
+                        .setLight(light)
+                        .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+            }
         }
     }
 }

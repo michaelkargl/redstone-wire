@@ -50,11 +50,20 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
         return SHAPE;
     }
 
+    /// Returns whether this block is capable of emitting redstone signals.
     @Override
     public boolean isSignalSource(BlockState state) {
         return state.getValue(POWER) > 0;
     }
 
+    /***
+     * NOTE: directions in redstone signal related methods are backwards, so this method checks for the signal emitted in the opposite direction of the one given.
+     * @param state
+     * @param level
+     * @param pos
+     * @param direction
+     * @return the signal this block emits in the given direction.
+     */
     @Override
     public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         // Check if we have a block entity with wire connections
@@ -65,6 +74,14 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
         return state.getValue(POWER);
     }
 
+    /***
+     * NOTE: directions in redstone signal related methods are backwards, so this method checks for the signal emitted in the opposite direction of the one given.
+     * @param state
+     * @param level
+     * @param pos
+     * @param direction
+     * @return the direct signal this block emits in the given direction.
+     */
     @Override
     public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return 0;
