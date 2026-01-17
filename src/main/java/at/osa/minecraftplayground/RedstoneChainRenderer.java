@@ -71,8 +71,8 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
                                           Vec3 from, Vec3 to, int light, int overlay, int power) {
         VertexConsumer builder = buffer.getBuffer(CABLE_RENDER_TYPE);
 
-        int segments = 12;
-        float thickness = 0.015F;
+        int segments = 10;
+        float thickness = 0.03F;  // Increased from 0.015F for thicker cables
 
         PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
@@ -111,36 +111,127 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
         Vec3 right = dir.cross(up).normalize().scale(thickness);
         Vec3 forward = dir.cross(right).normalize().scale(thickness);
 
-        // Rectangular box corners
+        // Square/rectangular box corners
         Vec3[] corners = new Vec3[]{
-                p1.add(right).add(forward),
-                p1.add(right).subtract(forward),
-                p1.subtract(right).subtract(forward),
-                p1.subtract(right).add(forward),
-                p2.add(right).add(forward),
-                p2.add(right).subtract(forward),
-                p2.subtract(right).subtract(forward),
-                p2.subtract(right).add(forward),
+                p1.add(right).add(forward),      // 0: p1 +X +Z
+                p1.add(right).subtract(forward), // 1: p1 +X -Z
+                p1.subtract(right).subtract(forward), // 2: p1 -X -Z
+                p1.subtract(right).add(forward), // 3: p1 -X +Z
+                p2.add(right).add(forward),      // 4: p2 +X +Z
+                p2.add(right).subtract(forward), // 5: p2 +X -Z
+                p2.subtract(right).subtract(forward), // 6: p2 -X -Z
+                p2.subtract(right).add(forward), // 7: p2 -X +Z
         };
 
+        // Define faces with proper winding order (counter-clockwise when viewed from outside)
         int[][] faces = {
-                {0, 1, 2, 3}, {7, 6, 5, 4}, {0, 4, 5, 1},
-                {1, 5, 6, 2}, {2, 6, 7, 3}, {3, 7, 4, 0}
+                {0, 1, 2, 3}, // bottom (p1 end)
+                {7, 6, 5, 4}, // top (p2 end)
+                {0, 4, 5, 1}, // right side
+                {1, 5, 6, 2}, // front side
+                {2, 6, 7, 3}, // left side
+                {3, 7, 4, 0}, // back side
         };
 
+        // Render each face with double-sided rendering
         for (int[] face : faces) {
-            Vec3 normalVec = corners[face[1]].subtract(corners[face[0]])
-                    .cross(corners[face[2]].subtract(corners[face[1]]))
-                    .normalize();
-            for (int idx : face) {
-                Vec3 v = corners[idx];
-                builder.addVertex(matrix, (float) v.x, (float) v.y, (float) v.z)
-                        .setColor(r, g, b, 1f)
-                        .setUv(0, 0)
-                        .setOverlay(overlay)
-                        .setLight(light)
-                        .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
-            }
+            // Calculate face normal
+            Vec3 v0 = corners[face[0]];
+            Vec3 v1 = corners[face[1]];
+            Vec3 v2 = corners[face[2]];
+            Vec3 edge1 = v1.subtract(v0);
+            Vec3 edge2 = v2.subtract(v0);
+            Vec3 normalVec = edge1.cross(edge2).normalize();
+
+            // === FRONT FACE (normal pointing outward) ===
+            // First triangle (0, 1, 2)
+            builder.addVertex(matrix, (float) corners[face[0]].x, (float) corners[face[0]].y, (float) corners[face[0]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[1]].x, (float) corners[face[1]].y, (float) corners[face[1]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[2]].x, (float) corners[face[2]].y, (float) corners[face[2]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+
+            // Second triangle (0, 2, 3)
+            builder.addVertex(matrix, (float) corners[face[0]].x, (float) corners[face[0]].y, (float) corners[face[0]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[2]].x, (float) corners[face[2]].y, (float) corners[face[2]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[3]].x, (float) corners[face[3]].y, (float) corners[face[3]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) normalVec.x, (float) normalVec.y, (float) normalVec.z);
+
+            // === BACK FACE (reversed winding order, inverted normal) ===
+            // First triangle (0, 2, 1) - reversed
+            builder.addVertex(matrix, (float) corners[face[0]].x, (float) corners[face[0]].y, (float) corners[face[0]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[2]].x, (float) corners[face[2]].y, (float) corners[face[2]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[1]].x, (float) corners[face[1]].y, (float) corners[face[1]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
+
+            // Second triangle (0, 3, 2) - reversed
+            builder.addVertex(matrix, (float) corners[face[0]].x, (float) corners[face[0]].y, (float) corners[face[0]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[3]].x, (float) corners[face[3]].y, (float) corners[face[3]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
+
+            builder.addVertex(matrix, (float) corners[face[2]].x, (float) corners[face[2]].y, (float) corners[face[2]].z)
+                    .setColor(r, g, b, 1f)
+                    .setUv(0, 0)
+                    .setOverlay(overlay)
+                    .setLight(light)
+                    .setNormal((float) -normalVec.x, (float) -normalVec.y, (float) -normalVec.z);
         }
     }
 }
