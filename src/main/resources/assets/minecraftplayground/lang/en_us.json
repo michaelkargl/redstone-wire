@@ -2,7 +2,18 @@
   "itemGroup.minecraftplayground": "Example Mod Tab",
   "block.minecraftplayground.example_block": "Example Block",
   "block.minecraftplayground.redstone_detector": "Redstone Detector",
+  "block.minecraftplayground.redstone_chain": "Redstone Chain",
   "item.minecraftplayground.example_item": "Example Item",
+  "item.minecraftplayground.redstone_chain_connector": "Redstone Chain Connector",
+
+  "item.minecraftplayground.chain_connector.saved": "First point saved: %s",
+  "item.minecraftplayground.chain_connector.connected": "Connected %s to %s (%d blocks)",
+  "item.minecraftplayground.chain_connector.cleared": "Connection cleared",
+  "item.minecraftplayground.chain_connector.too_far": "Too far! Max distance: %d blocks (current: %d)",
+  "item.minecraftplayground.chain_connector.max_connections": "This chain already has maximum connections (3)",
+  "item.minecraftplayground.chain_connector.saved_point": "Saved: %s",
+  "item.minecraftplayground.chain_connector.no_saved_point": "No point saved",
+  "item.minecraftplayground.chain_connector.usage": "Shift+click on chains to connect",
 
   "minecraftplayground.configuration.title": "MinecraftPlayground Configs",
   "minecraftplayground.configuration.section.minecraftplayground.common.toml": "MinecraftPlayground Configs",

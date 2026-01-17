@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "power=0": { "model": "minecraftplayground:block/redstone_chain" },
+    "power=1": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=2": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=3": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=4": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=5": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=6": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=7": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=8": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=9": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=10": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=11": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=12": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=13": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=14": { "model": "minecraftplayground:block/redstone_chain_powered" },
+    "power=15": { "model": "minecraftplayground:block/redstone_chain_powered" }
+  }
+}

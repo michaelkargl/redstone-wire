@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/chain",
+  "textures": {
+    "particle": "minecraft:block/chain",
+    "all": "minecraft:block/chain"
+  }
+}
