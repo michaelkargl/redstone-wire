@@ -49,18 +49,16 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
     @Override
     public void render(RedstoneChainEntity entity, float partialTicks, PoseStack stack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
-        Vec3 center = Vec3.atCenterOf(entity.getBlockPos()).subtract(Vec3.atCenterOf(entity.getBlockPos()));
         BlockPos blockPos = entity.getBlockPos();
-
         int power = entity.getSignal();
 
         for (BlockPos connection : entity.getConnections()) {
             // Only render if this block's position is "less than" the connection
             // This prevents rendering the same cable twice from both ends
             if (blockPos.compareTo(connection) < 0) {
-                Vec3 end = Vec3.atCenterOf(connection).subtract(Vec3.atCenterOf(blockPos));
-                renderCurvedCuboid(stack, buffer, center.add(0.5, 0.5, 0.5), end.add(0.5, 0.5, 0.5),
-                        packedLight, packedOverlay, power);
+                Vec3 start = new Vec3(0.5, 0.5, 0.5);
+                Vec3 end = Vec3.atCenterOf(connection).subtract(Vec3.atCenterOf(blockPos)).add(0.5, 0.5, 0.5);
+                renderCurvedCuboid(stack, buffer, start, end, packedLight, packedOverlay, power);
             }
         }
     }
@@ -73,24 +71,17 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
                                           Vec3 from, Vec3 to, int light, int overlay, int power) {
         VertexConsumer builder = buffer.getBuffer(CABLE_RENDER_TYPE);
 
-        int segments = 30;
-        float thickness = 0.03F;
+        int segments = 12;
+        float thickness = 0.015F;
 
-        PoseStack.Pose pose = poseStack.last();y
+        PoseStack.Pose pose = poseStack.last();
         Matrix4f matrix = pose.pose();
         Matrix3f normal = pose.normal();
 
         // Power-based coloring
-        float red, green, blue;
-        if (power > 0) {
-            red = 0.9f + (power / 15.0f) * 0.1f;
-            green = 0.0f;
-            blue = 0.0f;
-        } else {
-            red = 0.3f;
-            green = 0.0f;
-            blue = 0.0f;
-        }
+        float red = power > 0 ? 0.9f + (power / 15.0f) * 0.1f : 0.3f;
+        float green = 0.0f;
+        float blue = 0.0f;
 
         for (int i = 0; i < segments; i++) {
             float t1 = i / (float) segments;
@@ -108,8 +99,7 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
         if (Math.abs(from.x - to.x) < 0.001 && Math.abs(from.z - to.z) < 0.001) {
             return linear;
         }
-        double curveAmplitude = 0.4;
-        double curve = Math.sin(t * Math.PI) * -curveAmplitude;
+        double curve = Math.sin(t * Math.PI) * -0.4; // sag downward
         return new Vec3(linear.x, linear.y + curve, linear.z);
     }
 
@@ -127,7 +117,6 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
                 p1.add(right).subtract(forward),
                 p1.subtract(right).subtract(forward),
                 p1.subtract(right).add(forward),
-
                 p2.add(right).add(forward),
                 p2.add(right).subtract(forward),
                 p2.subtract(right).subtract(forward),
@@ -135,19 +124,15 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
         };
 
         int[][] faces = {
-                {0, 1, 2, 3}, // bottom
-                {7, 6, 5, 4}, // top
-                {0, 4, 5, 1}, // right
-                {1, 5, 6, 2}, // front
-                {2, 6, 7, 3}, // left
-                {3, 7, 4, 0}, // back
+                {0, 1, 2, 3}, {7, 6, 5, 4}, {0, 4, 5, 1},
+                {1, 5, 6, 2}, {2, 6, 7, 3}, {3, 7, 4, 0}
         };
 
         for (int[] face : faces) {
+            Vec3 normalVec = corners[face[1]].subtract(corners[face[0]])
+                    .cross(corners[face[2]].subtract(corners[face[1]]))
+                    .normalize();
             for (int idx : face) {
-                Vec3 normalVec = corners[face[1]].subtract(corners[face[0]])
-                        .cross(corners[face[2]].subtract(corners[face[1]]))
-                        .normalize();
                 Vec3 v = corners[idx];
                 builder.addVertex(matrix, (float) v.x, (float) v.y, (float) v.z)
                         .setColor(r, g, b, 1f)
