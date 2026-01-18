@@ -177,6 +177,35 @@ public class RedstoneChainConnector extends Item {
         return Component.literal("(" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ() + ")");
     }
 
+    /**
+     * Adds tooltip text that appears when the player hovers over this item in their inventory.
+     *
+     * Purpose: Shows the player helpful information about the connector's current state
+     *
+     * What happens inside:
+     * 1. Retrieves the NBT data from the item stack (where saved position is stored)
+     * 2. Checks if there's a saved position (LinkX exists in the data):
+     *
+     *    IF POSITION IS SAVED:
+     *    a. Reads the X, Y, Z coordinates from the NBT data
+     *    b. Creates a BlockPos from those coordinates
+     *    c. Adds a gray tooltip line showing the saved position in short format
+     *
+     *    IF NO POSITION IS SAVED:
+     *    a. Adds a dark gray tooltip line saying "No saved point"
+     *
+     * 3. Always adds a usage instruction line at the end
+     *
+     * The tooltip helps players remember:
+     * - Whether they've started a connection (first click done)
+     * - Where the first point was located
+     * - How to use the item
+     *
+     * @param stack The item stack being hovered over
+     * @param context Additional context (world, etc.) - usually not needed for simple tooltips
+     * @param tooltip The list of tooltip lines to add to (method adds to this list)
+     * @param flag Flags indicating when to show the tooltip (normal vs advanced)
+     */
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         CompoundTag tag = stack.getOrDefault(MinecraftPlayground.LINK_DATA, new CompoundTag());
