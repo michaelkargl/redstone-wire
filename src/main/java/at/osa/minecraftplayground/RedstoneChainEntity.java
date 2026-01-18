@@ -731,6 +731,7 @@ public class RedstoneChainEntity extends BlockEntity {
      * - Ensures networks stay synchronized even if some updates are lost
      * - Provides a "heartbeat" for the network that can detect and fix issues
      * - Once per second is frequent enough for responsiveness but light on performance
+     * - If someone breaks an intermittent connection, the periodic update will detect it and fix it (turn off power)
      * <p>
      * This combines with event-driven updates (neighborChanged) to create a robust
      * system that responds quickly to changes but also self-corrects periodically.
@@ -835,6 +836,7 @@ public class RedstoneChainEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+
         ListTag list = new ListTag();
         for (BlockPos pos : connections) {
             CompoundTag posTag = new CompoundTag();
@@ -876,6 +878,7 @@ public class RedstoneChainEntity extends BlockEntity {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+
         connections.clear();
         ListTag list = tag.getList("Connections", Tag.TAG_COMPOUND);
         for (Tag t : list) {
