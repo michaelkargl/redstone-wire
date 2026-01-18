@@ -30,37 +30,77 @@ import java.util.*;
  */
 public class RedstoneChainEntity extends BlockEntity {
 
-    // List of positions this chain block is connected to (max 3 connections)
+    // ===== Connection Management =====
+    /**
+     * Direct connections from this block to other chain blocks.
+     * Maximum of MAX_CONNECTIONS per block.
+     */
     private final List<BlockPos> connections = new ArrayList<>();
 
-    // Set of all positions in the connected network (cached for performance)
+    // ===== Network Management =====
+    /**
+     * Cached set of all blocks in this network (includes this block and all transitively connected blocks).
+     * Rebuilt when networkDirty is true.
+     */
     private final Set<BlockPos> network = new HashSet<>();
 
-    // Flag indicating the network needs to be recalculated
+    /**
+     * Flag indicating the network cache is stale and needs rebuilding.
+     * Set to true when connections change or network structure is invalidated.
+     */
     private boolean networkDirty = true;
 
-    // Maximum distance allowed between connected chain blocks (in blocks)
+    // ===== Configuration Constants =====
+    /**
+     * Maximum distance (in blocks) between two connected chain blocks.
+     * Connections beyond this distance are rejected.
+     */
     private static final int MAX_CONNECTION_DISTANCE = 24;
 
-    // How often to update the network (in ticks, 20 ticks = 1 second)
+    /**
+     * Maximum number of cable connections per chain block.
+     * Prevents visual clutter and performance issues.
+     */
+    private static final int MAX_CONNECTIONS = 3;
+
+    // ===== Update Scheduling =====
+    /**
+     * How often (in ticks) to perform periodic network updates.
+     * 20 ticks = 1 second. This acts as a backup to event-driven updates.
+     */
     private static final int UPDATE_INTERVAL = 20;
 
-    // Counter for ticks since the last network update
+    /**
+     * Counts ticks since the last periodic update.
+     * Reset to 0 when UPDATE_INTERVAL is reached.
+     */
     private int ticksSinceLastUpdate = 0;
 
-    // Prevents recursive update calls (feedback loop protection)
+    // ===== Feedback Loop Protection =====
+    /**
+     * Prevents recursive update calls that could cause infinite loops.
+     * Set to true during updateSignalInNetwork(), cleared in finally block.
+     */
     private boolean isUpdating = false;
 
-    // Counts how many ticks the network has had no input signal
+    // ===== Signal Management =====
+    /**
+     * Number of ticks that have passed with no external power input.
+     * Used to delay signal loss and prevent flickering.
+     */
     private int ticksWithoutInput = 0;
 
-    // How many ticks to wait before clearing the signal when input is lost
+    /**
+     * How many ticks to wait before clearing cached signal after input is lost.
+     * Prevents flickering when power briefly turns off.
+     */
     private static final int SIGNAL_LOSS_DELAY = 1;
 
-    // Cached value of the last input signal received
+    /**
+     * The last known input signal strength from external sources.
+     * Cached to maintain signal briefly after input is lost.
+     */
     private int cachedInputSignal = 0;
-
-    private static final int MAX_CONNECTIONS = 3;
 
     /**
      * Constructor for the RedstoneChainEntity.
@@ -113,23 +153,71 @@ public class RedstoneChainEntity extends BlockEntity {
      *
      * @param target The position of the chain block to connect to
      */
+    /**
+     * Adds a cable connection from this block to another chain block.
+     * <p>
+     * Performs validation checks:
+     * - Rejects duplicate connections
+     * - Rejects if already at max connections
+     * - Rejects if target is too far away
+     * <p>
+     * After adding connection:
+     * - Marks network as dirty (needs rebuild)
+     * - Saves to disk and syncs to client
+     * - Merges networks if target is part of another network
+     *
+     * @param target Position of the chain block to connect to
+     */
     public void addConnection(BlockPos target) {
-        if (connections.contains(target)) {
-            return;
-        }
-        if (connections.size() >= MAX_CONNECTIONS) {
-            return;
-        }
-
-        if (worldPosition.distSqr(target) > MAX_CONNECTION_DISTANCE * MAX_CONNECTION_DISTANCE) {
+        // Validation: Check if already connected
+        if (isAlreadyConnectedTo(target)) {
             return;
         }
 
+        // Validation: Check connection limit
+        if (isAtMaxConnections()) {
+            return;
+        }
+
+        // Validation: Check distance
+        if (isTooFarAway(target)) {
+            return;
+        }
+
+        // Add the connection
         connections.add(target);
-        networkDirty = true;
-        setChanged();
-        syncToClient();
 
+        // Update state
+        markNetworkDirty();
+        saveAndSync();
+
+        // Merge networks if target is part of another network
+        mergeNetworkWithTarget(target);
+    }
+
+    private boolean isAlreadyConnectedTo(BlockPos target) {
+        return connections.contains(target);
+    }
+
+    private boolean isAtMaxConnections() {
+        return connections.size() >= MAX_CONNECTIONS;
+    }
+
+    private boolean isTooFarAway(BlockPos target) {
+        double maxDistSq = MAX_CONNECTION_DISTANCE * MAX_CONNECTION_DISTANCE;
+        return worldPosition.distSqr(target) > maxDistSq;
+    }
+
+    private void markNetworkDirty() {
+        networkDirty = true;
+    }
+
+    private void saveAndSync() {
+        setChanged();      // Marks for saving to disk
+        syncToClient();    // Sends update to client for rendering
+    }
+
+    private void mergeNetworkWithTarget(BlockPos target) {
         if (level != null) {
             BlockEntity be = level.getBlockEntity(target);
             if (be instanceof RedstoneChainEntity other) {
@@ -375,26 +463,77 @@ public class RedstoneChainEntity extends BlockEntity {
      *
      * @return The maximum redstone power (0-15) from any external source
      */
+    /**
+     * Computes the maximum redstone input power for the entire network.
+     * <p>
+     * Scans all blocks in the network and checks all their neighbors for redstone signals.
+     * Returns the strongest signal found from any external source (non-network block).
+     * <p>
+     * Ignores:
+     * - Other chain blocks in the network (to avoid counting internal signals)
+     * - Vanilla redstone wire (to prevent feedback loops)
+     *
+     * @return Maximum power level (0-15) from any external redstone source
+     */
     private int computeNetworkInputPower() {
         if (level == null) return 0;
 
         int maxInput = 0;
+
+        // Check every block in the network for external power
         for (BlockPos pos : network) {
-            for (Direction dir : Direction.values()) {
-                BlockPos neighborPos = pos.relative(dir);
-                BlockState neighborState = level.getBlockState(neighborPos);
-                Block block = neighborState.getBlock();
-
-                if (block instanceof RedstoneChainBlock) continue;
-                if (block instanceof RedStoneWireBlock) continue;
-
-                int signal = level.getSignal(neighborPos, dir.getOpposite());
-                if (signal > 0) {
-                    maxInput = Math.max(maxInput, signal);
-                }
-            }
+            int powerAtBlock = findMaxPowerAroundBlock(pos);
+            maxInput = Math.max(maxInput, powerAtBlock);
         }
+
         return maxInput;
+    }
+
+    /**
+     * Finds the maximum redstone power from neighbors of a single block.
+     * Checks all 6 directions (up, down, north, south, east, west).
+     *
+     * @param pos Position to check around
+     * @return Maximum power from neighbors (0-15)
+     */
+    private int findMaxPowerAroundBlock(BlockPos pos) {
+        int maxPower = 0;
+
+        // Check all 6 directions
+        for (Direction dir : Direction.values()) {
+            int powerFromDirection = getPowerFromDirection(pos, dir);
+            maxPower = Math.max(maxPower, powerFromDirection);
+        }
+
+        return maxPower;
+    }
+
+    /**
+     * Gets redstone power from a specific direction of a block.
+     * Returns 0 if the neighbor should be ignored (chain block or vanilla redstone).
+     *
+     * @param pos The block position we're checking from
+     * @param dir The direction to check
+     * @return Power level from that direction (0-15)
+     */
+    private int getPowerFromDirection(BlockPos pos, Direction dir) {
+        BlockPos neighborPos = pos.relative(dir);
+        BlockState neighborState = level.getBlockState(neighborPos);
+        Block block = neighborState.getBlock();
+
+        // Skip other chain blocks in network (internal connections)
+        if (block instanceof RedstoneChainBlock) {
+            return 0;
+        }
+
+        // Skip vanilla redstone wire (prevents feedback loops)
+        if (block instanceof RedStoneWireBlock) {
+            return 0;
+        }
+
+        // Get signal from this neighbor
+        // Note: dir.getOpposite() is used due to Minecraft's backwards direction API
+        return level.getSignal(neighborPos, dir.getOpposite());
     }
 
     /**
@@ -474,33 +613,78 @@ public class RedstoneChainEntity extends BlockEntity {
      * This method ensures smooth, stable power distribution across the network
      * while preventing infinite loops and signal flickering.
      */
+    /**
+     * Updates the redstone signal for the entire network.
+     * <p>
+     * This is the main coordination method that:
+     * 1. Prevents feedback loops using isUpdating flag
+     * 2. Rebuilds network if structure changed
+     * 3. Checks for external power input
+     * 4. Updates cached signal with delay to prevent flickering
+     * 5. Distributes signal to all blocks in network
+     * <p>
+     * Called by:
+     * - neighborChanged() when adjacent blocks change
+     * - Periodic ticker every UPDATE_INTERVAL ticks
+     * - When connections are added/removed
+     */
     public void updateSignalInNetwork() {
+        // Prevent infinite recursion (feedback loop protection)
         if (isUpdating) {
             return;
         }
+
         isUpdating = true;
         try {
-            if (networkDirty) {
-                rebuildNetwork();
-                networkDirty = false;
-            }
+            // Step 1: Ensure network is up-to-date
+            ensureNetworkIsBuilt();
 
-            int input = computeNetworkInputPower();
+            // Step 2: Check for external power input
+            int currentInput = computeNetworkInputPower();
 
-            if (input > 0) {
-                cachedInputSignal = input;
-                ticksWithoutInput = 0;
-            } else {
-                ticksWithoutInput++;
-                if (ticksWithoutInput >= SIGNAL_LOSS_DELAY) {
-                    cachedInputSignal = 0;
-                }
-            }
+            // Step 3: Update cached signal with delay (prevents flickering)
+            updateCachedSignal(currentInput);
 
+            // Step 4: Distribute the signal to all blocks
             applySignalToNetwork(cachedInputSignal);
 
         } finally {
+            // Always clear the updating flag, even if an exception occurs
             isUpdating = false;
+        }
+    }
+
+    /**
+     * Rebuilds the network if it's marked as dirty.
+     * After rebuilding, clears the dirty flag.
+     */
+    private void ensureNetworkIsBuilt() {
+        if (networkDirty) {
+            rebuildNetwork();
+            networkDirty = false;
+        }
+    }
+
+    /**
+     * Updates the cached signal based on current input.
+     * Implements a delay before clearing signal to prevent flickering.
+     *
+     * @param currentInput The current power level from external sources
+     */
+    private void updateCachedSignal(int currentInput) {
+        if (currentInput > 0) {
+            // Power detected - update cache immediately and reset delay counter
+            cachedInputSignal = currentInput;
+            ticksWithoutInput = 0;
+        } else {
+            // No power - increment delay counter
+            ticksWithoutInput++;
+
+            // Only clear signal after delay period has passed
+            if (ticksWithoutInput >= SIGNAL_LOSS_DELAY) {
+                cachedInputSignal = 0;
+            }
+            // Otherwise keep the cached signal (prevents flickering)
         }
     }
 

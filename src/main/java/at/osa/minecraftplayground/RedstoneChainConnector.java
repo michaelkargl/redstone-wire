@@ -18,13 +18,28 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.List;
 
 /**
- * Item used to connect RedstoneChainBlocks together.
- * Shift-click on first chain to start connection, shift-click on second chain to complete.
- * Shift-right-click in air to clear saved position.
+ * Item used to connect RedstoneChainBlocks together with visible cables.
+ * <p>
+ * Usage:
+ * 1. Shift-click on first chain block → Saves position to item
+ * 2. Shift-click on second chain block → Creates bidirectional cable connection
+ * 3. Shift-right-click in air → Clears saved position
+ * <p>
+ * The item stores the first clicked position in its NBT data (LINK_DATA component).
  */
 public class RedstoneChainConnector extends Item {
 
+    // ===== Configuration Constants =====
+    /**
+     * Maximum distance (in blocks) allowed between two connected chain blocks.
+     * Connections beyond this distance will be rejected.
+     */
     private static final int MAX_CONNECTION_DISTANCE = 20;
+
+    /**
+     * Maximum number of cable connections allowed per chain block.
+     * Prevents visual clutter and performance issues.
+     */
     private static final int MAX_CONNECTIONS_PER_CHAIN = 5;
 
     public RedstoneChainConnector(Properties properties) {
@@ -78,99 +93,220 @@ public class RedstoneChainConnector extends Item {
         return InteractionResult.PASS;
     }
 
-    private InteractionResult handleShiftClick(Level level, Player player, BlockPos clickedPos, RedstoneChainEntity chain, ItemStack stack) {
-        CompoundTag tag = stack.getOrDefault(MinecraftPlayground.LINK_DATA, new CompoundTag());
+    /**
+     * Handles shift-clicking on a chain block with the connector item.
+     * <p>
+     * Two-step process:
+     * 1. First click: Saves the block position to the item
+     * 2. Second click: Creates connection between saved position and clicked position
+     */
+    private InteractionResult handleShiftClick(Level level, Player player, BlockPos clickedPos,
+                                              RedstoneChainEntity chain, ItemStack stack) {
+        // Get saved position data from item (if any)
+        CompoundTag savedData = stack.getOrDefault(MinecraftPlayground.LINK_DATA, new CompoundTag());
 
-        if (!level.isClientSide && chain.getConnections().size() >= MAX_CONNECTIONS_PER_CHAIN) {
+        // Check if this is the second click (completing a connection)
+        if (hasSavedPosition(savedData)) {
+            return handleSecondClick(level, player, clickedPos, chain, stack, savedData);
+        } else {
+            return handleFirstClick(level, player, clickedPos, chain, stack);
+        }
+    }
+
+    /**
+     * Checks if the item has a saved position stored.
+     */
+    private boolean hasSavedPosition(CompoundTag tag) {
+        return tag.contains("LinkX");
+    }
+
+    /**
+     * Handles the first click: saves the block position to the item.
+     */
+    private InteractionResult handleFirstClick(Level level, Player player, BlockPos clickedPos,
+                                              RedstoneChainEntity chain, ItemStack stack) {
+        // Check if chain already has max connections
+        if (chain.getConnections().size() >= MAX_CONNECTIONS_PER_CHAIN) {
+            showMaxConnectionsError(level, player);
+            return InteractionResult.FAIL;
+        }
+
+        // Save position to item (server-side only)
+        if (!level.isClientSide) {
+            savePositionToItem(stack, clickedPos);
+            showSavedMessage(player, clickedPos);
+        }
+
+        return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Handles the second click: creates connection between saved position and clicked position.
+     */
+    private InteractionResult handleSecondClick(Level level, Player player, BlockPos clickedPos,
+                                               RedstoneChainEntity chain, ItemStack stack,
+                                               CompoundTag savedData) {
+        // Read saved position
+        BlockPos startPos = readPositionFromTag(savedData);
+
+        // Clear the saved position from item
+        clearSavedPosition(stack);
+
+        // Validate connection
+        ConnectionValidation validation = validateConnection(level, player, startPos, clickedPos, chain);
+        if (!validation.isValid()) {
+            return InteractionResult.FAIL;
+        }
+
+        // Create the connection (server-side only)
+        if (!level.isClientSide) {
+            createBidirectionalConnection(level, player, startPos, clickedPos, chain, stack);
+        }
+
+        return InteractionResult.SUCCESS;
+    }
+
+    /**
+     * Reads a BlockPos from NBT tag.
+     */
+    private BlockPos readPositionFromTag(CompoundTag tag) {
+        return new BlockPos(
+                tag.getInt("LinkX"),
+                tag.getInt("LinkY"),
+                tag.getInt("LinkZ")
+        );
+    }
+
+    /**
+     * Saves a position to the item's data component.
+     */
+    private void savePositionToItem(ItemStack stack, BlockPos pos) {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt("LinkX", pos.getX());
+        tag.putInt("LinkY", pos.getY());
+        tag.putInt("LinkZ", pos.getZ());
+        stack.set(MinecraftPlayground.LINK_DATA, tag);
+    }
+
+    /**
+     * Clears the saved position from the item.
+     */
+    private void clearSavedPosition(ItemStack stack) {
+        stack.set(MinecraftPlayground.LINK_DATA, null);
+    }
+
+    /**
+     * Validates that a connection can be created between two positions.
+     */
+    private ConnectionValidation validateConnection(Level level, Player player,
+                                                    BlockPos startPos, BlockPos clickedPos,
+                                                    RedstoneChainEntity targetChain) {
+        // Can't connect to self
+        if (startPos.equals(clickedPos)) {
+            return ConnectionValidation.invalid();
+        }
+
+        // Check distance
+        double distanceSq = startPos.distSqr(clickedPos);
+        double maxDistSq = MAX_CONNECTION_DISTANCE * MAX_CONNECTION_DISTANCE;
+        if (distanceSq > maxDistSq) {
+            if (!level.isClientSide) {
+                showDistanceError(player, distanceSq);
+            }
+            return ConnectionValidation.invalid();
+        }
+
+        // Check if target has max connections
+        if (targetChain.getConnections().size() >= MAX_CONNECTIONS_PER_CHAIN) {
+            showMaxConnectionsError(level, player);
+            return ConnectionValidation.invalid();
+        }
+
+        return ConnectionValidation.valid(distanceSq);
+    }
+
+    /**
+     * Creates bidirectional cable connection between two chain blocks.
+     */
+    private void createBidirectionalConnection(Level level, Player player,
+                                              BlockPos startPos, BlockPos endPos,
+                                              RedstoneChainEntity endChain, ItemStack stack) {
+        // Get the starting chain's block entity
+        BlockEntity startBe = level.getBlockEntity(startPos);
+        if (!(startBe instanceof RedstoneChainEntity startChain)) {
+            return;
+        }
+
+        // Create connections in both directions
+        startChain.addConnection(endPos);
+        startChain.setChanged();
+        level.sendBlockUpdated(startPos, startChain.getBlockState(), startChain.getBlockState(), 3);
+
+        endChain.addConnection(startPos);
+        endChain.setChanged();
+        level.sendBlockUpdated(endPos, endChain.getBlockState(), endChain.getBlockState(), 3);
+
+        // Show success message
+        double distance = Math.sqrt(startPos.distSqr(endPos));
+        showConnectionSuccessMessage(player, startPos, endPos, (int) distance);
+
+        // Consume one connector item (unless in creative mode)
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
+    }
+
+    // ===== User Feedback Messages =====
+
+    private void showMaxConnectionsError(Level level, Player player) {
+        if (!level.isClientSide) {
             player.displayClientMessage(
                     Component.translatable("item.minecraftplayground.chain_connector.max_connections")
                             .withStyle(ChatFormatting.RED),
                     true
             );
-            return InteractionResult.FAIL;
+        }
+    }
+
+    private void showDistanceError(Player player, double distanceSq) {
+        int actualDistance = (int) Math.sqrt(distanceSq);
+        player.displayClientMessage(
+                Component.translatable("item.minecraftplayground.chain_connector.too_far",
+                        MAX_CONNECTION_DISTANCE, actualDistance)
+                        .withStyle(ChatFormatting.RED),
+                true
+        );
+    }
+
+    private void showSavedMessage(Player player, BlockPos pos) {
+        player.displayClientMessage(
+                Component.translatable("item.minecraftplayground.chain_connector.saved",
+                        formatBlockPos(pos))
+                        .withStyle(ChatFormatting.AQUA),
+                true
+        );
+    }
+
+    private void showConnectionSuccessMessage(Player player, BlockPos start, BlockPos end, int distance) {
+        player.displayClientMessage(
+                Component.translatable("item.minecraftplayground.chain_connector.connected",
+                        formatBlockPos(start), formatBlockPos(end), distance)
+                        .withStyle(ChatFormatting.GREEN),
+                true
+        );
+    }
+
+    /**
+     * Simple validation result holder.
+     */
+    private record ConnectionValidation(boolean isValid, double distance) {
+        static ConnectionValidation valid(double distance) {
+            return new ConnectionValidation(true, distance);
         }
 
-        if (tag.contains("LinkX")) {
-            BlockPos startPos = new BlockPos(tag.getInt("LinkX"), tag.getInt("LinkY"), tag.getInt("LinkZ"));
-
-            // Clear the saved position
-            CompoundTag newTag = new CompoundTag();
-            stack.set(MinecraftPlayground.LINK_DATA, null);
-
-            if (!startPos.equals(clickedPos)) {
-                double distanceSq = startPos.distSqr(clickedPos);
-                if (distanceSq > MAX_CONNECTION_DISTANCE * MAX_CONNECTION_DISTANCE) {
-                    if (!level.isClientSide) {
-                        player.displayClientMessage(
-                                Component.translatable("item.minecraftplayground.chain_connector.too_far",
-                                        MAX_CONNECTION_DISTANCE, (int) Math.sqrt(distanceSq))
-                                        .withStyle(ChatFormatting.RED),
-                                true
-                        );
-                    }
-                    return InteractionResult.FAIL;
-                }
-
-                BlockEntity startBe = level.getBlockEntity(startPos);
-                if (startBe instanceof RedstoneChainEntity startChain) {
-                    if (!level.isClientSide) {
-                        // Create bidirectional connection
-                        startChain.addConnection(clickedPos);
-                        startChain.setChanged();
-                        level.sendBlockUpdated(startPos, startChain.getBlockState(), startChain.getBlockState(), 3);
-
-                        chain.addConnection(startPos);
-                        chain.setChanged();
-                        level.sendBlockUpdated(clickedPos, chain.getBlockState(), chain.getBlockState(), 3);
-
-                        player.displayClientMessage(
-                                Component.translatable("item.minecraftplayground.chain_connector.connected",
-                                        formatBlockPos(startPos), formatBlockPos(clickedPos),
-                                        (int) Math.sqrt(distanceSq))
-                                        .withStyle(ChatFormatting.GREEN),
-                                true
-                        );
-
-                        // Consume one connector item
-                        if (!player.getAbilities().instabuild) {
-                            stack.shrink(1);
-                        }
-                    }
-                    return InteractionResult.SUCCESS;
-                }
-            }
-        } else {
-            // Check if this chain already has max connections
-            if (chain.getConnections().size() >= MAX_CONNECTIONS_PER_CHAIN) {
-                if (!level.isClientSide) {
-                    player.displayClientMessage(
-                            Component.translatable("item.minecraftplayground.chain_connector.max_connections")
-                                    .withStyle(ChatFormatting.RED),
-                            true
-                    );
-                }
-                return InteractionResult.FAIL;
-            }
-
-            // Save the first position
-            if (!level.isClientSide) {
-                CompoundTag newTag = new CompoundTag();
-                newTag.putInt("LinkX", clickedPos.getX());
-                newTag.putInt("LinkY", clickedPos.getY());
-                newTag.putInt("LinkZ", clickedPos.getZ());
-                stack.set(MinecraftPlayground.LINK_DATA, newTag);
-
-                player.displayClientMessage(
-                        Component.translatable("item.minecraftplayground.chain_connector.saved",
-                                formatBlockPos(clickedPos))
-                                .withStyle(ChatFormatting.AQUA),
-                        true
-                );
-            }
-            return InteractionResult.SUCCESS;
+        static ConnectionValidation invalid() {
+            return new ConnectionValidation(false, 0);
         }
-
-        return InteractionResult.FAIL;
     }
 
     private static Component formatBlockPos(BlockPos pos) {

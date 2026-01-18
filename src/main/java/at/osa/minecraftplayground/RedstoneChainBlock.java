@@ -27,13 +27,30 @@ import java.util.Set;
 
 /**
  * A redstone chain block that can transmit redstone signals.
- * Supports both adjacent block connections (traditional) and long-range wire connections via RedstoneChainEntity.
+ * <p>
+ * Supports two types of connections:
+ * 1. Traditional adjacent connections (touching blocks)
+ * 2. Long-range cable connections via RedstoneChainEntity (up to 24 blocks)
+ * <p>
+ * Power transmission:
+ * - POWER property stores signal strength (0-15, like vanilla redstone)
+ * - Acts like redstone wire (indirect power only, no direct power)
+ * - Comparators can read the power level
  */
 @SuppressWarnings("UnnecessaryLocalVariable")
 public class RedstoneChainBlock extends Block implements EntityBlock {
+
+    /**
+     * Block state property storing redstone power level (0-15).
+     * 0 = unpowered, 15 = maximum power.
+     */
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
-    // Small voxel shape for the chain block (like a chain segment)
+    /**
+     * Visual and collision shape of the block.
+     * A thin vertical pole (3x16x3 pixels) instead of a full cube.
+     * Coordinates: (6.5, 0, 6.5) to (9.5, 16, 9.5)
+     */
     private static final VoxelShape SHAPE = Block.box(6.5, 0, 6.5, 9.5, 16, 9.5);
 
     /**
@@ -299,16 +316,16 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
      * that are touching each other (sharing a face). This is used for traditional adjacent
      * connections, not wire connections.
      * <p>
-     * How it works:
+     * How the BFS algorithm works:
      * 1. Create an empty Set to track found blocks (prevents duplicates)
      * 2. Create a Queue with the starting position
      * 3. While there are positions to check:
-     * a. Take a position from the queue
-     * b. Skip if we've already processed it
-     * c. Skip if it's not a RedstoneChainBlock
-     * d. Add it to our network set
-     * e. Check all 6 adjacent positions (up, down, north, south, east, west)
-     * f. Add those positions to the queue for checking
+     *    a. Take a position from the queue
+     *    b. Skip if we've already processed it
+     *    c. Skip if it's not a RedstoneChainBlock
+     *    d. Add it to our network set
+     *    e. Check all 6 adjacent positions (up, down, north, south, east, west)
+     *    f. Add those positions to the queue for checking
      * 4. Return the set of all connected chain blocks
      * <p>
      * This creates networks of touching chain blocks that will all share the same power level.
@@ -318,17 +335,25 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
      * @return A Set of all BlockPos that are part of this connected network
      */
     private Set<BlockPos> findNetwork(Level level, BlockPos start) {
-        Set<BlockPos> network = new HashSet<>();
-        Queue<BlockPos> queue = new LinkedList<>();
+        Set<BlockPos> network = new HashSet<>();  // Visited blocks
+        Queue<BlockPos> queue = new LinkedList<>(); // Blocks to check
         queue.add(start);
 
         while (!queue.isEmpty()) {
-            BlockPos p = queue.poll();
-            if (network.contains(p)) continue;
-            if (!(level.getBlockState(p).getBlock() instanceof RedstoneChainBlock)) continue;
-            network.add(p);
-            for (Direction d : Direction.values()) {
-                queue.add(p.relative(d));
+            BlockPos current = queue.poll();
+
+            // Skip if already visited
+            if (network.contains(current)) continue;
+
+            // Skip if not a chain block
+            if (!(level.getBlockState(current).getBlock() instanceof RedstoneChainBlock)) continue;
+
+            // Add to network
+            network.add(current);
+
+            // Add all neighbors to queue
+            for (Direction dir : Direction.values()) {
+                queue.add(current.relative(dir));
             }
         }
         return network;
