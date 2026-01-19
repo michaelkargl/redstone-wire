@@ -23,17 +23,17 @@ import org.joml.Matrix4f;
 public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainEntity> {
 
     // Rendering configuration constants
-    private static final int CABLE_SEGMENTS = 10;          // Number of segments to divide cable into (more = smoother curve)
-    private static final float CABLE_THICKNESS = 0.03F;    // Thickness of cable in blocks (0.03 = ~2 pixels)
-    private static final double CABLE_SAG_AMOUNT = -0.4;   // How much the cable sags downward at the middle
-    private static final int MAX_RENDER_DISTANCE = 128;    // Maximum distance to render cables (in blocks)
+    private static final int CABLE_SEGMENTS = Config.CABLE_SEGMENTS.getAsInt();
+    private static final double CABLE_THICKNESS = Config.CABLE_THICKNESS_IN_BLOCKS.getAsDouble();
+    private static final double CABLE_SAG_AMOUNT = Config.CABLE_SAG_AMOUNT.getAsDouble();
+    private static final int MAX_RENDER_DISTANCE = Config.MAX_RENDER_DISTANCE.getAsInt();
 
     // Color configuration for powered/unpowered cables
-    private static final float UNPOWERED_RED = 0.3f;      // Dark red when unpowered
-    private static final float POWERED_RED_BASE = 0.9f;   // Base red when powered
-    private static final float POWERED_RED_BONUS = 0.1f;  // Extra red based on power level
-    private static final float GREEN_VALUE = 0.0f;        // No green component
-    private static final float BLUE_VALUE = 0.0f;         // No blue component
+    private static final double UNPOWERED_RED = Config.UNPOWERED_RED.getAsDouble();
+    private static final double POWERED_RED_BASE = Config.POWERED_RED_BASE.getAsDouble();
+    private static final double POWERED_RED_BONUS = Config.POWERED_RED_BONUS.getAsDouble();
+    private static final double GREEN_VALUE = Config.GREEN_VALUE.getAsDouble();
+    private static final double BLUE_VALUE = Config.BLUE_VALUE.getAsDouble();
 
     /**
      * Defines how the cable should be rendered.
@@ -96,8 +96,8 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Renders a single cable from this block to a connected block.
      */
     private void renderCableToConnection(BlockPos from, BlockPos to, int power,
-                                        PoseStack stack, MultiBufferSource buffer,
-                                        int packedLight, int packedOverlay) {
+                                         PoseStack stack, MultiBufferSource buffer,
+                                         int packedLight, int packedOverlay) {
         // Start point is center of this block (in local coordinates)
         Vec3 start = new Vec3(0.5, 0.5, 0.5);
 
@@ -143,8 +143,10 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Each segment connects two points along the curved path.
      */
     private static void renderCableSegment(VertexConsumer builder, Matrix4f matrix, Matrix3f normal,
-                                          Vec3 from, Vec3 to, int segmentIndex,
-                                          int light, int overlay, CableColor color) {
+                                           Vec3 from, Vec3 to, int segmentIndex,
+                                           int light, int overlay, CableColor color) {
+
+
         // Calculate start and end parameters (0.0 to 1.0 along the cable)
         float t1 = segmentIndex / (float) CABLE_SEGMENTS;
         float t2 = (segmentIndex + 1) / (float) CABLE_SEGMENTS;
@@ -155,7 +157,7 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
 
         // Draw this segment as a 3D rectangular tube
         drawThickSegment(builder, matrix, normal, p1, p2, CABLE_THICKNESS,
-                        light, overlay, color.red, color.green, color.blue);
+                light, overlay, color.red, color.green, color.blue);
     }
 
     /**
@@ -163,7 +165,7 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Unpowered cables are dark red, powered cables are bright red.
      */
     private static CableColor calculateCableColor(int power) {
-        float red;
+        double red;
         if (power > 0) {
             // Powered: bright red (0.9 to 1.0 based on power level)
             red = POWERED_RED_BASE + (power / 15.0f) * POWERED_RED_BONUS;
@@ -177,15 +179,16 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
     /**
      * Simple data class to hold RGB color values.
      */
-    private record CableColor(float red, float green, float blue) {}
+    private record CableColor(double red, double green, double blue) {
+    }
 
     /**
      * Interpolates a point along a curved path between two endpoints.
      * Creates a realistic sagging effect like a hanging cable.
      *
      * @param from Starting point
-     * @param to Ending point
-     * @param t Parameter from 0.0 (start) to 1.0 (end)
+     * @param to   Ending point
+     * @param t    Parameter from 0.0 (start) to 1.0 (end)
      * @return Point along the curved path
      */
     private static Vec3 interpolateCurved(Vec3 from, Vec3 to, float t) {
@@ -218,21 +221,21 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Draws a cable segment as a 3D rectangular tube.
      * The tube is rendered with double-sided faces so it's visible from all angles.
      *
-     * @param builder Vertex consumer to add geometry to
-     * @param matrix Transformation matrix for positioning
-     * @param normal Normal matrix for lighting
-     * @param p1 Start point of segment
-     * @param p2 End point of segment
+     * @param builder   Vertex consumer to add geometry to
+     * @param matrix    Transformation matrix for positioning
+     * @param normal    Normal matrix for lighting
+     * @param p1        Start point of segment
+     * @param p2        End point of segment
      * @param thickness Thickness of the tube in blocks
-     * @param light Packed light value (from Minecraft's lighting system)
-     * @param overlay Packed overlay value (for damage/hurt effects)
-     * @param r Red color component (0.0 - 1.0)
-     * @param g Green color component (0.0 - 1.0)
-     * @param b Blue color component (0.0 - 1.0)
+     * @param light     Packed light value (from Minecraft's lighting system)
+     * @param overlay   Packed overlay value (for damage/hurt effects)
+     * @param r         Red color component (0.0 - 1.0)
+     * @param g         Green color component (0.0 - 1.0)
+     * @param b         Blue color component (0.0 - 1.0)
      */
     private static void drawThickSegment(VertexConsumer builder, Matrix4f matrix, Matrix3f normal,
-                                         Vec3 p1, Vec3 p2, float thickness, int light, int overlay,
-                                         float r, float g, float b) {
+                                         Vec3 p1, Vec3 p2, double thickness, int light, int overlay,
+                                         double r, double g, double b) {
         // Step 1: Calculate orientation vectors for the tube
         TubeOrientation orientation = calculateTubeOrientation(p1, p2, thickness);
 
@@ -247,7 +250,7 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Calculates the orientation vectors needed to construct a tube.
      * Uses cross products to create a coordinate system aligned with the tube direction.
      */
-    private static TubeOrientation calculateTubeOrientation(Vec3 p1, Vec3 p2, float thickness) {
+    private static TubeOrientation calculateTubeOrientation(Vec3 p1, Vec3 p2, double thickness) {
         // Direction vector from p1 to p2
         Vec3 dir = p2.subtract(p1).normalize();
 
@@ -268,7 +271,8 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
     /**
      * Data class holding orientation vectors for tube construction.
      */
-    private record TubeOrientation(Vec3 right, Vec3 forward) {}
+    private record TubeOrientation(Vec3 right, Vec3 forward) {
+    }
 
     /**
      * Creates 8 corner vertices for a rectangular tube.
@@ -299,7 +303,7 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Each face is rendered double-sided (front and back) for visibility from all angles.
      */
     private static void renderTubeFaces(VertexConsumer builder, Matrix4f matrix, Matrix3f normal,
-                                       Vec3[] corners, int light, int overlay, float r, float g, float b) {
+                                        Vec3[] corners, int light, int overlay, double r, double g, double b) {
         // Define the 6 faces of the rectangular tube
         // Each face is defined by 4 corner indices in counter-clockwise order (when viewed from outside)
         int[][] faces = {
@@ -324,8 +328,8 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * @param face Array of 4 corner indices defining the quad
      */
     private static void renderDoubleSidedQuad(VertexConsumer builder, Matrix4f matrix,
-                                             Vec3[] corners, int[] face,
-                                             int light, int overlay, float r, float g, float b) {
+                                              Vec3[] corners, int[] face,
+                                              int light, int overlay, double r, double g, double b) {
         // Calculate normal vector for this face (perpendicular to surface)
         Vec3 normalVec = calculateFaceNormal(corners, face);
 
@@ -359,9 +363,9 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * @param reversed If true, reverses winding order and inverts normal (for back face)
      */
     private static void renderQuadSide(VertexConsumer builder, Matrix4f matrix,
-                                      Vec3[] corners, int[] face, Vec3 normalVec,
-                                      int light, int overlay, float r, float g, float b,
-                                      boolean reversed) {
+                                       Vec3[] corners, int[] face, Vec3 normalVec,
+                                       int light, int overlay, double r, double g, double b,
+                                       boolean reversed) {
         // Choose normal direction based on which side we're rendering
         float nx = (float) (reversed ? -normalVec.x : normalVec.x);
         float ny = (float) (reversed ? -normalVec.y : normalVec.y);
@@ -382,9 +386,9 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Adds a single triangle (3 vertices) to the vertex builder.
      */
     private static void addTriangle(VertexConsumer builder, Matrix4f matrix, Vec3[] corners,
-                                   int i0, int i1, int i2,
-                                   float nx, float ny, float nz,
-                                   int light, int overlay, float r, float g, float b) {
+                                    int i0, int i1, int i2,
+                                    float nx, float ny, float nz,
+                                    int light, int overlay, double r, double g, double b) {
         // Add first vertex
         addVertex(builder, matrix, corners[i0], nx, ny, nz, light, overlay, r, g, b);
         // Add second vertex
@@ -397,10 +401,10 @@ public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainE
      * Adds a single vertex to the builder with all required attributes.
      */
     private static void addVertex(VertexConsumer builder, Matrix4f matrix, Vec3 pos,
-                                 float nx, float ny, float nz,
-                                 int light, int overlay, float r, float g, float b) {
+                                  float nx, float ny, float nz,
+                                  int light, int overlay, double r, double g, double b) {
         builder.addVertex(matrix, (float) pos.x, (float) pos.y, (float) pos.z)
-                .setColor(r, g, b, 1f)           // RGBA color (alpha=1.0 = fully opaque)
+                .setColor((float) r, (float) g, (float) b, 1f)           // RGBA color (alpha=1.0 = fully opaque)
                 .setUv(0, 0)                     // Texture coordinates (not used for solid color)
                 .setOverlay(overlay)              // Overlay for damage/hurt effects
                 .setLight(light)                  // Lighting from Minecraft's lighting system

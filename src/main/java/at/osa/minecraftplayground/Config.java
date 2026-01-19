@@ -1,15 +1,9 @@
 package at.osa.minecraftplayground;
 
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 // An example config class. This is not required, but it's a good idea to have one to keep your config organized.
@@ -49,6 +43,43 @@ public class Config {
     public static final ModConfigSpec.ConfigValue<List<? extends String>> ITEM_STRINGS = BUILDER
             .comment("A list of items to log on common setup.")
             .defineListAllowEmpty("items", List.of("minecraft:iron_ingot"), () -> "", Config::validateItemName);
+
+    // Rendering configuration constants
+
+    public static final ModConfigSpec.IntValue CABLE_SEGMENTS = BUILDER
+            .comment("Number of segments to divide cable into (more = smoother curve)")
+            .defineInRange("cableSegments", 8, 1, 100);
+
+    public static final ModConfigSpec.DoubleValue CABLE_THICKNESS_IN_BLOCKS = BUILDER
+            .comment("Thickness of cable in blocks (0.03 = ~2 pixels)")
+            .defineInRange("cableThicknessPixels", 0.03, 0, 0.1);
+
+    public static final ModConfigSpec.DoubleValue CABLE_SAG_AMOUNT = BUILDER
+            .comment("Amount of sag at the middle of the cable (0.0 = no sag, -1.0 = full sag)")
+            .defineInRange("cableSagAmount", -1.0, -1.0, 0);
+
+    public static final ModConfigSpec.IntValue MAX_RENDER_DISTANCE = BUILDER
+            .comment("Maximum distance to render cables (in blocks)")
+            .defineInRange("maxRenderDistance", 128, 1, 512);
+
+    // Color configuration for powered/unpowered cables
+
+    public static final ModConfigSpec.DoubleValue UNPOWERED_RED = BUILDER
+            .comment("Red component for unpowered cables (0.0 = no red, 1.0 = full red)")
+            .defineInRange("unpoweredRed", 0.3, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue POWERED_RED_BASE = BUILDER
+            .comment("Base red component for powered cables (0.0 = no red, 1.0 = full red)")
+            .defineInRange("poweredRedBase", 0.6, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue POWERED_RED_BONUS = BUILDER
+            .comment("Additional red component for powered cables based on power level (0.0 = no extra red, 1.0 = full extra red)")
+            .defineInRange("poweredRedBonus", 0.3, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue GREEN_VALUE = BUILDER
+            .comment("Green component for cables (0.0 = no green, 1.0 = full green)")
+            .defineInRange("greenValue", 0.0, 0.0, 1.0);
+    public static final ModConfigSpec.DoubleValue BLUE_VALUE = BUILDER
+            .comment("Blue component for cables (0.0 = no blue, 1.0 = full blue)")
+            .defineInRange("blueValue", 0.0, 0.0, 1.0);
+
 
     static final ModConfigSpec SPEC = BUILDER.build();
 

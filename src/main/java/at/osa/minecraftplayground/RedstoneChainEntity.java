@@ -94,7 +94,7 @@ public class RedstoneChainEntity extends BlockEntity {
      * Returns the list of positions this chain block is connected to.
      * <p>
      * This list contains the BlockPos of other RedstoneChainBlocks that this one is
-     * connected to via visible cables. The list can contain 0-3 connections.
+     * connected to via visible cables.
      * <p>
      * This is primarily used by:
      * - The renderer to draw cables between connected blocks
