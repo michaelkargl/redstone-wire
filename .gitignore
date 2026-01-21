@@ -24,3 +24,9 @@ runs
 run-data
 
 repo
+
+# Ignore macOS metadata files
+._*
+.DS_Store
+.AppleDouble
+.LSOverride
