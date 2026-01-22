@@ -51,14 +51,9 @@ public class SimpleGameTests {
 
 
         var leverBlockState = helper.getBlockState(leverBlockPosition);
-          if (leverBlockState.getBlock() instanceof LeverBlock leverBlock) {
+        if (leverBlockState.getBlock() instanceof LeverBlock leverBlock) {
             // run the lever action at tick 1
-            helper.runAtTickTime(1, () -> {
-                var absolutePos = helper.absolutePos(leverBlockPosition);
-                var currentState = helper.getBlockState(leverBlockPosition);
-                // triggers block state change (typically on the next game tick, not immediately)
-                leverBlock.pull(currentState, helper.getLevel(), absolutePos, null);
-            });
+            helper.runAtTickTime(1, () -> pullLever(helper, leverBlockPosition));
 
             // Schedule assertions after the lever action completes
             helper.runAtTickTime(2, () -> {
@@ -71,6 +66,19 @@ public class SimpleGameTests {
         } else {
             helper.fail("Block at lever position is not a lever");
         }
+    }
+
+    private static void pullLever(GameTestHelper helper, BlockPos relativePosition) {
+        var absolutePos = helper.absolutePos(relativePosition);
+        var currentState = helper.getBlockState(relativePosition);
+
+        var block = currentState.getBlock();
+        if (!(block instanceof LeverBlock leverBlock)) {
+            throw new IllegalStateException(String.format(String.format("Block at lever position %s is not a lever but a %s", relativePosition, block.getName())));
+        }
+
+        // triggers block state change (typically on the next game tick, not immediately)
+        leverBlock.pull(currentState, helper.getLevel(), absolutePos, null);
     }
 
     private static void assertLeverIsPowered(GameTestHelper helper, BlockState leverBlockState) {
