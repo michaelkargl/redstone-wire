@@ -23,27 +23,21 @@ import java.util.List;
  * Usage:
  * 1. Right-click on first chain block → Saves position to item
  * 2. Right-click on second chain block → Creates bidirectional cable connection
- * 3. Shift-right-click in air → Clears saved position
+ * 3. right-click in air → Clears saved position
  * <p>
  * The item stores the first clicked position in its NBT data (LINK_DATA component).
  */
 public class RedstoneChainConnector extends Item {
-
-    // ===== Configuration Constants =====
-    /**
-     * Maximum distance (in blocks) allowed between two connected chain blocks.
-     * Connections beyond this distance will be rejected.
-     */
-    private static final int MAX_CONNECTION_DISTANCE = 20;
-
-    /**
-     * Maximum number of cable connections allowed per chain block.
-     * Prevents visual clutter and performance issues.
-     */
-    private static final int MAX_CONNECTIONS_PER_CHAIN = 5;
-
     public RedstoneChainConnector(Properties properties) {
         super(properties);
+    }
+
+    private static int getMaxConnectionDistance() {
+        return Config.MAX_CONNECTION_DISTANCE.getAsInt();
+    }
+
+    private static int getMaxConnectionsPerChain() {
+        return Config.MAX_CONNECTIONS_PER_CHAIN.getAsInt();
     }
 
     @Override
@@ -122,7 +116,7 @@ public class RedstoneChainConnector extends Item {
     private InteractionResult handleFirstClick(Level level, Player player, BlockPos clickedPos,
                                               RedstoneChainEntity chain, ItemStack stack) {
         // Check if chain already has max connections
-        if (chain.getConnections().size() >= MAX_CONNECTIONS_PER_CHAIN) {
+        if (chain.getConnections().size() >= getMaxConnectionsPerChain()) {
             showMaxConnectionsError(level, player);
             return InteractionResult.FAIL;
         }
@@ -204,7 +198,8 @@ public class RedstoneChainConnector extends Item {
 
         // Check distance
         double distanceSq = startPos.distSqr(clickedPos);
-        double maxDistSq = MAX_CONNECTION_DISTANCE * MAX_CONNECTION_DISTANCE;
+        double maxDist = getMaxConnectionDistance();
+        double maxDistSq = maxDist * maxDist;
         if (distanceSq > maxDistSq) {
             if (!level.isClientSide) {
                 showDistanceError(player, distanceSq);
@@ -213,7 +208,7 @@ public class RedstoneChainConnector extends Item {
         }
 
         // Check if target has max connections
-        if (targetChain.getConnections().size() >= MAX_CONNECTIONS_PER_CHAIN) {
+        if (targetChain.getConnections().size() >= getMaxConnectionsPerChain()) {
             showMaxConnectionsError(level, player);
             return ConnectionValidation.invalid();
         }
@@ -268,7 +263,7 @@ public class RedstoneChainConnector extends Item {
         int actualDistance = (int) Math.sqrt(distanceSq);
         player.displayClientMessage(
                 Component.translatable("item.minecraftplayground.chain_connector.too_far",
-                        MAX_CONNECTION_DISTANCE, actualDistance)
+                        getMaxConnectionDistance(), actualDistance)
                         .withStyle(ChatFormatting.RED),
                 true
         );
