@@ -21,8 +21,8 @@ import java.util.List;
  * Item used to connect RedstoneChainBlocks together with visible cables.
  * <p>
  * Usage:
- * 1. Shift-click on first chain block → Saves position to item
- * 2. Shift-click on second chain block → Creates bidirectional cable connection
+ * 1. Right-click on first chain block → Saves position to item
+ * 2. Right-click on second chain block → Creates bidirectional cable connection
  * 3. Shift-right-click in air → Clears saved position
  * <p>
  * The item stores the first clicked position in its NBT data (LINK_DATA component).
@@ -85,16 +85,12 @@ public class RedstoneChainConnector extends Item {
         BlockEntity be = level.getBlockEntity(clickedPos);
         if (!(be instanceof RedstoneChainEntity chain)) return InteractionResult.PASS;
 
-        // Check for Ctrl+click to clear all connections on this block
-        if (player.isCrouching()) {
-            return handleShiftClick(level, player, clickedPos, chain, stack);
-        }
-
-        return InteractionResult.PASS;
+        // Handle cable connections
+        return handleShiftClick(level, player, clickedPos, chain, stack);
     }
 
     /**
-     * Handles shift-clicking on a chain block with the connector item.
+     * Handles clicking on a chain block with the connector item.
      * <p>
      * Two-step process:
      * 1. First click: Saves the block position to the item
