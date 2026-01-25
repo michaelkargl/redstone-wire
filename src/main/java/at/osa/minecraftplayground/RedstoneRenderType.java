@@ -18,7 +18,7 @@ public class RedstoneRenderType {
      * - Disables culling so cables are visible from all angles
      * - Enables lighting and overlays for proper integration with Minecraft's lighting
      */
-    public static final RenderType CABLE = RenderType.create(
+    public static final RenderType CABLE_RENDERTYPE = RenderType.create(
             "redstone_cable_render",
             DefaultVertexFormat.NEW_ENTITY,
             VertexFormat.Mode.TRIANGLES,

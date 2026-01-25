@@ -32,55 +32,41 @@ public class RedstoneChainConnector extends Item {
         super(properties);
     }
 
-    private static int getMaxConnectionDistance() {
-        return Config.MAX_CONNECTION_DISTANCE.getAsInt();
-    }
-
-    private static int getMaxConnectionsPerChain() {
-        return Config.MAX_CONNECTIONS_PER_CHAIN.getAsInt();
-    }
-
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (!level.isClientSide) {
+            CompoundTag tag = stack.getOrDefault(MinecraftPlayground.LINK_DATA, new CompoundTag());
+            if (tag.contains("LinkX")) {
+                CompoundTag newTag = tag.copy();
+                newTag.remove("LinkX");
+                newTag.remove("LinkY");
+                newTag.remove("LinkZ");
+                stack.set(MinecraftPlayground.LINK_DATA, newTag.isEmpty() ? null : newTag);
 
-        if (player.isShiftKeyDown()) {
-            if (!level.isClientSide) {
-                CompoundTag tag = stack.getOrDefault(MinecraftPlayground.LINK_DATA, new CompoundTag());
-                if (tag.contains("LinkX")) {
-                    CompoundTag newTag = tag.copy();
-                    newTag.remove("LinkX");
-                    newTag.remove("LinkY");
-                    newTag.remove("LinkZ");
-                    stack.set(MinecraftPlayground.LINK_DATA, newTag.isEmpty() ? null : newTag);
-
-                    player.displayClientMessage(
-                            Component.translatable("item.minecraftplayground.chain_connector.cleared")
-                                    .withStyle(ChatFormatting.YELLOW),
-                            true
-                    );
-                }
+                player.displayClientMessage(
+                        Component.translatable("item.minecraftplayground.chain_connector.cleared")
+                                .withStyle(ChatFormatting.YELLOW),
+                        true
+                );
             }
-            return InteractionResultHolder.success(stack);
         }
-
-        return InteractionResultHolder.pass(stack);
+        return InteractionResultHolder.success(stack);
     }
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        Level level = context.getLevel();
-        BlockPos clickedPos = context.getClickedPos();
         Player player = context.getPlayer();
-        ItemStack stack = context.getItemInHand();
-
         if (player == null) return InteractionResult.PASS;
 
+        Level level = context.getLevel();
+        BlockPos clickedPos = context.getClickedPos();
         BlockEntity be = level.getBlockEntity(clickedPos);
         if (!(be instanceof RedstoneChainEntity chain)) return InteractionResult.PASS;
 
         // Handle cable connections
-        return handleShiftClick(level, player, clickedPos, chain, stack);
+        ItemStack stack = context.getItemInHand();
+        return handleClick(level, player, clickedPos, chain, stack);
     }
 
     /**
@@ -90,8 +76,9 @@ public class RedstoneChainConnector extends Item {
      * 1. First click: Saves the block position to the item
      * 2. Second click: Creates connection between saved position and clicked position
      */
-    private InteractionResult handleShiftClick(Level level, Player player, BlockPos clickedPos,
-                                              RedstoneChainEntity chain, ItemStack stack) {
+    private InteractionResult handleClick
+    (Level level, Player player, BlockPos clickedPos,
+                                               RedstoneChainEntity chain, ItemStack stack) {
         // Get saved position data from item (if any)
         CompoundTag savedData = stack.getOrDefault(MinecraftPlayground.LINK_DATA, new CompoundTag());
 
@@ -114,9 +101,9 @@ public class RedstoneChainConnector extends Item {
      * Handles the first click: saves the block position to the item.
      */
     private InteractionResult handleFirstClick(Level level, Player player, BlockPos clickedPos,
-                                              RedstoneChainEntity chain, ItemStack stack) {
+                                               RedstoneChainEntity chain, ItemStack stack) {
         // Check if chain already has max connections
-        if (chain.getConnections().size() >= getMaxConnectionsPerChain()) {
+        if (chain.getConnections().size() >= Config.getMaxConnectionsPerChain()) {
             showMaxConnectionsError(level, player);
             return InteractionResult.FAIL;
         }
@@ -134,8 +121,8 @@ public class RedstoneChainConnector extends Item {
      * Handles the second click: creates connection between saved position and clicked position.
      */
     private InteractionResult handleSecondClick(Level level, Player player, BlockPos clickedPos,
-                                               RedstoneChainEntity chain, ItemStack stack,
-                                               CompoundTag savedData) {
+                                                RedstoneChainEntity chain, ItemStack stack,
+                                                CompoundTag savedData) {
         // Read saved position
         BlockPos startPos = readPositionFromTag(savedData);
 
@@ -198,7 +185,7 @@ public class RedstoneChainConnector extends Item {
 
         // Check distance
         double distanceSq = startPos.distSqr(clickedPos);
-        double maxDist = getMaxConnectionDistance();
+        double maxDist = Config.getMaxConnectionDistance();
         double maxDistSq = maxDist * maxDist;
         if (distanceSq > maxDistSq) {
             if (!level.isClientSide) {
@@ -208,7 +195,7 @@ public class RedstoneChainConnector extends Item {
         }
 
         // Check if target has max connections
-        if (targetChain.getConnections().size() >= getMaxConnectionsPerChain()) {
+        if (targetChain.getConnections().size() >= Config.getMaxConnectionsPerChain()) {
             showMaxConnectionsError(level, player);
             return ConnectionValidation.invalid();
         }
@@ -220,8 +207,8 @@ public class RedstoneChainConnector extends Item {
      * Creates bidirectional cable connection between two chain blocks.
      */
     private void createBidirectionalConnection(Level level, Player player,
-                                              BlockPos startPos, BlockPos endPos,
-                                              RedstoneChainEntity endChain, ItemStack stack) {
+                                               BlockPos startPos, BlockPos endPos,
+                                               RedstoneChainEntity endChain, ItemStack stack) {
         // Get the starting chain's block entity
         BlockEntity startBe = level.getBlockEntity(startPos);
         if (!(startBe instanceof RedstoneChainEntity startChain)) {
@@ -263,7 +250,7 @@ public class RedstoneChainConnector extends Item {
         int actualDistance = (int) Math.sqrt(distanceSq);
         player.displayClientMessage(
                 Component.translatable("item.minecraftplayground.chain_connector.too_far",
-                        getMaxConnectionDistance(), actualDistance)
+                                Config.getMaxConnectionDistance(), actualDistance)
                         .withStyle(ChatFormatting.RED),
                 true
         );
@@ -272,7 +259,7 @@ public class RedstoneChainConnector extends Item {
     private void showSavedMessage(Player player, BlockPos pos) {
         player.displayClientMessage(
                 Component.translatable("item.minecraftplayground.chain_connector.saved",
-                        formatBlockPos(pos))
+                                formatBlockPos(pos))
                         .withStyle(ChatFormatting.AQUA),
                 true
         );
@@ -281,7 +268,7 @@ public class RedstoneChainConnector extends Item {
     private void showConnectionSuccessMessage(Player player, BlockPos start, BlockPos end, int distance) {
         player.displayClientMessage(
                 Component.translatable("item.minecraftplayground.chain_connector.connected",
-                        formatBlockPos(start), formatBlockPos(end), distance)
+                                formatBlockPos(start), formatBlockPos(end), distance)
                         .withStyle(ChatFormatting.GREEN),
                 true
         );
@@ -306,32 +293,32 @@ public class RedstoneChainConnector extends Item {
 
     /**
      * Adds tooltip text that appears when the player hovers over this item in their inventory.
-     *
+     * <p>
      * Purpose: Shows the player helpful information about the connector's current state
-     *
+     * <p>
      * What happens inside:
      * 1. Retrieves the NBT data from the item stack (where saved position is stored)
      * 2. Checks if there's a saved position (LinkX exists in the data):
-     *
-     *    IF POSITION IS SAVED:
-     *    a. Reads the X, Y, Z coordinates from the NBT data
-     *    b. Creates a BlockPos from those coordinates
-     *    c. Adds a gray tooltip line showing the saved position in short format
-     *
-     *    IF NO POSITION IS SAVED:
-     *    a. Adds a dark gray tooltip line saying "No saved point"
-     *
+     * <p>
+     * IF POSITION IS SAVED:
+     * a. Reads the X, Y, Z coordinates from the NBT data
+     * b. Creates a BlockPos from those coordinates
+     * c. Adds a gray tooltip line showing the saved position in short format
+     * <p>
+     * IF NO POSITION IS SAVED:
+     * a. Adds a dark gray tooltip line saying "No saved point"
+     * <p>
      * 3. Always adds a usage instruction line at the end
-     *
+     * <p>
      * The tooltip helps players remember:
      * - Whether they've started a connection (first click done)
      * - Where the first point was located
      * - How to use the item
      *
-     * @param stack The item stack being hovered over
+     * @param stack   The item stack being hovered over
      * @param context Additional context (world, etc.) - usually not needed for simple tooltips
      * @param tooltip The list of tooltip lines to add to (method adds to this list)
-     * @param flag Flags indicating when to show the tooltip (normal vs advanced)
+     * @param flag    Flags indicating when to show the tooltip (normal vs advanced)
      */
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
