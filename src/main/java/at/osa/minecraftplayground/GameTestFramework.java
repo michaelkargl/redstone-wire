@@ -7,9 +7,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LeverBlock;
+import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -29,12 +30,26 @@ public class GameTestFramework {
         leverBlock.pull(currentState, helper.getLevel(), absolutePos, null);
     }
 
-    protected static void assertLeverIsPowered(GameTestHelper helper, BlockState leverBlockState) {
-        if (leverBlockState.getBlock() instanceof LeverBlock leverBlock) {
-            var isPowered = leverBlockState.getValue(LeverBlock.POWERED);
-            helper.assertTrue(isPowered.booleanValue(), "Lever is not powered");
+    protected static void assertLeverIsPowered(GameTestHelper helper, int x, int y, int z, boolean expected) {
+        assertLeverIsPowered(helper, new BlockPos(x, y, z), expected);
+    }
+
+    protected static void assertLeverIsPowered(GameTestHelper helper, BlockPos leverPosition, boolean expected) {
+        var blockState = helper.getBlockState(leverPosition);
+        assertLeverIsPowered(helper, blockState, expected);
+    }
+
+    protected static void assertLeverIsPowered(GameTestHelper helper, BlockState leverBlockState, boolean expected) {
+        var block = leverBlockState.getBlock();
+        if (!(block instanceof LeverBlock leverBlock)) {
+            helper.fail("Block at lever position is not a lever but a %s".formatted(block.getName()));
+        }
+
+        boolean isPowered = leverBlockState.getValue(LeverBlock.POWERED);
+        if (expected) {
+            helper.assertTrue(isPowered, "Lever is not powered");
         } else {
-            helper.fail("Block at lever position is not a lever");
+            helper.assertFalse(isPowered, "Lever is powered");
         }
     }
 
@@ -83,24 +98,7 @@ public class GameTestFramework {
      * @param blockPos The position of the block to interact with (relative coordinates)
      * @param itemStack The item stack the player is holding
      */
-    protected static void crouchClickBlock(GameTestHelper helper, BlockPos blockPos, ItemStack itemStack) {
-        // API method: ServerPlayer player = helper.makeMockPlayer(GameType.SURVIVAL)
-        //
-        // Steps to implement (8-10 lines):
-        // 1. Convert blockPos to absolute: var absolutePos = helper.absolutePos(blockPos)
-        // 2. Create mock player: var player = helper.makeMockPlayer(GameType.SURVIVAL)
-        // 3. Set crouching: player.setShiftKeyDown(true)
-        // 4. Give item: player.setItemInHand(InteractionHand.MAIN_HAND, itemStack)
-        // 5. Create BlockHitResult:
-        //    var hitResult = new BlockHitResult(Vec3.atCenterOf(absolutePos), Direction.UP, absolutePos, false)
-        // 6. Create UseOnContext:
-        //    var context = new UseOnContext(helper.getLevel(), player, InteractionHand.MAIN_HAND, itemStack, hitResult)
-        // 7. Execute interaction: itemStack.useOn(context)
-        //
-        // Design choices you can customize:
-        // - Direction.UP means clicking the top face (try Direction.NORTH, SOUTH, etc. for sides)
-        // - Vec3.atCenterOf(absolutePos) centers the hit (or use .atBottomCenterOf(), or custom offsets)
-
+    protected static void useItemOn(GameTestHelper helper, BlockPos blockPos, ItemStack itemStack) {
         var absolutePos = helper.absolutePos(blockPos);
         var player = helper.makeMockPlayer(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, itemStack);
@@ -111,39 +109,22 @@ public class GameTestFramework {
         itemStack.useOn(context);
     }
 
-    /**
-     * Asserts that two RedstoneChain blocks are connected to each other.
-     * Verifies bidirectional connection: A→B and B→A.
-     *
-     * @param helper The GameTestHelper
-     * @param pos1 First chain block position
-     * @param pos2 Second chain block position
-     */
-    protected static void assertChainBlocksAreConnected(GameTestHelper helper, BlockPos pos1, BlockPos pos2) {
-        var absolutePos1 = helper.absolutePos(pos1);
-        var absolutePos2 = helper.absolutePos(pos2);
-
-        BlockEntity be1 = helper.getLevel().getBlockEntity(absolutePos1);
-        BlockEntity be2 = helper.getLevel().getBlockEntity(absolutePos2);
-
-        if (!(be1 instanceof RedstoneChainEntity chain1)) {
-            helper.fail("Block at " + pos1 + " is not a RedstoneChainEntity");
-            return;
+    protected static void ensureRedstoneWireBlock(Block block) {
+        if (!(block instanceof RedStoneWireBlock)) {
+            throw new IllegalArgumentException("Block is not a redstone wire but a " + block.getName());
         }
+    }
 
-        if (!(be2 instanceof RedstoneChainEntity chain2)) {
-            helper.fail("Block at " + pos2 + " is not a RedstoneChainEntity");
-            return;
+    protected static void assertRedstoneWirePowered(GameTestHelper helper, BlockPos pos, boolean expectedState) {
+        var blockState = helper.getBlockState(pos);
+        var block = blockState.getBlock();
+        ensureRedstoneWireBlock(block);
+
+        var powerLevel = blockState.getValue(RedStoneWireBlock.POWER);
+        if(expectedState) {
+            helper.assertValueEqual(powerLevel, 15, "Redstone wire at is not powered");
+        } else {
+            helper.assertValueEqual(powerLevel, 0, "Redstone wire at is powered");
         }
-
-        // Check if chain1 has a connection to pos2
-        boolean chain1HasConnectionToChain2 = chain1.getConnections().contains(absolutePos2);
-        helper.assertTrue(chain1HasConnectionToChain2,
-                "Chain at " + pos1 + " does not have a connection to " + pos2);
-
-        // Check if chain2 has a connection to pos1
-        boolean chain2HasConnectionToChain1 = chain2.getConnections().contains(absolutePos1);
-        helper.assertTrue(chain2HasConnectionToChain1,
-                "Chain at " + pos2 + " does not have a connection to " + pos1);
     }
 }
