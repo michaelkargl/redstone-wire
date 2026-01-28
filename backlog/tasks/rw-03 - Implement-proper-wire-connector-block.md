@@ -2,8 +2,10 @@
 id: RW-03
 title: Implement proper wire connector block
 status: To Do
-assignee: []
+assignee:
+  - Michael Kargl
 created_date: '2026-01-28 10:45'
+updated_date: '2026-01-28 10:48'
 labels: []
 dependencies: []
 ---
