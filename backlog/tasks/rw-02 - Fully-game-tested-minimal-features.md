@@ -1,7 +1,7 @@
 ---
 id: RW-02
 title: Fully game tested minimal features
-status: In Progress
+status: To Do
 assignee:
   - Michael Kargl
 created_date: '2026-01-28 10:37'
@@ -9,7 +9,7 @@ updated_date: '2026-01-31 10:32'
 labels: []
 milestone: m-0
 dependencies: []
-ordinal: 1000
+ordinal: 2000
 ---
 
 ## Description
