@@ -1,5 +1,20 @@
 ![Redstone Wire! Redstone in, Redstone out! Easy!](images/redstone-wire-text.png)
 
+
+Project Management
+=======
+
+> To report issues, please use the "Issues" tab above
+
+This project uses [Backlog.md] for managing the project development.
+
+```pwsh
+backlog board view
+backlog browser
+```
+
+[Backlog.md]: https://backlog.md
+
 Installation information
 =======
 
