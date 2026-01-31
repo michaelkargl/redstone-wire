@@ -4,7 +4,7 @@ title: Introduce GitHub Actions CI/CD
 status: To Do
 assignee: []
 created_date: '2026-01-28 10:17'
-updated_date: '2026-01-31 09:38'
+updated_date: '2026-01-31 09:52'
 labels: []
 milestone: m-0
 dependencies: []
@@ -108,4 +108,42 @@ Add GitHub Actions CI/CD workflow that builds and runs the tests on every push a
 ### Reference
 - Updated workflow: `/.github/workflows/build.yml`
 - Documentation: `/README.md`
+
+### Next Steps for Completion
+
+**Step 1: Update the README Badge**
+Replace the placeholder in `README.md` line 6 with actual GitHub repository details:
+```markdown
+[![Build and Test](https://github.com/YOUR-USERNAME/MinecraftPlayground/actions/workflows/build.yml/badge.svg)](https://github.com/YOUR-USERNAME/MinecraftPlayground/actions/workflows/build.yml)
+```
+
+**Step 2: Test the Workflow**
+Push changes to trigger the workflow:
+```bash
+git add .github/workflows/build.yml README.md backlog/
+git commit -m "Add GitHub Actions test job and artifacts"
+git push
+```
+
+Verify:
+1. Go to **Actions** tab in GitHub
+2. Check that both `build` and `test` jobs complete successfully
+3. Download artifacts from the workflow run
+4. Verify the JAR file is included in the artifact
+
+**Step 3: Enable Branch Protection (Optional - Required for Acceptance Criteria #1)**
+To block merges when tests fail:
+1. Go to **Settings → Branches** in GitHub
+2. Click **Add rule** (or **Add branch protection rule**)
+3. Enter `main` (or default branch name) in **Branch name pattern**
+4. ☑️ Enable **"Require status checks to pass before merging"**
+5. Search for and select `build` and `test` as required checks
+6. ☑️ Enable **"Require branches to be up to date before merging"** (recommended)
+7. Click **Create** (or **Save changes**)
+
+**Completion Checklist**:
+- [ ] README badge updated with actual repository URL
+- [ ] Workflow tested and both jobs pass
+- [ ] Artifacts downloadable from Actions tab
+- [ ] Branch protection enabled (if requiring merge blocking)
 <!-- SECTION:NOTES:END -->
