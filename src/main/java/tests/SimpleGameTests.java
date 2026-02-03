@@ -54,9 +54,9 @@ public class SimpleGameTests {
                 {"Orange Wool", "Yellow Wool", "Bricks", "Lime Wool", "Green Wool"}                                // z=4
         };
 
-        validate2DXZGrid(helper, expectedGrid, 0, 0, 1);
-
-        helper.succeed();
+        new SpecFlow(helper)
+                .given("The structure is set up correctly", () -> validate2DXZGrid(helper, expectedGrid, 0, 0, 1))
+                .then("Test succeeds", helper::succeed);
     }
 
     @GameTest
@@ -66,23 +66,17 @@ public class SimpleGameTests {
         assertBlockNameAtPosition(helper, "Redstone Lamp", redstoneLampPosition); // 9
         assertBlockNameAtPosition(helper, "Lever", leverBlockPosition); // 10
 
-
         var leverBlockState = helper.getBlockState(leverBlockPosition);
-        if (leverBlockState.getBlock() instanceof LeverBlock leverBlock) {
-            // run the lever action at tick 1
-            helper.runAtTickTime(1, () -> pullLever(helper, leverBlockPosition));
-
-            // Schedule assertions after the lever action completes
-            helper.runAtTickTime(2, () -> {
-                // Re-fetch block state since BlockState is immutable
-                var currentLeverState = helper.getBlockState(leverBlockPosition);
-                assertLeverIsPowered(helper, currentLeverState, true);
-                assertRedstoneLampIsLit(helper, redstoneLampPosition);
-                helper.succeed();
-            });
-        } else {
+        if (!(leverBlockState.getBlock() instanceof LeverBlock leverBlock)) {
             helper.fail("Block at lever position is not a lever");
         }
+
+        new SpecFlow(helper)
+                .given("The lever is in its default state", () -> assertLeverIsPowered(helper, leverBlockPosition, false))
+                .when("I pull the lever", () -> pullLever(helper, leverBlockPosition))
+                .then("The lever should be powered", () -> assertLeverIsPowered(helper, leverBlockPosition, true))
+                .and("The redstone lamp should be lit", () -> assertRedstoneLampIsLit(helper, redstoneLampPosition))
+                .and("Test succeeds", helper::succeed);
     }
 
     // Visual representation from above (bird's eye view):
@@ -123,7 +117,7 @@ public class SimpleGameTests {
                 .then("The redstone wire should be powered", () -> {
                     assertRedstoneWirePowered(helper, redstoneWirePosition, true);
                 })
-                .then("Test succeeds", helper::succeed);
+                .and("Test succeeds", helper::succeed);
     }
 
 }
