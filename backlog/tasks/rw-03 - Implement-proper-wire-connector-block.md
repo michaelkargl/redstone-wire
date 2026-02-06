@@ -1,11 +1,11 @@
 ---
 id: RW-03
 title: Implement proper wire connector block
-status: To Do
+status: Done
 assignee:
   - Michael Kargl
 created_date: '2026-01-28 10:45'
-updated_date: '2026-01-31 10:32'
+updated_date: '2026-02-06 07:57'
 labels: []
 milestone: m-0
 dependencies: []
