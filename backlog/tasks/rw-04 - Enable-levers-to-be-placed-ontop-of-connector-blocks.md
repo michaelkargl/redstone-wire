@@ -4,11 +4,12 @@ title: Enable levers to be placed ontop of connector blocks
 status: Completed
 assignee: []
 created_date: '2026-02-06 08:00'
-updated_date: '2026-02-06 08:15'
+updated_date: '2026-02-06 08:16'
 labels:
   - bug
   - enhancement
   - collision-shape
+milestone: m-0
 dependencies: []
 ---
 
