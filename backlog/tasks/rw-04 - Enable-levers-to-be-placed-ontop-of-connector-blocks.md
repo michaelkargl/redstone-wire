@@ -11,6 +11,7 @@ labels:
   - collision-shape
 milestone: m-0
 dependencies: []
+priority: low
 ---
 
 ## Description
