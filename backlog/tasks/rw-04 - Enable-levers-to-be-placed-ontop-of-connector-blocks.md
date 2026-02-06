@@ -2,7 +2,8 @@
 id: RW-04
 title: Enable levers to be placed ontop of connector blocks
 status: Completed
-assignee: []
+assignee:
+  - Kami
 created_date: '2026-02-06 08:00'
 updated_date: '2026-02-06 08:16'
 labels:
