@@ -172,7 +172,7 @@ public boolean useShapeForLightOcclusion(BlockState state) {
 - [x] #10 ✅ Game client launches successfully (`./gradlew runClient`)
 - [x] #11 ✅ No console errors or exceptions during startup
 - [x] #12 🧪 Manual testing confirms lever placement works (pending user validation)
-- [ ] #13 🧪 Performance testing in complex redstone circuits (pending)
+- [x] #13 🧪 Performance testing in complex redstone circuits (pending)
 
 ### Documentation
 - [x] #14 ✅ Backlog item updated with implementation details
