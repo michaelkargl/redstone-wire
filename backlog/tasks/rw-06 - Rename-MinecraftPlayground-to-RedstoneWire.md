@@ -16,6 +16,6 @@ ordinal: 1000
 - [ ] #2 Repository is named RedstoneWire
 - [x] #3 Game is playable
 - [ ] #4 Translations are there
-- [ ] #5 Game Tests pass
+- [x] #5 Game Tests pass
 - [ ] #6 No mention of Playground in the entire code base
 <!-- AC:END -->
