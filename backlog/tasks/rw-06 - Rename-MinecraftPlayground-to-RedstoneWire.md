@@ -4,8 +4,9 @@ title: Rename MinecraftPlayground to RedstoneWire
 status: In Progress
 assignee: []
 created_date: '2026-02-08 07:27'
-updated_date: '2026-02-08 08:02'
+updated_date: '2026-02-08 08:07'
 labels: []
+milestone: m-0
 dependencies: []
 ordinal: 1000
 ---
