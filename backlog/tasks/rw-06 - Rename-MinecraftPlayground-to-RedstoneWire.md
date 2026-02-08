@@ -17,5 +17,5 @@ ordinal: 1000
 - [x] #3 Game is playable
 - [ ] #4 Translations are there
 - [x] #5 Game Tests pass
-- [ ] #6 No mention of Playground in the entire code base
+- [x] #6 No mention of Playground in the entire code base
 <!-- AC:END -->
