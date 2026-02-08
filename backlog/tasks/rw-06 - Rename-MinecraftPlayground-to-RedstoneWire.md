@@ -1,14 +1,14 @@
 ---
 id: RW-06
 title: Rename MinecraftPlayground to RedstoneWire
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-02-08 07:27'
 updated_date: '2026-02-08 08:07'
 labels: []
 milestone: m-0
 dependencies: []
-ordinal: 1000
+ordinal: 3000
 ---
 
 ## Acceptance Criteria
