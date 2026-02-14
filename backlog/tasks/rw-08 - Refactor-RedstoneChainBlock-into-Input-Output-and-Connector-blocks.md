@@ -4,6 +4,7 @@ title: 'Refactor RedstoneChainBlock into Input, Output, and Connector blocks'
 status: To Do
 assignee: []
 created_date: '2026-02-14 19:40'
+updated_date: '2026-02-14 19:51'
 labels:
   - refactor
   - architecture
@@ -41,3 +42,17 @@ Key design decisions:
 - [ ] #6 Cable rendering works between all block type combinations
 - [ ] #7 Signal propagation: lever -> Input -> Connector(s) -> Output -> lamp works end-to-end
 <!-- AC:END -->
+
+## Definition of Done
+<!-- DOD:BEGIN -->
+- [ ] #1 All 8 subtasks (RW-08.01 through RW-08.08) are completed
+- [ ] #2 4 Java files created: AbstractRedstoneChainBlock, RedstoneInputBlock, RedstoneOutputBlock, RedstoneConnectorBlock
+- [ ] #3 RedstoneChainEntity modified for role-aware signal propagation
+- [ ] #4 RedstoneWire.java updated with 3 new block/item registrations and entity builder
+- [ ] #5 11 new resource files created (3 blockstates, 5 block models, 3 item models)
+- [ ] #6 Language file updated with 3 new block names
+- [ ] #7 Legacy RedstoneChainBlock.java is completely unchanged
+- [ ] #8 Project compiles with `./gradlew build`
+- [ ] #9 All game tests pass in-game
+- [ ] #10 End-to-end verified: Lever → Input → Connector → Output → Lamp works
+<!-- DOD:END -->
