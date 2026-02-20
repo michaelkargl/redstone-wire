@@ -1,5 +1,6 @@
 package at.osa.redstonewire;
 
+import net.minecraft.client.renderer.item.ItemProperties;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -72,6 +73,13 @@ public class RedstoneWire {
     public static final DeferredItem<RedstoneChainConnector> REDSTONE_CHAIN_CONNECTOR = ITEMS.register(
             "redstone_chain_connector",
             () -> new RedstoneChainConnector(new Item.Properties().stacksTo(64)));
+    
+    // Creates a new Redstone Input Block with the id "redstone_wire:redstone_input"
+    public static final DeferredBlock<RedstoneInputBlock> REDSTONE_INPUT_BLOCK = BLOCKS.register(
+            "redstone_input",
+            () -> new RedstoneInputBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+    // Creates a new BlockItem with the id "redstone_wire:redstone_input"
+    public static final DeferredItem<BlockItem> REDSTONE_INPUT_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_input", REDSTONE_INPUT_BLOCK);
 
     // Creates the block entity type for the Redstone Chain
     public static final Supplier<BlockEntityType<RedstoneChainEntity>> REDSTONE_CHAIN_ENTITY = BLOCK_ENTITY_TYPES.register(
@@ -99,6 +107,7 @@ public class RedstoneWire {
                 output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
                 output.accept(REDSTONE_CHAIN_BLOCK_ITEM.get()); // Add the redstone chain block to the tab
                 output.accept(REDSTONE_CHAIN_CONNECTOR.get()); // Add the redstone chain connector to the tab
+                output.accept(REDSTONE_INPUT_BLOCK_ITEM.get()); // Add the redstone input block to the tab
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -151,6 +160,7 @@ public class RedstoneWire {
         if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
             event.accept(REDSTONE_CHAIN_BLOCK_ITEM);
             event.accept(REDSTONE_CHAIN_CONNECTOR);
+            event.accept(REDSTONE_INPUT_BLOCK_ITEM);
         }
     }
 

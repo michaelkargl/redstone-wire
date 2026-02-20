@@ -50,12 +50,6 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
     /**
-     * Visual and collision shape of the block.
-     * A full block (16x16x16 pixels) - standard Minecraft block dimensions.
-     */
-    private static final VoxelShape SHAPE = Shapes.block();
-
-    /**
      * Constructor for the RedstoneChainBlock.
      * <p>
      * This initializes a new redstone chain block with the given properties.
@@ -81,28 +75,6 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWER);
     }
-
-    /**
-     * Defines the visual shape of this block for rendering and selection box.
-     * <p>
-     * This method returns a VoxelShape that determines:
-     * 1. How the block looks visually (its outline when highlighted)
-     * 2. The selection box when players look at it
-     * <p>
-     * Returns a full block shape (16x16x16 pixels) for both visual appearance
-     * and collision detection.
-     *
-     * @param state   The current state of the block
-     * @param level   The world/level the block is in
-     * @param pos     The position of the block
-     * @param context Additional context for shape calculation
-     * @return The VoxelShape representing the block's full bounds
-     */
-    @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
-    }
-
 
     /**
      * Tells Minecraft whether this block is capable of emitting redstone signals.
