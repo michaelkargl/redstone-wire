@@ -8,7 +8,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
-import net.minecraft.world.item.Item;
 
 /**
  * A block that can be used to input redstone signals into the wire network.
@@ -46,10 +45,10 @@ public class RedstoneInputBlock extends Block {
             return;
         }
 
-        RedstoneWire.LOGGER.info("Neighbor changed for RedstoneInputBlock at pos: {}", pos);
-
         // if neighbor has a power signal
         // update the network with the new signal strength
+        RedstoneWire.LOGGER.info("Neighbor changed for RedstoneInputBlock at pos: {}", pos);
+
         super.neighborChanged(state, level, pos, block, fromPos, isMoving);
     }
 }
