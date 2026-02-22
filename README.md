@@ -34,3 +34,8 @@ This mod uses NeoForge's configuration system to provide runtime customization. 
 3. Modify values (validation ranges are enforced)
 4. Save the file
 5. Restart Minecraft for changes to take effect
+
+Testing
+=======
+
+Refer to the [Testing Guide](docs/testing.md) for more information.
