@@ -4,9 +4,10 @@ title: Create github releases
 status: To Do
 assignee: []
 created_date: '2026-02-08 08:17'
-updated_date: '2026-02-08 08:18'
+updated_date: '2026-02-22 11:03'
 labels: []
 dependencies: []
+ordinal: 1000
 ---
 
 ## Description
