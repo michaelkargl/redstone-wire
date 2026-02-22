@@ -15,9 +15,9 @@ public class SpecFlow implements ISpecFlow {
     }
 
     public ISpecFlow given(String description, Runnable action, int runAtTick) {
-        LOGGER.info("GIVEN: {}", description);
-        helper.runAtTickTime(runAtTick, action);
-        tick += runAtTick;
+        LOGGER.info("({}) GIVEN: {}", this.tick, description);
+        this.helper.runAtTickTime(runAtTick, action);
+        this.tick = runAtTick;
         return this;
     }
 
@@ -26,9 +26,9 @@ public class SpecFlow implements ISpecFlow {
     }
 
     public ISpecFlow when(String description, Runnable action, int runAtTick) {
-        LOGGER.info("WHEN: {}", description);
-        helper.runAtTickTime(runAtTick, action);
-        tick += runAtTick;
+        LOGGER.info("({}) WHEN: {}", this.tick, description);
+        this.helper.runAtTickTime(runAtTick, action);
+        this.tick = runAtTick;
         return this;
     }
 
@@ -37,9 +37,9 @@ public class SpecFlow implements ISpecFlow {
     }
 
     public ISpecFlow then(String description, Runnable action, int runAtTick) {
-        LOGGER.info("THEN: {}", description);
-        helper.runAtTickTime(runAtTick, action);
-        tick += runAtTick;
+        LOGGER.info("({}) THEN: {}", this.tick, description);
+        this.helper.runAtTickTime(runAtTick, action);
+        this.tick = runAtTick;
         return this;
     }
 
@@ -48,9 +48,9 @@ public class SpecFlow implements ISpecFlow {
     }
 
     public ISpecFlow and(String description, Runnable action, int runAtTick) {
-        LOGGER.info("   AND: {}", description);
-        helper.runAtTickTime(runAtTick, action);
-        tick += runAtTick;
+        LOGGER.info("({})   AND: {}", this.tick, description);
+        this.helper.runAtTickTime(runAtTick, action);
+        this.tick = runAtTick;
         return this;
     }
 
