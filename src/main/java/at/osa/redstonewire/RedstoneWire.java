@@ -51,20 +51,6 @@ public class RedstoneWire {
     // Create a Deferred Register to hold DataComponentTypes which will all be registered under the "redstone_wire" namespace
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MODID);
 
-    // Creates a new Redstone Chain Block with the id "redstone_wire:redstone_chain", combining the namespace and path
-    public static final DeferredBlock<RedstoneChainBlock> REDSTONE_CHAIN_BLOCK = BLOCKS.register(
-            "redstone_chain",
-            () -> new RedstoneChainBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
-    // Creates a new BlockItem with the id "redstone_wire:redstone_chain", combining the namespace and path
-    public static final DeferredItem<RedstoneChainBlockItem> REDSTONE_CHAIN_BLOCK_ITEM = ITEMS.register(
-            "redstone_chain",
-            () -> new RedstoneChainBlockItem(REDSTONE_CHAIN_BLOCK.get(), new Item.Properties()));
-
-    // Creates a new Redstone Chain Connector item for linking chain blocks
-    public static final DeferredItem<RedstoneChainConnector> REDSTONE_CHAIN_CONNECTOR = ITEMS.register(
-            "redstone_chain_connector",
-            () -> new RedstoneChainConnector(new Item.Properties().stacksTo(64)));
-
     public static final DeferredBlock<RedstoneConnectorBlock> REDSTONE_CONNECTOR_BLOCK = BLOCKS.register(
             "redstone_connector",
             () -> new RedstoneConnectorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
@@ -96,8 +82,6 @@ public class RedstoneWire {
             .icon(() -> REDSTONE_CONNECTOR_BLOCK_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(REDSTONE_CONNECTOR_BLOCK_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
-                output.accept(REDSTONE_CHAIN_BLOCK_ITEM.get());
-                output.accept(REDSTONE_CHAIN_CONNECTOR.get());
                 output.accept(REDSTONE_INPUT_BLOCK_ITEM.get());
             }).build());
 
@@ -142,8 +126,6 @@ public class RedstoneWire {
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
-            event.accept(REDSTONE_CHAIN_BLOCK_ITEM);
-            event.accept(REDSTONE_CHAIN_CONNECTOR);
             event.accept(REDSTONE_INPUT_BLOCK_ITEM);
             event.accept(REDSTONE_CONNECTOR_BLOCK_ITEM);
         }
