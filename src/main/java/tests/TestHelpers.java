@@ -37,22 +37,17 @@ public class TestHelpers {
     }
 
     public static void assertLeverIsPowered(GameTestHelper helper, BlockPos leverPosition, boolean expected) {
-        var blockState = helper.getBlockState(leverPosition);
-        assertLeverIsPowered(helper, blockState, expected);
-    }
+        var state = helper.getBlockState(leverPosition);
+        var block = state.getBlock();
 
-    public static void assertLeverIsPowered(GameTestHelper helper, BlockState leverBlockState, boolean expected) {
-        var block = leverBlockState.getBlock();
         if (!(block instanceof LeverBlock leverBlock)) {
-            helper.fail("Block at lever position is not a lever but a %s".formatted(block.getName()));
+            helper.fail("Block at lever position %s is not a lever but a %s".formatted(leverPosition, block.getName()));
         }
 
-        boolean isPowered = leverBlockState.getValue(LeverBlock.POWERED);
-        if (expected) {
-            helper.assertTrue(isPowered, "Lever is not powered");
-        } else {
-            helper.assertFalse(isPowered, "Lever is powered");
-        }
+        boolean isPowered = state.getValue(LeverBlock.POWERED);
+        helper.assertTrue(
+                isPowered == expected,
+                "Expected lever at position %s to be %s but it is %s.".formatted(leverPosition, expected ? "powered" : "unpowered", isPowered ? "powered" : "unpowered"));
     }
 
     public static void assertRedstoneLampIsLit(GameTestHelper helper, BlockPos position, boolean isLit) {
