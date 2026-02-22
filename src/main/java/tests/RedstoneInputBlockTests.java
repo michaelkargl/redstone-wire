@@ -24,7 +24,7 @@ public class RedstoneInputBlockTests {
                 .when("Toggling the low power lever", () -> TestHelpers.pullLever(helper, lowPowerLeverPosition))
                 .then("The low power lamp is lit", () -> TestHelpers.assertRedstoneLampIsLit(helper, lowPowerLampPosition, true), 10)
                 .and("The high power lamp is unlit", () -> TestHelpers.assertRedstoneLampIsLit(helper, highPowerLampPosition, false))
-                .when("The high power lever is toggled on", () -> TestHelpers.pullLever(helper, highPowerLeverPosition))
+                .when("Toggling the high power lever", () -> TestHelpers.pullLever(helper, highPowerLeverPosition))
                 .then("The high power redstone lamp is lit", () -> TestHelpers.assertRedstoneLampIsLit(helper, highPowerLampPosition, true), 20)
                 .and("Test succeeds", helper::succeed);
     }

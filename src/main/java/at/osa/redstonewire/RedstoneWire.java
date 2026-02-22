@@ -1,12 +1,10 @@
 package at.osa.redstonewire;
 
-import net.minecraft.client.renderer.item.ItemProperties;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
 import net.minecraft.core.component.DataComponentType;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -16,8 +14,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -55,11 +51,6 @@ public class RedstoneWire {
     // Create a Deferred Register to hold DataComponentTypes which will all be registered under the "redstone_wire" namespace
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENT_TYPES = DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, MODID);
 
-    // Creates a new Block with the id "redstone_wire:example_block", combining the namespace and path
-    public static final DeferredBlock<Block> EXAMPLE_BLOCK = BLOCKS.registerSimpleBlock("example_block", BlockBehaviour.Properties.of().mapColor(MapColor.STONE));
-    // Creates a new BlockItem with the id "redstone_wire:example_block", combining the namespace and path
-    public static final DeferredItem<BlockItem> EXAMPLE_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("example_block", EXAMPLE_BLOCK);
-
     // Creates a new Redstone Chain Block with the id "redstone_wire:redstone_chain", combining the namespace and path
     public static final DeferredBlock<RedstoneChainBlock> REDSTONE_CHAIN_BLOCK = BLOCKS.register(
             "redstone_chain",
@@ -73,8 +64,12 @@ public class RedstoneWire {
     public static final DeferredItem<RedstoneChainConnector> REDSTONE_CHAIN_CONNECTOR = ITEMS.register(
             "redstone_chain_connector",
             () -> new RedstoneChainConnector(new Item.Properties().stacksTo(64)));
-    
-    // Creates a new Redstone Input Block with the id "redstone_wire:redstone_input"
+
+    public static final DeferredBlock<RedstoneConnectorBlock> REDSTONE_CONNECTOR_BLOCK = BLOCKS.register(
+            "redstone_connector",
+            () -> new RedstoneConnectorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+    public static final DeferredItem<BlockItem> REDSTONE_CONNECTOR_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_connector", REDSTONE_CONNECTOR_BLOCK);
+
     public static final DeferredBlock<RedstoneInputBlock> REDSTONE_INPUT_BLOCK = BLOCKS.register(
             "redstone_input",
             () -> new RedstoneInputBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
@@ -94,20 +89,16 @@ public class RedstoneWire {
                     .networkSynchronized(ByteBufCodecs.COMPOUND_TAG)
                     .build());
 
-    // Creates a new food item with the id "redstone_wire:example_id", nutrition 1 and saturation 2
-    public static final DeferredItem<Item> EXAMPLE_ITEM = ITEMS.registerSimpleItem("example_item", new Item.Properties().food(new FoodProperties.Builder()
-            .alwaysEdible().nutrition(1).saturationModifier(2f).build()));
-
     // Creates a creative tab with the id "redstone_wire:example_tab" for the example item, that is placed after the combat tab
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> REDSTONE_WIRE_TAB = CREATIVE_MODE_TABS.register("redstone_wire_tab", () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup.redstone_wire")) //The language key for the title of your CreativeModeTab
             .withTabsBefore(CreativeModeTabs.COMBAT)
-            .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
+            .icon(() -> REDSTONE_CONNECTOR_BLOCK_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
-                output.accept(REDSTONE_CHAIN_BLOCK_ITEM.get()); // Add the redstone chain block to the tab
-                output.accept(REDSTONE_CHAIN_CONNECTOR.get()); // Add the redstone chain connector to the tab
-                output.accept(REDSTONE_INPUT_BLOCK_ITEM.get()); // Add the redstone input block to the tab
+                output.accept(REDSTONE_CONNECTOR_BLOCK_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(REDSTONE_CHAIN_BLOCK_ITEM.get());
+                output.accept(REDSTONE_CHAIN_CONNECTOR.get());
+                output.accept(REDSTONE_INPUT_BLOCK_ITEM.get());
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -143,10 +134,6 @@ public class RedstoneWire {
         // Some common setup code
         LOGGER.info("HELLO FROM COMMON SETUP");
 
-        if (Config.LOG_DIRT_BLOCK.getAsBoolean()) {
-            LOGGER.info("DIRT BLOCK >> {}", BuiltInRegistries.BLOCK.getKey(Blocks.DIRT));
-        }
-
         LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
 
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
@@ -154,13 +141,11 @@ public class RedstoneWire {
 
     // Add the example block item to the building blocks tab
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(EXAMPLE_BLOCK_ITEM);
-        }
         if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
             event.accept(REDSTONE_CHAIN_BLOCK_ITEM);
             event.accept(REDSTONE_CHAIN_CONNECTOR);
             event.accept(REDSTONE_INPUT_BLOCK_ITEM);
+            event.accept(REDSTONE_CONNECTOR_BLOCK_ITEM);
         }
     }
 

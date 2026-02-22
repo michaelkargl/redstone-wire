@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "redstone_wire:block/redstone_connector" }
+  }
+}
