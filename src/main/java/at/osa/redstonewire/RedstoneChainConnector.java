@@ -36,13 +36,13 @@ public class RedstoneChainConnector extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide) {
-            CompoundTag tag = stack.getOrDefault(RedstoneWire.LINK_DATA, new CompoundTag());
+            CompoundTag tag = stack.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
             if (tag.contains("LinkX")) {
                 CompoundTag newTag = tag.copy();
                 newTag.remove("LinkX");
                 newTag.remove("LinkY");
                 newTag.remove("LinkZ");
-                stack.set(RedstoneWire.LINK_DATA, newTag.isEmpty() ? null : newTag);
+                stack.set(RedstoneWire.CONNECTOR_LINK_DATA, newTag.isEmpty() ? null : newTag);
 
                 player.displayClientMessage(
                         Component.translatable("item.redstone_wire.chain_connector.cleared")
@@ -80,7 +80,7 @@ public class RedstoneChainConnector extends Item {
     (Level level, Player player, BlockPos clickedPos,
                                                RedstoneChainEntity chain, ItemStack stack) {
         // Get saved position data from item (if any)
-        CompoundTag savedData = stack.getOrDefault(RedstoneWire.LINK_DATA, new CompoundTag());
+        CompoundTag savedData = stack.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
 
         // Check if this is the second click (completing a connection)
         if (hasSavedPosition(savedData)) {
@@ -162,14 +162,14 @@ public class RedstoneChainConnector extends Item {
         tag.putInt("LinkX", pos.getX());
         tag.putInt("LinkY", pos.getY());
         tag.putInt("LinkZ", pos.getZ());
-        stack.set(RedstoneWire.LINK_DATA, tag);
+        stack.set(RedstoneWire.CONNECTOR_LINK_DATA, tag);
     }
 
     /**
      * Clears the saved position from the item.
      */
     private void clearSavedPosition(ItemStack stack) {
-        stack.set(RedstoneWire.LINK_DATA, null);
+        stack.set(RedstoneWire.CONNECTOR_LINK_DATA, null);
     }
 
     /**
@@ -322,7 +322,7 @@ public class RedstoneChainConnector extends Item {
      */
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        CompoundTag tag = stack.getOrDefault(RedstoneWire.LINK_DATA, new CompoundTag());
+        CompoundTag tag = stack.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
         if (tag.contains("LinkX")) {
             BlockPos pos = new BlockPos(tag.getInt("LinkX"), tag.getInt("LinkY"), tag.getInt("LinkZ"));
             tooltip.add(Component.translatable("item.redstone_wire.chain_connector.saved_point",

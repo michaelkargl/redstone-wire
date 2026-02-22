@@ -9,11 +9,9 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -72,13 +70,13 @@ public class RedstoneWire {
             () -> new RedstoneChainBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
 
     // Creates the block entity type for the Redstone Chain
-    public static final Supplier<BlockEntityType<RedstoneChainEntity>> REDSTONE_CHAIN_ENTITY = BLOCK_ENTITY_TYPES.register(
-            "redstone_chain_entity",
-            () -> BlockEntityType.Builder.of(RedstoneChainEntity::new, REDSTONE_CHAIN_BLOCK.get()).build(null));
+    public static final Supplier<BlockEntityType<RedstoneConnectorBlockEntity>> REDSTONE_CONNECTOR_ENTITY = BLOCK_ENTITY_TYPES.register(
+            "redstone_connector_entity",
+            () -> BlockEntityType.Builder.of(RedstoneConnectorBlockEntity::new, REDSTONE_CONNECTOR_BLOCK.get()).build(null));
 
     // Data component for storing link data on the connector item
-    public static final Supplier<DataComponentType<CompoundTag>> LINK_DATA = DATA_COMPONENT_TYPES.register(
-            "link_data",
+    public static final Supplier<DataComponentType<CompoundTag>> CONNECTOR_LINK_DATA = DATA_COMPONENT_TYPES.register(
+            "connector_link_data",
             () -> DataComponentType.<CompoundTag>builder()
                     .persistent(CompoundTag.CODEC)
                     .networkSynchronized(ByteBufCodecs.COMPOUND_TAG)

@@ -423,11 +423,11 @@ public class RedstoneChainBlock extends Block implements EntityBlock {
      * @param type  The type of block entity
      * @return A ticker function, or null if no ticking is needed
      */
-    @Nullable
-    @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return type == RedstoneWire.REDSTONE_CHAIN_ENTITY.get() ? RedstoneChainEntity::tick : null;
-    }
+//    @Nullable
+//    @Override
+//    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+//        return type == RedstoneWire.REDSTONE_CHAIN_ENTITY.get() ? RedstoneChainEntity::tick : null;
+//    }
 
     /**
      * Called when this block is removed or replaced in the world.
