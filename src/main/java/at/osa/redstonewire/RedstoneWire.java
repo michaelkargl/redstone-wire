@@ -62,6 +62,15 @@ public class RedstoneWire {
     // Creates a new BlockItem with the id "redstone_wire:redstone_input"
     public static final DeferredItem<BlockItem> REDSTONE_INPUT_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_input", REDSTONE_INPUT_BLOCK);
 
+    public static final DeferredBlock<RedstoneOutputBlock> REDSTONE_OUTPUT_BLOCK = BLOCKS.register(
+            "redstone_output",
+            () -> new RedstoneOutputBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+    public static final DeferredItem<BlockItem> REDSTONE_OUTPUT_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_output", REDSTONE_OUTPUT_BLOCK);
+
+    public static final DeferredBlock<RedstoneChainBlock> REDSTONE_CHAIN_BLOCK = BLOCKS.register(
+            "redstone_chain",
+            () -> new RedstoneChainBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+
     // Creates the block entity type for the Redstone Chain
     public static final Supplier<BlockEntityType<RedstoneChainEntity>> REDSTONE_CHAIN_ENTITY = BLOCK_ENTITY_TYPES.register(
             "redstone_chain_entity",
@@ -83,6 +92,7 @@ public class RedstoneWire {
             .displayItems((parameters, output) -> {
                 output.accept(REDSTONE_CONNECTOR_BLOCK_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
                 output.accept(REDSTONE_INPUT_BLOCK_ITEM.get());
+                output.accept(REDSTONE_OUTPUT_BLOCK_ITEM.get());
             }).build());
 
     // The constructor for the mod class is the first code that is run when your mod is loaded.
@@ -128,6 +138,7 @@ public class RedstoneWire {
         if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
             event.accept(REDSTONE_INPUT_BLOCK_ITEM);
             event.accept(REDSTONE_CONNECTOR_BLOCK_ITEM);
+            event.accept(REDSTONE_OUTPUT_BLOCK_ITEM);
         }
     }
 

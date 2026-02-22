@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "power=0": { "model": "redstone_wire:block/redstone_output_unpowered" },
+    "power=1": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=2": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=3": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=4": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=5": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=6": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=7": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=8": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=9": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=10": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=11": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=12": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=13": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=14": { "model": "redstone_wire:block/redstone_output_powered" },
+    "power=15": { "model": "redstone_wire:block/redstone_output_powered" }
+  }
+}
