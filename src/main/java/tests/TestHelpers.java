@@ -55,17 +55,23 @@ public class TestHelpers {
         }
     }
 
-    public static void assertRedstoneLampIsLit(GameTestHelper helper, BlockState redstoneLampState) {
-        if (redstoneLampState.getBlock() instanceof RedstoneLampBlock redstoneLampBlock) {
-            var isLit = redstoneLampState.getValue(RedstoneLampBlock.LIT);
-            helper.assertTrue(isLit, "Redstone Lamp is not lit");
-        } else {
-            helper.fail("Block at redstone lamp position is not a redstone lamp");
+    public static void assertRedstoneLampIsLit(GameTestHelper helper, BlockPos position, boolean isLit) {
+        var state = helper.getBlockState(position);
+        var block = state.getBlock();
+
+        if (!(block instanceof RedstoneLampBlock)) {
+            helper.fail("Block at position %s is not a redstone lamp but a %s".formatted(position, block.getName()));
         }
+
+        var actualIsLit = state.getValue(RedstoneLampBlock.LIT);
+        helper.assertValueEqual(
+                actualIsLit,
+                isLit,
+                "Expected redstone lamp to be %s but it is %s".formatted(isLit ? "lit" : "unlit", actualIsLit ? "lit" : "unlit"));
     }
 
-    public static void assertRedstoneLampIsLit(GameTestHelper helper, BlockPos position) {
-        assertRedstoneLampIsLit(helper, helper.getBlockState(position));
+    public static void assertRedstoneLampIsLit(GameTestHelper helper, int x, int y, int z, boolean isLit) {
+        assertRedstoneLampIsLit(helper, new BlockPos(x, y, z), isLit);
     }
 
     public static String getBlockNameAtPosition(GameTestHelper helper, int x, int y, int z) {
@@ -96,8 +102,8 @@ public class TestHelpers {
      * Simulates a player crouch-clicking on a block with an item.
      * This is used to test interactions that require shift-clicking (sneaking + right-click).
      *
-     * @param helper The GameTestHelper providing test context
-     * @param blockPos The position of the block to interact with (relative coordinates)
+     * @param helper    The GameTestHelper providing test context
+     * @param blockPos  The position of the block to interact with (relative coordinates)
      * @param itemStack The item stack the player is holding
      */
     public static void useItemOn(GameTestHelper helper, BlockPos blockPos, ItemStack itemStack) {
@@ -123,7 +129,7 @@ public class TestHelpers {
         ensureRedstoneWireBlock(block);
 
         var powerLevel = blockState.getValue(RedStoneWireBlock.POWER);
-        if(expectedState) {
+        if (expectedState) {
             helper.assertValueEqual(powerLevel, 15, "Redstone wire at is not powered");
         } else {
             helper.assertValueEqual(powerLevel, 0, "Redstone wire at is powered");
