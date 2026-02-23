@@ -41,7 +41,7 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
 
-        BlockEntity be = level.getBlockEntity(pos);
+        var be = level.getBlockEntity(pos);
         if (!(be instanceof RedstoneConnectorBlockEntity connector)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
