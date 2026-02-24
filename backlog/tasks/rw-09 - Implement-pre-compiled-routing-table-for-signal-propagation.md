@@ -4,7 +4,7 @@ title: Implement pre-compiled routing table for signal propagation
 status: To Do
 assignee: []
 created_date: '2026-02-23 19:17'
-updated_date: '2026-02-23 19:21'
+updated_date: '2026-02-24 04:11'
 labels:
   - signal-propagation
   - performance
@@ -91,62 +91,90 @@ Lever toggled → InputBlock.neighborChanged fires:
 <!-- SECTION:PLAN:BEGIN -->
 ## Phase 0 — Make signal propagation work (immediate)
 
-The BFS infrastructure is already fully implemented in `RedstoneConnectorBlockEntity.receiveSignal()`.
-The only missing piece is wiring up `RedstoneInputBlock.neighborChanged()`.
-
 ### Step 1 — Implement `RedstoneInputBlock.neighborChanged()`
 File: `src/main/java/at/osa/redstonewire/RedstoneInputBlock.java`
 
-Replace the `TODO(human)` at line 49 with:
 1. Read incoming power: `int newPower = level.getBestNeighborSignal(pos)`
 2. Read current stored power: `int currentPower = state.getValue(POWER)`
 3. If `newPower == currentPower`, return early (no change)
 4. Update this block's state: `level.setBlock(pos, state.setValue(POWER, newPower), Block.UPDATE_CLIENTS)`
 5. Iterate `Direction.values()`, check if `level.getBlockEntity(pos.relative(dir))` is a `RedstoneConnectorBlockEntity`
-6. If yes, call `connector.receiveSignal(newPower, level)`
+6. If yes, call `connector.propagateSignal(newPower, level)`
 
-`receiveSignal()` already does BFS through connectors and calls `updateAdjacentOutputs()` which
-sets `RedstoneOutputBlock.POWER` via `Block.UPDATE_ALL` — that triggers Minecraft's redstone
-neighbor updates and lights up lamps, etc.
+---
 
-### Step 2 — Fix item type in `RedstoneConnectorBlock.java:52`
-Currently uses `Items.REDSTONE` (changed during debugging). Decide on final item:
-- `Items.STRING` was the original design (makes thematic sense as a "wire")
-- `Items.REDSTONE` is also reasonable (redstone dust = wire)
-Update the `if (!heldItem.is(Items.REDSTONE))` check accordingly.
+## Phase 1 — Routing table (RW-09 original goal)
 
-## Phase 1 — Routing table optimization (RW-09 original goal)
+### Traversal design — recursive DFS with `visited` set as parameter
 
-Only attempt this after Phase 0 is verified working in-game.
+Both traversal methods use the same recursive DFS + `visited` pattern for loop prevention. Connectors are bidirectionally linked, so without a `visited` set the graph would cycle (A→B→A→B...).
 
-Replace `receiveSignal()` BFS-at-signal-time with a pre-compiled cache:
+Each connector marks itself / contributes its own data and then delegates to its neighbors:
+
+```java
+// markNetworkDirty — each connector sets its own cacheDirty
+public void markNetworkDirty(Set<BlockPos> visited) {
+    if (!visited.add(this.getBlockPos())) return; // loop prevention
+    this.cacheDirty = true;
+    for (BlockPos neighbor : directConnections) {
+        var be = level.getBlockEntity(neighbor);
+        if (be instanceof RedstoneConnectorBlockEntity conn)
+            conn.markNetworkDirty(visited);
+    }
+}
+
+// rebuildOutputCache — entry point creates accumulator, DFS worker appends to it
+void rebuildOutputCache(Level level) {
+    reachableOutputs.clear();
+    rebuildOutputCache(level, new HashSet<>(), reachableOutputs);
+    cacheDirty = false;
+}
+
+void rebuildOutputCache(Level level, Set<BlockPos> visited, List<BlockPos> accumulator) {
+    if (!visited.add(this.getBlockPos())) return;
+    for (Direction dir : Direction.values()) {
+        BlockPos adj = getBlockPos().relative(dir);
+        if (level.getBlockState(adj).getBlock() instanceof RedstoneOutputBlock)
+            accumulator.add(adj);
+    }
+    for (BlockPos neighbor : directConnections) {
+        var be = level.getBlockEntity(neighbor);
+        if (be instanceof RedstoneConnectorBlockEntity conn)
+            conn.rebuildOutputCache(level, visited, accumulator);
+    }
+}
+```
+
+**Why accumulator instead of return-list?**
+Return-list is O(N × M) in the worst case (linear chain, every connector has an output — ~500k copies for 1000 nodes). Accumulator is O(N + M): each output is appended exactly once. Rebuild is rare (topology change only), but the accumulator pattern is strictly better and equally readable.
 
 ### Step 1 — Add cache fields to `RedstoneConnectorBlockEntity`
 ```java
 private final List<BlockPos> reachableOutputs = new ArrayList<>();
 private boolean cacheDirty = true;
 ```
+Not persisted — derived data, rebuilt lazily.
 
-### Step 2 — Add `rebuildOutputCache(Level level)` method
-- BFS through `directConnections` (same algorithm as current `receiveSignal()`)
-- For each visited connector, check 6 faces for `RedstoneOutputBlock`
-- Collect all found output positions into `reachableOutputs`
-- Set `cacheDirty = false`
+### Step 2 — Add `rebuildOutputCache(Level level)` + DFS worker
+See traversal design above.
 
-### Step 3 — Add `propagateSignal(int power, Level level)` method
-- If `cacheDirty`, call `rebuildOutputCache(level)` first
-- Iterate `reachableOutputs`, set each output's POWER block state via `Block.UPDATE_ALL`
-- Remove the old `receiveSignal()` method
+### Step 3 — Add `propagateSignal(int power, Level level)`
+- If `cacheDirty`, call `rebuildOutputCache(level)` first (lazy rebuild — paid once per topology change)
+- Iterate `reachableOutputs`, set each output's POWER via `Block.UPDATE_ALL`
+
+Call chain:
+```
+topology change  →  addConnection() / removeConnection()  →  markNetworkDirty(new HashSet<>())  →  cacheDirty = true (all connectors)
+signal edge      →  propagateSignal()  →  [if dirty] rebuildOutputCache()  →  iterate reachableOutputs
+```
 
 ### Step 4 — Mark cache dirty on topology changes
-In `addConnection()` and a new `removeConnection()`: set `cacheDirty = true` on all
-reachable connectors (another BFS), then call `syncToClient()`
-
-In `RedstoneConnectorBlock`, add `neighborChanged()` to detect when an OutputBlock
-is placed/broken adjacent to a connector and mark `cacheDirty = true`.
+- `addConnection()`: after adding, call `markNetworkDirty(new HashSet<>())`
+- `removeConnection(BlockPos pos)` (new method): remove from `directConnections`, call `markNetworkDirty(new HashSet<>())`, then `setChanged()` + `syncToClient()`
+- `loadAdditional()`: set `cacheDirty = true` (cache not serialised, rebuild on first propagation after world load)
 
 ### Step 5 — Update `RedstoneInputBlock.neighborChanged()` call site
-Replace `connector.receiveSignal(power, level)` with `connector.propagateSignal(power, level)`
+Uses `connector.propagateSignal(power, level)` (Phase 0 already wires this up).
 <!-- SECTION:PLAN:END -->
 
 ## Implementation Notes
