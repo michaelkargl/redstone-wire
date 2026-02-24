@@ -1,16 +1,9 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.input;
 
+import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**

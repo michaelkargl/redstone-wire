@@ -1,5 +1,8 @@
 package at.osa.redstonewire;
 
+import at.osa.redstonewire.connector.RedstoneConnectorBlockEntityRenderer;
+import at.osa.redstonewire.input.RedstoneInputBlockEntityRenderer;
+import at.osa.redstonewire.output.RedstoneOutputBlockEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;

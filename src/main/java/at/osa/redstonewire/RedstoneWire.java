@@ -1,5 +1,11 @@
 package at.osa.redstonewire;
 
+import at.osa.redstonewire.connector.RedstoneConnectorBlock;
+import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
+import at.osa.redstonewire.input.RedstoneInputBlock;
+import at.osa.redstonewire.input.RedstoneInputBlockEntity;
+import at.osa.redstonewire.output.RedstoneOutputBlock;
+import at.osa.redstonewire.output.RedstoneOutputBlockEntity;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;

@@ -1,5 +1,7 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.output;
 
+import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 

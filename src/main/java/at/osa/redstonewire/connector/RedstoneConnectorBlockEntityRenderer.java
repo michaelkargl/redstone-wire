@@ -1,5 +1,6 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.connector;
 
+import at.osa.redstonewire.CableRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;

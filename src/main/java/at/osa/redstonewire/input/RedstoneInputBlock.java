@@ -1,6 +1,8 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.input;
 
 
+import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

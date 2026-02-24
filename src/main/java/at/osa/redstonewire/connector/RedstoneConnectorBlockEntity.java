@@ -1,5 +1,9 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.connector;
 
+import at.osa.redstonewire.output.RedstoneOutputBlock;
+import at.osa.redstonewire.output.RedstoneOutputBlockEntity;
+import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
