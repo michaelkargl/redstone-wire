@@ -34,5 +34,6 @@ public class RedstoneWireClient {
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(RedstoneWire.REDSTONE_CONNECTOR_ENTITY.get(), RedstoneConnectorBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(RedstoneWire.REDSTONE_INPUT_ENTITY.get(), RedstoneInputBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(RedstoneWire.REDSTONE_OUTPUT_ENTITY.get(), RedstoneOutputBlockEntityRenderer::new);
     }
 }
