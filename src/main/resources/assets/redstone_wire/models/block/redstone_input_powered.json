@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "block/cube_all",
   "textures": {
-    "all": "minecraft:block/observer_front"
+    "all": "redstone_wire:block/redstone_input_unpowered"
   }
 }
