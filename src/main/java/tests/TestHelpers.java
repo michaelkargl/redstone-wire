@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.LeverBlock;
 import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -32,11 +31,11 @@ public class TestHelpers {
         leverBlock.pull(currentState, helper.getLevel(), absolutePos, null);
     }
 
-    public static void assertLeverIsPowered(GameTestHelper helper, int x, int y, int z, boolean expected) {
-        assertLeverIsPowered(helper, new BlockPos(x, y, z), expected);
+    public static void assertLeverState(GameTestHelper helper, int x, int y, int z, boolean expected) {
+        assertLeverState(helper, new BlockPos(x, y, z), expected);
     }
 
-    public static void assertLeverIsPowered(GameTestHelper helper, BlockPos leverPosition, boolean expected) {
+    public static void assertLeverState(GameTestHelper helper, BlockPos leverPosition, boolean expected) {
         var state = helper.getBlockState(leverPosition);
         var block = state.getBlock();
 
@@ -48,6 +47,14 @@ public class TestHelpers {
         helper.assertTrue(
                 isPowered == expected,
                 "Expected lever at position %s to be %s but it is %s.".formatted(leverPosition, expected ? "powered" : "unpowered", isPowered ? "powered" : "unpowered"));
+    }
+
+    public static void assertLeverIsOff(GameTestHelper helper, BlockPos leverPosition) {
+        assertLeverState(helper, leverPosition, false);
+    }
+
+    public static void assertLeverIsOn(GameTestHelper helper, BlockPos leverPosition) {
+        assertLeverState(helper, leverPosition, true);
     }
 
     public static void assertRedstoneLampIsLit(GameTestHelper helper, BlockPos position, boolean isLit) {
@@ -118,17 +125,21 @@ public class TestHelpers {
         }
     }
 
-    public static void assertRedstoneWirePowered(GameTestHelper helper, BlockPos pos, boolean expectedState) {
+    public static void assertRedstoneWire(GameTestHelper helper, BlockPos pos, boolean expectedState) {
+        var expectedPowerLevel = expectedState ? 15 : 0;
+        assertRedstoneWire(helper, pos, expectedPowerLevel);
+    }
+
+    public static void assertRedstoneWire(GameTestHelper helper, BlockPos pos, int expectedPowerLevel) {
         var blockState = helper.getBlockState(pos);
         var block = blockState.getBlock();
         ensureRedstoneWireBlock(block);
 
         var powerLevel = blockState.getValue(RedStoneWireBlock.POWER);
-        if (expectedState) {
-            helper.assertValueEqual(powerLevel, 15, "Redstone wire at is not powered");
-        } else {
-            helper.assertValueEqual(powerLevel, 0, "Redstone wire at is powered");
-        }
+        helper.assertValueEqual(
+                powerLevel,
+                expectedPowerLevel,
+                "redstone wire power level at %s".formatted(pos));
     }
 
     /**
