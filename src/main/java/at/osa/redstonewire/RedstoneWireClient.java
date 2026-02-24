@@ -32,7 +32,7 @@ public class RedstoneWireClient {
     }
 
     static void registerRenderers(EntityRenderersEvent.RegisterRenderers event) {
-        // Register the block entity renderer for redstone chains
         event.registerBlockEntityRenderer(RedstoneWire.REDSTONE_CONNECTOR_ENTITY.get(), RedstoneConnectorBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(RedstoneWire.REDSTONE_INPUT_ENTITY.get(), RedstoneInputBlockEntityRenderer::new);
     }
 }

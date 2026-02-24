@@ -74,6 +74,10 @@ public class RedstoneWire {
             "redstone_connector_entity",
             () -> BlockEntityType.Builder.of(RedstoneConnectorBlockEntity::new, REDSTONE_CONNECTOR_BLOCK.get()).build(null));
 
+    public static final Supplier<BlockEntityType<RedstoneInputBlockEntity>> REDSTONE_INPUT_ENTITY = BLOCK_ENTITY_TYPES.register(
+            "redstone_input_entity",
+            () -> BlockEntityType.Builder.of(RedstoneInputBlockEntity::new, REDSTONE_INPUT_BLOCK.get()).build(null));
+
     // Data component for storing link data on the connector item
     public static final Supplier<DataComponentType<CompoundTag>> CONNECTOR_LINK_DATA = DATA_COMPONENT_TYPES.register(
             "connector_link_data",
