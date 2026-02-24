@@ -13,14 +13,17 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 
 public class RedstoneConnectorBlockEntity extends BlockEntity {
 
     private final List<BlockPos> directConnections = new ArrayList<>();
+
+    // In-memory routing cache — not persisted, rebuilt lazily after topology changes or world load.
+    // Set prevents duplicate entries when two connector paths reach the same OutputBlock.
+    private final Set<BlockPos> reachableOutputs = new HashSet<>();
+    private boolean cacheDirty = true;
 
     public RedstoneConnectorBlockEntity(BlockPos pos, BlockState blockState) {
         super(RedstoneWire.REDSTONE_CONNECTOR_ENTITY.get(), pos, blockState);
@@ -83,6 +86,9 @@ public class RedstoneConnectorBlockEntity extends BlockEntity {
 
         this.directConnections.clear();
         this.directConnections.addAll(connections);
+
+        // Cache is never persisted — must be rebuilt after every world load.
+        this.cacheDirty = true;
     }
 
     /**
@@ -124,6 +130,63 @@ public class RedstoneConnectorBlockEntity extends BlockEntity {
         return tag;
     }
 
+    /**
+     * Hot path — called up to 20×/sec by clock signals.
+     * Rebuilds the output cache lazily (once per topology change), then sets
+     * power on every reachable OutputBlock in one pass.
+     */
+    public void propagateSignal(int power, Level level) {
+        if (cacheDirty) {
+            rebuildOutputCache(level);
+        }
+
+        for (BlockPos outputPos : reachableOutputs) {
+            BlockState state = level.getBlockState(outputPos);
+            level.setBlock(outputPos, state.setValue(RedstoneOutputBlock.POWER, power), Block.UPDATE_ALL);
+        }
+    }
+
+    /**
+     * Entry point for cache rebuild. Clears the list, starts DFS, marks cache clean.
+     */
+    void rebuildOutputCache(Level level) {
+        reachableOutputs.clear();
+        rebuildOutputCache(level, new HashSet<>(), reachableOutputs);
+        cacheDirty = false;
+    }
+
+    /**
+     * DFS worker — same structural shape as markNetworkDirty.
+     * Visits every connector reachable via directConnections and appends any adjacent
+     * OutputBlock positions to the shared accumulator.
+     *
+     * TODO(human): implement this method body.
+     *   Steps:
+     *   1. Loop prevention: if this position is already in visited, return immediately.
+     *   2. For each of the 6 Directions: if the adjacent block is a RedstoneOutputBlock,
+     *      add that position to the accumulator.
+     *   3. For each pos in directConnections: look up the block entity; if it's a
+     *      RedstoneConnectorBlockEntity, recurse passing level, visited, accumulator.
+     */
+    void rebuildOutputCache(Level level, Set<BlockPos> visited, Set<BlockPos> accumulator) {
+        // TODO(human): implement
+    }
+
+    /**
+     * Propagates a dirty-cache flag across the entire connected network.
+     * Uses recursive DFS with a visited set to avoid infinite loops in cycles.
+     */
+    public void markNetworkDirty(Set<BlockPos> visited) {
+        if (!visited.add(this.getBlockPos())) return; // loop prevention
+        this.cacheDirty = true;
+        for (BlockPos neighbor : directConnections) {
+            var be = level.getBlockEntity(neighbor);
+            if (be instanceof RedstoneConnectorBlockEntity conn) {
+                conn.markNetworkDirty(visited);
+            }
+        }
+    }
+
     public void addConnection(BlockPos pos) {
         var alreadyConnected = directConnections.contains(pos);
         if (alreadyConnected) {
@@ -134,10 +197,22 @@ public class RedstoneConnectorBlockEntity extends BlockEntity {
         // TODO kami: Add distance check
 
         directConnections.add(pos);
+        markNetworkDirty(new HashSet<>());
 
         // Tells Minecraft "this blocks connections have changed, include them next time the chunk is saved to disk
         this.setChanged();
         // Makes the client aware of changes in this entity (see getUpdatePacket() and getUpdateTag())
+        this.syncToClient();
+    }
+
+    /**
+     * Removes a direct connection to the given position and invalidates the entire
+     * network's cache so the now-split graph recalculates correctly.
+     */
+    public void removeConnection(BlockPos pos) {
+        directConnections.remove(pos);
+        markNetworkDirty(new HashSet<>());
+        this.setChanged();
         this.syncToClient();
     }
 
