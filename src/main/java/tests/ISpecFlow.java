@@ -11,4 +11,5 @@ public interface ISpecFlow {
 
     ISpecFlow and(String description, Runnable action, int runAtTick);
     ISpecFlow and(String description, Runnable action);
+    ISpecFlow and(String description);
 }

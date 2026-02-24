@@ -54,6 +54,10 @@ public class SpecFlow implements ISpecFlow {
         return this;
     }
 
+    public ISpecFlow and(String description) {
+        return and(description, () -> {});
+    }
+
     public ISpecFlow and(String description, Runnable action) {
         return and(description, action, tick + 1);
     }
