@@ -24,11 +24,12 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
         super.saveAdditional(tag, registries);
 
         var list = new ListTag();
+        var origin = this.getBlockPos();
         for (var position : directConnections) {
             var posTag = new CompoundTag();
-            posTag.putInt("x", position.getX());
-            posTag.putInt("y", position.getY());
-            posTag.putInt("z", position.getZ());
+            posTag.putInt("x", position.getX() - origin.getX());
+            posTag.putInt("y", position.getY() - origin.getY());
+            posTag.putInt("z", position.getZ() - origin.getZ());
             list.add(posTag);
         }
 
@@ -44,7 +45,7 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
                         .stream()
                         .filter(t -> t instanceof CompoundTag)
                         .map(t -> (CompoundTag) t)
-                        .map(positionTag -> new BlockPos(
+                        .map(positionTag -> this.getBlockPos().offset(
                                 positionTag.getInt("x"),
                                 positionTag.getInt("y"),
                                 positionTag.getInt("z")))
