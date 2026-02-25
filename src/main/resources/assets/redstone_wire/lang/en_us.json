@@ -5,6 +5,7 @@
   "block.redstone_wire.redstone_chain": "Redstone Chain",
   "block.redstone_wire.redstone_input": "Redstone Input",
   "block.redstone_wire.redstone_output": "Redstone Output",
+  "block.redstone_wire.redstone_relay": "Redstone Relay",
   "item.redstone_wire.example_item": "Example Item",
   "item.redstone_wire.redstone_chain_connector": "Redstone Chain Connector",
 
