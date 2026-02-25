@@ -32,7 +32,4 @@ public class RedstoneRenderType {
                     .setOverlayState(new RenderStateShard.OverlayStateShard(true))
                     .createCompositeState(false)
     );
-
-    private RedstoneRenderType() {
-    }
 }

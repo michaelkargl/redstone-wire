@@ -6,6 +6,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -27,13 +28,19 @@ public class RedstoneConnectorBlockEntityRenderer implements BlockEntityRenderer
         BlockPos blockPos = entity.getBlockPos();
         int power = entity.getSignal();
 
+        var startAttachY = CableRenderer.attachY(entity.getBlockState().getBlock());
+
+        Level level = entity.getLevel();
         for (BlockPos connection : entity.getConnections()) {
             // Only render cable once per connection (compareTo ensures A->B is only rendered from A)
             if (blockPos.compareTo(connection) < 0) {
-                Vec3 start = new Vec3(0.5, 1.0, 0.5);
+                var destAttachY = level != null
+                        ? CableRenderer.attachY(level.getBlockState(connection).getBlock())
+                        : 1.0;
+                Vec3 start = new Vec3(0.5, startAttachY, 0.5);
                 Vec3 end = Vec3.atCenterOf(connection)
                         .subtract(Vec3.atCenterOf(blockPos))
-                        .add(0.5, 1.0, 0.5);
+                        .add(0.5, destAttachY, 0.5);
                 CableRenderer.renderCable(stack, buffer, start, end, power, packedLight, packedOverlay);
             }
         }

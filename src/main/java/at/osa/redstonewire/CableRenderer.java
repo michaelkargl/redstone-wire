@@ -1,8 +1,10 @@
 package at.osa.redstonewire;
 
+import at.osa.redstonewire.relay.RedstoneRelayBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 
@@ -13,6 +15,14 @@ import org.joml.Matrix4f;
 public final class CableRenderer {
 
     private CableRenderer() {}
+
+    /**
+     * Returns the Y coordinate (in local block space) where cables attach to a block.
+     * Non-full-cube blocks like the relay have a lower attachment point matching their geometry.
+     */
+    public static double attachY(Block block) {
+        return block instanceof RedstoneRelayBlock ? 11.0 / 16.0 : 1.0;
+    }
 
     /**
      * Renders a cable as segments with quad geometry between two points.
