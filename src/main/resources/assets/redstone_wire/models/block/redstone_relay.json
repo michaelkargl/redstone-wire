@@ -9,6 +9,7 @@
       "from": [0, 0, 0],
       "to": [16, 2, 16],
       "faces": {
+        "__comment": "cullface tells the renderer to skip rendering the face if the adjacent block is solid. This is an optional performance optimization -- no point in drawing faces that nobody can see.",
         "down":  { "texture": "#all", "cullface": "down" },
         "up":    { "texture": "#all" },
         "north": { "texture": "#all", "cullface": "north" },
