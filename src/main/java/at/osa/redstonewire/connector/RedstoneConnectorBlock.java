@@ -10,17 +10,64 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class RedstoneConnectorBlock extends Block implements EntityBlock {
+
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+
+    // Defines the collision/hitbox. It uses pixel coordinates where
+    // 0,0,0 is the bottom left corner of the block
+    // 16,16,16 is the top right corner of the block
+    // 8,8,8 is the center of the block
+    //
+    //    ││   ← shaft (2px wide, Y 5-11)
+    //  │    │  ← base ring (6px wide, Y 2-5)
+    // │──────│  ← flat slab (16px wide, Y 0-2)
+    private static final VoxelShape SHAPE = Shapes.or(
+            // flat base slab
+            // Spans full width and depth with a height of 2
+            Block.box(0, 0, 0, 16, 2, 16),  // flat base slab
+            // base ring
+            Block.box(5, 2, 5, 11, 5, 11),  // antenna base ring
+            // shaft
+            Block.box(7, 5, 7, 9, 11, 9)    // antenna shaft
+    );
+
+
     public RedstoneConnectorBlock(Properties properties) {
+
         super(properties);
+        registerDefaultState(stateDefinition.any().setValue(FACING, net.minecraft.core.Direction.NORTH));
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
     }
 
     @Override

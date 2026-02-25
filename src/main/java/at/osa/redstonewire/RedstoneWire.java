@@ -2,7 +2,6 @@ package at.osa.redstonewire;
 
 import at.osa.redstonewire.connector.RedstoneConnectorBlock;
 import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
-import at.osa.redstonewire.relay.RedstoneRelayBlock;
 import at.osa.redstonewire.input.RedstoneInputBlock;
 import at.osa.redstonewire.input.RedstoneInputBlockEntity;
 import at.osa.redstonewire.output.RedstoneOutputBlock;
@@ -58,7 +57,7 @@ public class RedstoneWire {
 
     public static final DeferredBlock<RedstoneConnectorBlock> REDSTONE_CONNECTOR_BLOCK = BLOCKS.register(
             "redstone_connector",
-            () -> new RedstoneConnectorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
+            () -> new RedstoneConnectorBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).noOcclusion()));
     public static final DeferredItem<BlockItem> REDSTONE_CONNECTOR_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_connector", REDSTONE_CONNECTOR_BLOCK);
 
     public static final DeferredBlock<RedstoneInputBlock> REDSTONE_INPUT_BLOCK = BLOCKS.register(
@@ -72,19 +71,10 @@ public class RedstoneWire {
             () -> new RedstoneOutputBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
     public static final DeferredItem<BlockItem> REDSTONE_OUTPUT_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_output", REDSTONE_OUTPUT_BLOCK);
 
-    public static final DeferredBlock<RedstoneRelayBlock> REDSTONE_RELAY_BLOCK = BLOCKS.register(
-            "redstone_relay",
-            () -> new RedstoneRelayBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE).noOcclusion()));
-    public static final DeferredItem<BlockItem> REDSTONE_RELAY_BLOCK_ITEM = ITEMS.registerSimpleBlockItem("redstone_relay", REDSTONE_RELAY_BLOCK);
-
-    public static final DeferredBlock<RedstoneChainBlock> REDSTONE_CHAIN_BLOCK = BLOCKS.register(
-            "redstone_chain",
-            () -> new RedstoneChainBlock(BlockBehaviour.Properties.of().mapColor(MapColor.STONE)));
-
     // Creates the block entity type for the Redstone Chain
     public static final Supplier<BlockEntityType<RedstoneConnectorBlockEntity>> REDSTONE_CONNECTOR_ENTITY = BLOCK_ENTITY_TYPES.register(
             "redstone_connector_entity",
-            () -> BlockEntityType.Builder.of(RedstoneConnectorBlockEntity::new, REDSTONE_CONNECTOR_BLOCK.get(), REDSTONE_RELAY_BLOCK.get()).build(null));
+            () -> BlockEntityType.Builder.of(RedstoneConnectorBlockEntity::new, REDSTONE_CONNECTOR_BLOCK.get()).build(null));
 
     public static final Supplier<BlockEntityType<RedstoneInputBlockEntity>> REDSTONE_INPUT_ENTITY = BLOCK_ENTITY_TYPES.register(
             "redstone_input_entity",
@@ -109,7 +99,6 @@ public class RedstoneWire {
             .icon(() -> REDSTONE_CONNECTOR_BLOCK_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
                 output.accept(REDSTONE_CONNECTOR_BLOCK_ITEM.get());
-                output.accept(REDSTONE_RELAY_BLOCK_ITEM.get());
                 output.accept(REDSTONE_INPUT_BLOCK_ITEM.get());
                 output.accept(REDSTONE_OUTPUT_BLOCK_ITEM.get());
             }).build());

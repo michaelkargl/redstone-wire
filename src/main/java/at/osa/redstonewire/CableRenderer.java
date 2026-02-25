@@ -1,6 +1,6 @@
 package at.osa.redstonewire;
 
-import at.osa.redstonewire.relay.RedstoneRelayBlock;
+import at.osa.redstonewire.connector.RedstoneConnectorBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -21,7 +21,7 @@ public final class CableRenderer {
      * Non-full-cube blocks like the relay have a lower attachment point matching their geometry.
      */
     public static double attachY(Block block) {
-        return block instanceof RedstoneRelayBlock ? 11.0 / 16.0 : 1.0;
+        return block instanceof RedstoneConnectorBlock ? 11.0 / 16.0 : 1.0;
     }
 
     /**

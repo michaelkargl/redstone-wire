@@ -1,5 +1,8 @@
 {
   "variants": {
-    "": { "model": "redstone_wire:block/redstone_connector" }
+    "facing=north": { "model": "redstone_wire:block/redstone_connector" },
+    "facing=south": { "model": "redstone_wire:block/redstone_connector", "y": 180 },
+    "facing=east":  { "model": "redstone_wire:block/redstone_connector", "y": 90 },
+    "facing=west":  { "model": "redstone_wire:block/redstone_connector", "y": 270 }
   }
 }

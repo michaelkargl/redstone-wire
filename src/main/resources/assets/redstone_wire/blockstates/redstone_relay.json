@@ -1,8 +1,0 @@
-{
-  "variants": {
-    "facing=north": { "model": "redstone_wire:block/redstone_relay" },
-    "facing=south": { "model": "redstone_wire:block/redstone_relay", "y": 180 },
-    "facing=east":  { "model": "redstone_wire:block/redstone_relay", "y": 90 },
-    "facing=west":  { "model": "redstone_wire:block/redstone_relay", "y": 270 }
-  }
-}
