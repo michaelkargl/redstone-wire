@@ -2,7 +2,10 @@ package at.osa.redstonewire.input;
 
 
 import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.RedstoneWireBlockEntity;
 import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
+
+import java.util.ArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -56,6 +59,34 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
     }
 
     /**
+     * Called when a block is destroyed (newState is Blocks.AIR)
+     * or whenever certain block properties change (FACING changes from nord to east)
+     *
+     * @param state
+     * @param level
+     * @param pos
+     * @param newState
+     * @param movedByPiston
+     */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        boolean blockReplaced = !state.is(newState.getBlock());
+        if (blockReplaced) {
+            var blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof RedstoneWireBlockEntity wireEntity) {
+                var player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
+                wireEntity.removeBidirectionalConnections(level, player, pos);
+            }
+        }
+
+        // must be last, triggers the actual removal
+        // Why not inside the if guard? Even if the block has not been replaced, there is still a removal triggered for
+        // this block that must run its course. Our guard protects our cleanup logic, their guard protects their cleanup
+        // logic. Both must run for proper cleanup.
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    /**
      * Called when a neighboring block changes (placed, broken, or updated).
      * Reads the new power level, short-circuits if unchanged, updates our own state,
      * then pushes the signal into every linked ConnectorBlockEntity.
@@ -103,7 +134,7 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
         if (!(be instanceof RedstoneInputBlockEntity inputBE)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-
+        
         if (!level.isClientSide) {
             var linkData = heldItem.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
             if (!hasSavedPosition(linkData)) {
@@ -115,11 +146,8 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
                 clearSavedPosition(heldItem);
 
                 var connectorBE = level.getBlockEntity(connectorPos);
-                if (connectorBE instanceof RedstoneConnectorBlockEntity) {
-                    inputBE.addConnection(connectorPos);
-                    player.displayClientMessage(
-                            Component.literal("Linked " + connectorPos.toShortString() + " → " + pos.toShortString()).withStyle(ChatFormatting.GREEN),
-                            true);
+                if (connectorBE instanceof RedstoneWireBlockEntity connector) {
+                    connector.createBidirectionalConnection(level, connectorPos, pos, player);
                 } else {
                     player.displayClientMessage(
                             Component.literal("Saved position is not a ConnectorBlock").withStyle(ChatFormatting.RED),

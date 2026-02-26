@@ -1,6 +1,7 @@
 package at.osa.redstonewire.connector;
 
 import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +26,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
 
 public class RedstoneConnectorBlock extends Block implements EntityBlock {
 
@@ -73,6 +76,34 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new RedstoneConnectorBlockEntity(blockPos, blockState);
+    }
+
+    /**
+     * Called when a block is destroyed (newState is Blocks.AIR)
+     * or whenever certain block properties change (FACING changes from nord to east)
+     *
+     * @param state
+     * @param level
+     * @param pos
+     * @param newState
+     * @param movedByPiston
+     */
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        boolean blockReplaced = !state.is(newState.getBlock());
+        if (blockReplaced) {
+            var blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof RedstoneWireBlockEntity wireEntity) {
+                var player = level.getNearestPlayer(pos.getX(), pos.getY(), pos.getZ(), 16, false);
+                wireEntity.removeBidirectionalConnections(level, player, pos);
+            }
+        }
+
+        // must be last, triggers the actual removal
+        // Why not inside the if guard? Even if the block has not been replaced, there is still a removal triggered for
+        // this block that must run its course. Our guard protects our cleanup logic, their guard protects their cleanup
+        // logic. Both must run for proper cleanup.
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     /**
@@ -162,16 +193,9 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
 
         // TODO kami: validate if connection is valid
 
-        createBidirectionalConnection(level, startPosition, clickedBlockPosition, player);
-    }
-
-    private void createBidirectionalConnection(Level level, BlockPos startPos, BlockPos endPos, Player player) {
-        var startBlockEntity = level.getBlockEntity(startPos);
-        var endBlockEntity = level.getBlockEntity(endPos);
-
-        if (startBlockEntity instanceof RedstoneConnectorBlockEntity startConnector
-                && endBlockEntity instanceof RedstoneConnectorBlockEntity endConnector) {
-            createConnection(startConnector, endConnector, player);
+        var blockEntity = level.getBlockEntity(startPosition);
+        if (blockEntity instanceof RedstoneWireBlockEntity wireNodeEntity) {
+            wireNodeEntity.createBidirectionalConnection(level, startPosition, clickedBlockPosition, player);
         }
     }
 
@@ -191,19 +215,5 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
         stack.set(RedstoneWire.CONNECTOR_LINK_DATA, null);
     }
 
-    /**
-     * Creates a bidirectional connection between two connector blocks.
-     */
-    private void createConnection(
-            RedstoneConnectorBlockEntity connectorSource,
-            RedstoneConnectorBlockEntity connectorTarget,
-            Player player
-    ) {
-        connectorSource.addConnection(connectorTarget.getBlockPos());
-        connectorTarget.addConnection(connectorSource.getBlockPos());
 
-        player.displayClientMessage(
-                Component.literal("Connected " + connectorSource.getBlockPos().toShortString() + " to " + connectorTarget.getBlockPos().toShortString()).withStyle(ChatFormatting.GREEN),
-                true);
-    }
 }
