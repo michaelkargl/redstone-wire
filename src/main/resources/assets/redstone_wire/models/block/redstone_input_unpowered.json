@@ -1,6 +1,48 @@
 {
-  "parent": "block/cube_all",
+  "parent": "block/block",
   "textures": {
-    "all": "redstone_wire:block/redstone_input_unpowered"
-  }
+    "all": "redstone_wire:block/redstone_input_unpowered",
+    "particle": "redstone_wire:block/redstone_input_unpowered"
+  },
+  "elements": [
+    {
+      "__comment": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
+      "from": [0, 0, 0],
+      "to": [16, 2, 16],
+      "faces": {
+        "down":  { "texture": "#all", "cullface": "down" },
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all", "cullface": "north" },
+        "south": { "texture": "#all", "cullface": "south" },
+        "west":  { "texture": "#all", "cullface": "west" },
+        "east":  { "texture": "#all", "cullface": "east" }
+      }
+    },
+    {
+      "__comment": "antenna base ring",
+      "from": [5, 2, 5],
+      "to": [11, 5, 11],
+      "faces": {
+        "down":  { "texture": "#all" },
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    },
+    {
+      "__comment": "antenna shaft",
+      "from": [7, 5, 7],
+      "to": [9, 11, 9],
+      "faces": {
+        "down":  { "texture": "#all" },
+        "up":    { "texture": "#all" },
+        "north": { "texture": "#all" },
+        "south": { "texture": "#all" },
+        "west":  { "texture": "#all" },
+        "east":  { "texture": "#all" }
+      }
+    }
+  ]
 }

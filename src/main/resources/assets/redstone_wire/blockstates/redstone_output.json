@@ -1,20 +1,12 @@
 {
-  "variants": {
-    "power=0": { "model": "redstone_wire:block/redstone_output_unpowered" },
-    "power=1": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=2": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=3": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=4": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=5": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=6": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=7": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=8": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=9": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=10": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=11": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=12": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=13": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=14": { "model": "redstone_wire:block/redstone_output_powered" },
-    "power=15": { "model": "redstone_wire:block/redstone_output_powered" }
-  }
+  "multipart": [
+    { "when": {"facing": "north", "power": "0"}, "apply": {"model": "redstone_wire:block/redstone_output_unpowered"} },
+    { "when": {"facing": "south", "power": "0"}, "apply": {"model": "redstone_wire:block/redstone_output_unpowered", "y": 180} },
+    { "when": {"facing": "east",  "power": "0"}, "apply": {"model": "redstone_wire:block/redstone_output_unpowered", "y": 90} },
+    { "when": {"facing": "west",  "power": "0"}, "apply": {"model": "redstone_wire:block/redstone_output_unpowered", "y": 270} },
+    { "when": {"facing": "north", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"}, "apply": {"model": "redstone_wire:block/redstone_output_powered"} },
+    { "when": {"facing": "south", "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"}, "apply": {"model": "redstone_wire:block/redstone_output_powered", "y": 180} },
+    { "when": {"facing": "east",  "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"}, "apply": {"model": "redstone_wire:block/redstone_output_powered", "y": 90} },
+    { "when": {"facing": "west",  "power": "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15"}, "apply": {"model": "redstone_wire:block/redstone_output_powered", "y": 270} }
+  ]
 }

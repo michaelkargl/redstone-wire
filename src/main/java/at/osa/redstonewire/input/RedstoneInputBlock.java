@@ -5,7 +5,6 @@ import at.osa.redstonewire.RedstoneWire;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 
-import java.util.ArrayList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +14,8 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -22,8 +23,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -32,30 +38,64 @@ import org.jetbrains.annotations.Nullable;
  */
 public class RedstoneInputBlock extends Block implements EntityBlock {
 
+    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+
     /**
      * Block state property storing redstone power level (0-15).
      * 0 = unpowered, 15 = maximum power.
      */
     public static final IntegerProperty POWER = BlockStateProperties.POWER;
 
+    // Defines the collision/hitbox. It uses pixel coordinates where
+    // 0,0,0 is the bottom left corner of the block
+    // 16,16,16 is the top right corner of the block
+    // 8,8,8 is the center of the block
+    //
+    //    ││   ← shaft (2px wide, Y 5-11)
+    //  │    │  ← base ring (6px wide, Y 2-5)
+    // │──────│  ← flat slab (16px wide, Y 0-2)
+    private static final VoxelShape SHAPE = Shapes.or(
+            // flat base slab
+            // Spans full width and depth with a height of 2
+            Block.box(0, 0, 0, 16, 2, 16),  // flat base slab
+            // base ring
+            Block.box(5, 2, 5, 11, 5, 11),  // antenna base ring
+            // shaft
+            Block.box(7, 5, 7, 9, 11, 9)    // antenna shaft
+    );
+
     public RedstoneInputBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(POWER, 0));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(POWER, 0)
+                .setValue(FACING, net.minecraft.core.Direction.NORTH));
     }
 
     @Override
-    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+    public @NotNull VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return SHAPE;
+    }
+
+    @Override
+    public @NotNull BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        return defaultBlockState().setValue(FACING, ctx.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    public @NotNull BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new RedstoneInputBlockEntity(pos, state);
     }
 
     /**
      * Defines which properties this block's state can have.
      * In Minecraft, blocks can have various "states" (like whether a door is open or closed).
+     *
      * @param builder The builder object used to register state properties
      */
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         builder.add(POWER);
+        builder.add(FACING);
     }
 
     /**
@@ -119,8 +159,8 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
     /**
      * Called when a player right-clicks this block while holding REDSTONE.
      * Implements Step 2 of the two-click linking flow:
-     *   Step 1: player clicks a ConnectorBlock with REDSTONE → saves connector pos to item data
-     *   Step 2: player clicks this InputBlock with REDSTONE → reads saved pos, creates link
+     * Step 1: player clicks a ConnectorBlock with REDSTONE → saves connector pos to item data
+     * Step 2: player clicks this InputBlock with REDSTONE → reads saved pos, creates link
      */
     @Override
     protected ItemInteractionResult useItemOn(ItemStack heldItem, BlockState state, Level level,
@@ -134,7 +174,7 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
         if (!(be instanceof RedstoneInputBlockEntity inputBE)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        
+
         if (!level.isClientSide) {
             var linkData = heldItem.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
             if (!hasSavedPosition(linkData)) {
