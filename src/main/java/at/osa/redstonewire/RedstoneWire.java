@@ -1,5 +1,6 @@
 package at.osa.redstonewire;
 
+import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -15,7 +16,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 
-/** The @Mod([modId]) should match an entry in the META-INF/neoforge.mods.toml file. */
+/**
+ * The @Mod([modId]) should match an entry in the META-INF/neoforge.mods.toml file.
+ */
 @Mod(RedstoneWire.MODID)
 public class RedstoneWire {
     public static final String MODID = "redstone_wire";
@@ -32,27 +35,16 @@ public class RedstoneWire {
 
         NeoForge.EVENT_BUS.register(this);
 
-        modEventBus.addListener(this::addCreative);
-
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-    }
-
-    private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("HELLO FROM COMMON SETUP");
-        LOGGER.info("{}{}", Config.MAGIC_NUMBER_INTRODUCTION.get(), Config.MAGIC_NUMBER.getAsInt());
-        Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
-    }
-
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.REDSTONE_BLOCKS) {
-            event.accept(ModItems.REDSTONE_INPUT_BLOCK_ITEM);
-            event.accept(ModItems.REDSTONE_CONNECTOR_BLOCK_ITEM);
-            event.accept(ModItems.REDSTONE_OUTPUT_BLOCK_ITEM);
-        }
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerStartingEvent event) {
         LOGGER.info("HELLO from server starting");
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        LOGGER.info("HELLO FROM COMMON SETUP");
+        ModItems.ITEMS.getEntries().forEach((item) -> LOGGER.info("ITEM >> {}", item.get().getName(ItemStack.EMPTY)));
     }
 }

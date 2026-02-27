@@ -17,8 +17,7 @@ public final class ModCreativeTabs {
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> ModItems.REDSTONE_CONNECTOR_BLOCK_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(ModItems.REDSTONE_CONNECTOR_BLOCK_ITEM.get());
-                output.accept(ModItems.REDSTONE_INPUT_BLOCK_ITEM.get());
-                output.accept(ModItems.REDSTONE_OUTPUT_BLOCK_ITEM.get());
+                // Automatically register all items to creative tab
+                ModItems.ITEMS.getEntries().forEach(item -> output.accept(item.get()));
             }).build());
 }
