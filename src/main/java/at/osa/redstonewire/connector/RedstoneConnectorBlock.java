@@ -1,5 +1,6 @@
 package at.osa.redstonewire.connector;
 
+import at.osa.redstonewire.ModDataComponents;
 import at.osa.redstonewire.RedstoneWire;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -148,7 +149,7 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
     private void handleWireItemUse(Level level, BlockPos clickedBlockPos, RedstoneConnectorBlockEntity connector,
                                    Player player, ItemStack wireItemStack) {
         // does our string item contain any saved position data from the previous click?
-        var firstClickConnectorLinkData = wireItemStack.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
+        var firstClickConnectorLinkData = wireItemStack.getOrDefault(ModDataComponents.CONNECTOR_LINK_DATA, new CompoundTag());
         if (hasSavedPosition(firstClickConnectorLinkData)) {
             handleSecondClick(level, wireItemStack, firstClickConnectorLinkData, clickedBlockPos, player);
         } else {
@@ -173,7 +174,7 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
         positionTag.putInt("x", position.getX());
         positionTag.putInt("y", position.getY());
         positionTag.putInt("z", position.getZ());
-        itemStack.set(RedstoneWire.CONNECTOR_LINK_DATA, positionTag);
+        itemStack.set(ModDataComponents.CONNECTOR_LINK_DATA, positionTag);
     }
 
     private void handleSecondClick(
@@ -212,7 +213,7 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
     }
 
     private void clearSavedPosition(ItemStack stack) {
-        stack.set(RedstoneWire.CONNECTOR_LINK_DATA, null);
+        stack.set(ModDataComponents.CONNECTOR_LINK_DATA, null);
     }
 
 

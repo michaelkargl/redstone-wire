@@ -2,7 +2,7 @@ package at.osa.redstonewire.connector;
 
 import at.osa.redstonewire.output.RedstoneOutputBlock;
 import at.osa.redstonewire.output.RedstoneOutputBlockEntity;
-import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.ModBlockEntityTypes;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.*;
 import net.minecraft.world.level.Level;
@@ -17,7 +17,7 @@ public class RedstoneConnectorBlockEntity extends RedstoneWireBlockEntity {
     private boolean cacheDirty = true;
 
     public RedstoneConnectorBlockEntity(BlockPos pos, BlockState blockState) {
-        super(RedstoneWire.REDSTONE_CONNECTOR_ENTITY.get(), pos, blockState);
+        super(ModBlockEntityTypes.REDSTONE_CONNECTOR_ENTITY.get(), pos, blockState);
     }
 
     @Override

@@ -1,6 +1,6 @@
 package at.osa.redstonewire.input;
 
-import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.ModBlockEntityTypes;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -13,6 +13,6 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public class RedstoneInputBlockEntity extends RedstoneWireBlockEntity {
     public RedstoneInputBlockEntity(BlockPos pos, BlockState blockState) {
-        super(RedstoneWire.REDSTONE_INPUT_ENTITY.get(), pos, blockState);
+        super(ModBlockEntityTypes.REDSTONE_INPUT_ENTITY.get(), pos, blockState);
     }
 }

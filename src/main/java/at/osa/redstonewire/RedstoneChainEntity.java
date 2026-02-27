@@ -86,7 +86,7 @@ public class RedstoneChainEntity extends BlockEntity {
      * @param state The block state of the RedstoneChainBlock
      */
     public RedstoneChainEntity(BlockPos pos, BlockState state) {
-        super(RedstoneWire.REDSTONE_CONNECTOR_ENTITY.get(), pos, state);
+        super(ModBlockEntityTypes.REDSTONE_CONNECTOR_ENTITY.get(), pos, state);
     }
 
     /**

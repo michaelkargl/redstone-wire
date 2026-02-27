@@ -1,7 +1,7 @@
 package at.osa.redstonewire.input;
 
 
-import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.ModDataComponents;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 
@@ -176,7 +176,7 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
         }
 
         if (!level.isClientSide) {
-            var linkData = heldItem.getOrDefault(RedstoneWire.CONNECTOR_LINK_DATA, new CompoundTag());
+            var linkData = heldItem.getOrDefault(ModDataComponents.CONNECTOR_LINK_DATA, new CompoundTag());
             if (!hasSavedPosition(linkData)) {
                 player.displayClientMessage(
                         Component.literal("Right-click a ConnectorBlock first to select it").withStyle(ChatFormatting.YELLOW),
@@ -208,6 +208,6 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
     }
 
     private void clearSavedPosition(ItemStack stack) {
-        stack.set(RedstoneWire.CONNECTOR_LINK_DATA, null);
+        stack.set(ModDataComponents.CONNECTOR_LINK_DATA, null);
     }
 }
