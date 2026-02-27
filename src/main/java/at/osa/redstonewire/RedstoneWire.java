@@ -37,7 +37,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.function.Supplier;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
+/** The @Mod([modId]) should match an entry in the META-INF/neoforge.mods.toml file.
+ * DeferredRegister: Delays registration until the right mod loading phase.
+ *
+ */
 @Mod(RedstoneWire.MODID)
 public class RedstoneWire {
     // Define mod id in a common place for everything to reference
@@ -107,6 +110,9 @@ public class RedstoneWire {
     // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
     public RedstoneWire(IEventBus modEventBus, ModContainer modContainer) {
         // Register the commonSetup method for modloading
+        // There are 2 mod busses:
+        //   1. Mod bus (modEventBus) is used for lifecycle events: setup, registration, renderer registration
+        //   2. NeoForge bus (NeoForge.EVENT_BUS) is used for game events: server start, player actions, block breaks, ticks
         modEventBus.addListener(this::commonSetup);
 
         // Register the Deferred Register to the mod event bus so blocks get registered
