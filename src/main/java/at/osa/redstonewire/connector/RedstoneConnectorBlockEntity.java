@@ -2,7 +2,7 @@ package at.osa.redstonewire.connector;
 
 import at.osa.redstonewire.output.RedstoneOutputBlock;
 import at.osa.redstonewire.output.RedstoneOutputBlockEntity;
-import at.osa.redstonewire.ModBlockEntityTypes;
+import at.osa.redstonewire.init.ModBlockEntityTypes;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.*;
 import net.minecraft.world.level.Level;

@@ -1,5 +1,6 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.init;
 
+import at.osa.redstonewire.RedstoneWire;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;

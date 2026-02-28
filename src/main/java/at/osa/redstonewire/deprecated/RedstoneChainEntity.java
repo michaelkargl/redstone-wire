@@ -1,7 +1,7 @@
 package at.osa.redstonewire.deprecated;
 
 import at.osa.redstonewire.Config;
-import at.osa.redstonewire.ModBlockEntityTypes;
+import at.osa.redstonewire.init.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;

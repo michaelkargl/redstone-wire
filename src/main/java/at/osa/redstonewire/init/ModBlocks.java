@@ -1,5 +1,6 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.init;
 
+import at.osa.redstonewire.RedstoneWire;
 import at.osa.redstonewire.connector.RedstoneConnectorBlock;
 import at.osa.redstonewire.input.RedstoneInputBlock;
 import at.osa.redstonewire.output.RedstoneOutputBlock;

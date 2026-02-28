@@ -1,6 +1,6 @@
 package at.osa.redstonewire.output;
 
-import at.osa.redstonewire.ModBlockEntityTypes;
+import at.osa.redstonewire.init.ModBlockEntityTypes;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;

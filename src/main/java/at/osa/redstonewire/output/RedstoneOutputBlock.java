@@ -1,9 +1,8 @@
 package at.osa.redstonewire.output;
 
-import at.osa.redstonewire.ModDataComponents;
+import at.osa.redstonewire.init.ModDataComponents;
 import at.osa.redstonewire.RedstoneWire;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
-import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

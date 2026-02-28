@@ -1,7 +1,7 @@
 package at.osa.redstonewire.input;
 
 
-import at.osa.redstonewire.ModDataComponents;
+import at.osa.redstonewire.init.ModDataComponents;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 
@@ -30,7 +30,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * A block that can be used to input redstone signals into the wire network.

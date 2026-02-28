@@ -1,6 +1,6 @@
 package at.osa.redstonewire.connector;
 
-import at.osa.redstonewire.ModDataComponents;
+import at.osa.redstonewire.init.ModDataComponents;
 import at.osa.redstonewire.RedstoneWire;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import net.minecraft.ChatFormatting;
@@ -27,8 +27,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
 
 public class RedstoneConnectorBlock extends Block implements EntityBlock {
 

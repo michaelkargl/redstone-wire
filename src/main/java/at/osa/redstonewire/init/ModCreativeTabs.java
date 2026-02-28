@@ -1,5 +1,6 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.init;
 
+import at.osa.redstonewire.RedstoneWire;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;

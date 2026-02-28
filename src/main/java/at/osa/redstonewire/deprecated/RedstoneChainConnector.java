@@ -1,7 +1,7 @@
 package at.osa.redstonewire.deprecated;
 
 import at.osa.redstonewire.Config;
-import at.osa.redstonewire.ModDataComponents;
+import at.osa.redstonewire.init.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;

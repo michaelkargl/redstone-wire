@@ -1,5 +1,6 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.init;
 
+import at.osa.redstonewire.RedstoneWire;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
