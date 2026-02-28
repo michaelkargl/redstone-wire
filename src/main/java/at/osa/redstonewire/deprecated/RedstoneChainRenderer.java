@@ -1,5 +1,7 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.deprecated;
 
+import at.osa.redstonewire.Config;
+import at.osa.redstonewire.RedstoneRenderType;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -16,6 +18,7 @@ import org.joml.Matrix4f;
  * @credit Create Crafts & Additions: https://github.com/mrh0/createaddition
  * @credit Overhead Redstone Wires: https://github.com/MaxLegend/OverheadRedstoneWires
  */
+@Deprecated
 public class RedstoneChainRenderer implements BlockEntityRenderer<RedstoneChainEntity> {
 
     public RedstoneChainRenderer(BlockEntityRendererProvider.Context ctx) {

@@ -1,5 +1,7 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.deprecated;
 
+import at.osa.redstonewire.Config;
+import at.osa.redstonewire.ModBlockEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -27,6 +29,7 @@ import java.util.*;
  * Unlike traditional adjacent-only connections, this entity allows chain blocks to connect
  * over distances (up to 24 blocks), with visible cables rendered between them.
  */
+@Deprecated
 public class RedstoneChainEntity extends BlockEntity {
 
     // ===== Connection Management =====

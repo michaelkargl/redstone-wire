@@ -1,4 +1,4 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.deprecated;
 
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
  * Note: This affects the item in inventory/hand. For placed blocks,
  * a custom block renderer would be needed.
  */
+@Deprecated
 public class RedstoneChainBlockItem extends BlockItem {
 
     public RedstoneChainBlockItem(Block block, Properties properties) {

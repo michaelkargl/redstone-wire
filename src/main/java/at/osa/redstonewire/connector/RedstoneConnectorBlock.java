@@ -140,11 +140,8 @@ public class RedstoneConnectorBlock extends Block implements EntityBlock {
      * Step 2 (saved position exists on string): create a connection between the saved block
      * and this block, then clear the saved position from the string.
      * <p>
-     * The saved position is stored in the string item's LINK_DATA component as a CompoundTag
-     * with keys "LinkX", "LinkY", "LinkZ".
-     * <p>
-     * Use RedstoneChainConnector.java as a reference — the handleClick / handleFirstClick /
-     * handleSecondClick methods show the exact same pattern.
+     * The saved position is stored in the held item's LINK_DATA component as a CompoundTag
+     * with keys "x", "y", "z".
      */
     private void handleWireItemUse(Level level, BlockPos clickedBlockPos, RedstoneConnectorBlockEntity connector,
                                    Player player, ItemStack wireItemStack) {

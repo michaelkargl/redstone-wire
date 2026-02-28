@@ -1,5 +1,7 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.deprecated;
 
+import at.osa.redstonewire.Config;
+import at.osa.redstonewire.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -27,6 +29,7 @@ import java.util.List;
  * <p>
  * The item stores the first clicked position in its NBT data (LINK_DATA component).
  */
+@Deprecated
 public class RedstoneChainConnector extends Item {
     public RedstoneChainConnector(Properties properties) {
         super(properties);
