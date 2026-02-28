@@ -1,4 +1,4 @@
-package at.osa.redstonewire;
+package at.osa.redstonewire.renderer;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;

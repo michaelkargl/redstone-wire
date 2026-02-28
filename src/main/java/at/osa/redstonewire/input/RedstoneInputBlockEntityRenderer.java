@@ -1,12 +1,11 @@
 package at.osa.redstonewire.input;
 
-import at.osa.redstonewire.CableRenderer;
+import at.osa.redstonewire.renderer.CableRenderer;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 /**
