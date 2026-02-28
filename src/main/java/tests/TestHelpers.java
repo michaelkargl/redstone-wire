@@ -1,6 +1,5 @@
 package tests;
 
-import at.osa.redstonewire.deprecated.RedstoneChainEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -142,39 +141,4 @@ public class TestHelpers {
                 "redstone wire power level at %s".formatted(pos));
     }
 
-    /**
-     * Asserts that two RedstoneChain blocks are connected to each other.
-     * Verifies bidirectional connection: A→B and B→A.
-     *
-     * @param helper The GameTestHelper
-     * @param pos1   First chain block position
-     * @param pos2   Second chain block position
-     */
-    public static void assertChainBlocksAreConnected(GameTestHelper helper, BlockPos pos1, BlockPos pos2) {
-        var absolutePos1 = helper.absolutePos(pos1);
-        var absolutePos2 = helper.absolutePos(pos2);
-
-        BlockEntity be1 = helper.getLevel().getBlockEntity(absolutePos1);
-        BlockEntity be2 = helper.getLevel().getBlockEntity(absolutePos2);
-
-        if (!(be1 instanceof RedstoneChainEntity chain1)) {
-            helper.fail("Block at " + pos1 + " is not a RedstoneChainEntity");
-            return;
-        }
-
-        if (!(be2 instanceof RedstoneChainEntity chain2)) {
-            helper.fail("Block at " + pos2 + " is not a RedstoneChainEntity");
-            return;
-        }
-
-        // Check if chain1 has a connection to pos2
-        boolean chain1HasConnectionToChain2 = chain1.getConnections().contains(absolutePos2);
-        helper.assertTrue(chain1HasConnectionToChain2,
-                "Chain at " + pos1 + " does not have a connection to " + pos2);
-
-        // Check if chain2 has a connection to pos1
-        boolean chain2HasConnectionToChain1 = chain2.getConnections().contains(absolutePos1);
-        helper.assertTrue(chain2HasConnectionToChain1,
-                "Chain at " + pos2 + " does not have a connection to " + pos1);
-    }
 }

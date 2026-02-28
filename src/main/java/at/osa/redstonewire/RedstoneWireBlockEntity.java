@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public abstract class RedstoneWireBlockEntity extends BlockEntity {
@@ -115,8 +116,8 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
         }
     }
 
-    public List<BlockPos> getConnections() {
-        return directConnections;
+    public Collection<BlockPos> getConnections() {
+        return List.copyOf(directConnections);
     }
 
     public int getSignal() {

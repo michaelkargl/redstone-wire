@@ -21,10 +21,9 @@ public class RedstoneOutputBlockTests {
                 .and("A low power lever in off position", () -> TestHelpers.assertLeverIsOff(helper, lowPowerLeverPosition))
                 .and("An output redstone signal of power 0", () -> TestHelpers.assertRedstoneWire(helper, outputRedstoneSignalPosition, 0))
                 .when("Toggling the low power lever", () -> TestHelpers.pullLever(helper, lowPowerLeverPosition))
-                .then("The output signal is low", () -> TestHelpers.assertRedstoneWire(helper, outputRedstoneSignalPosition, 7))
-                .and("")
+                .then("The output signal is low", () -> TestHelpers.assertRedstoneWire(helper, outputRedstoneSignalPosition, 7), 10)
                 .when("Toggling the high power lever", () -> TestHelpers.pullLever(helper, highPowerLeverPosition))
-                .then("The output signal is high", () -> TestHelpers.assertRedstoneWire(helper, outputRedstoneSignalPosition, 14))
+                .then("The output signal is high", () -> TestHelpers.assertRedstoneWire(helper, outputRedstoneSignalPosition, 14), 20)
                 .then("Test succeeds", helper::succeed);
     }
 }

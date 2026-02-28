@@ -1,6 +1,5 @@
 package at.osa.redstonewire.connector;
 
-import at.osa.redstonewire.RedstoneWire;
 import at.osa.redstonewire.RedstoneWireBlock;
 import at.osa.redstonewire.RedstoneWireBlockEntity;
 import at.osa.redstonewire.init.ModDataComponents;
@@ -40,8 +39,6 @@ public class RedstoneConnectorBlock extends RedstoneWireBlock {
     protected ItemInteractionResult useItemOn(ItemStack heldItem, BlockState state, Level level,
                                               BlockPos pos, Player player, InteractionHand hand,
                                               BlockHitResult hit) {
-        RedstoneWire.LOGGER.info("useItemOn called, item: {}", heldItem.getItem());
-
         if (!heldItem.is(Items.REDSTONE)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }

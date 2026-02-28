@@ -41,7 +41,15 @@ public class RedstoneConnectorBlockEntity extends RedstoneWireBlockEntity {
         }
 
         for (BlockPos outputPos : reachableOutputs) {
-            BlockState state = level.getBlockState(outputPos);
+            var state = level.getBlockState(outputPos);
+            var block = state.getBlock();
+
+            // in this case, the output block has somehow been replaced => the network is compromised
+            if (!(block instanceof RedstoneOutputBlock)) {
+                this.setCacheDirty();
+                continue;
+            }
+
             level.setBlock(outputPos, state.setValue(RedstoneOutputBlock.POWER, power), Block.UPDATE_ALL);
         }
     }
@@ -51,8 +59,8 @@ public class RedstoneConnectorBlockEntity extends RedstoneWireBlockEntity {
      */
     public void rebuildOutputCache(Level level) {
         reachableOutputs.clear();
-        rebuildOutputCache(level, new HashSet<>(), reachableOutputs);
-        cacheDirty = false;
+        this.rebuildOutputCache(level, new HashSet<>(), reachableOutputs);
+        this.setCacheClean();
     }
 
     /**
@@ -90,8 +98,9 @@ public class RedstoneConnectorBlockEntity extends RedstoneWireBlockEntity {
     }
 
     public void markNetworkDirty(Set<BlockPos> visited) {
+        if (this.level == null) return;
         if (!visited.add(this.getBlockPos())) return; // loop prevention
-        this.cacheDirty = true;
+        this.setCacheDirty();
 
         for (BlockPos neighbor : directConnections) {
             var entity = level.getBlockEntity(neighbor);
@@ -99,5 +108,13 @@ public class RedstoneConnectorBlockEntity extends RedstoneWireBlockEntity {
                 conn.markNetworkDirty(visited);
             }
         }
+    }
+
+    private void setCacheDirty() {
+        this.cacheDirty = true;
+    }
+
+    private void setCacheClean() {
+        this.cacheDirty = false;
     }
 }

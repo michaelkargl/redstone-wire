@@ -1,7 +1,7 @@
 package at.osa.redstonewire.output;
 
 import at.osa.redstonewire.RedstoneWireBlock;
-import at.osa.redstonewire.RedstoneWireBlockEntity;
+import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 import at.osa.redstonewire.init.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -100,7 +100,7 @@ public class RedstoneOutputBlock extends RedstoneWireBlock {
             clearSavedPosition(heldItem);
 
             var connectorBE = level.getBlockEntity(connectorPos);
-            if (connectorBE instanceof RedstoneWireBlockEntity connector) {
+            if (connectorBE instanceof RedstoneConnectorBlockEntity connector) {
                 connector.createBidirectionalConnection(level, connectorPos, pos, player);
             } else {
                 player.displayClientMessage(

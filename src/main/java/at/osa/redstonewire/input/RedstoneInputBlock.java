@@ -1,7 +1,6 @@
 package at.osa.redstonewire.input;
 
 import at.osa.redstonewire.RedstoneWireBlock;
-import at.osa.redstonewire.RedstoneWireBlockEntity;
 import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 import at.osa.redstonewire.init.ModDataComponents;
 import net.minecraft.ChatFormatting;
@@ -106,11 +105,11 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
             return;
         }
 
-        // UPDATE_ALL notifies adjacent blocks to update their redstone signal, which is necessary for things like redstone lamps or comparators
-        level.setBlock(pos, state.setValue(POWER, newPower), Block.UPDATE_ALL);
-
         var be = level.getBlockEntity(pos);
         if (!(be instanceof RedstoneInputBlockEntity inputBE)) return;
+
+        // UPDATE_ALL notifies adjacent blocks to update their redstone signal, which is necessary for things like redstone lamps or comparators
+        level.setBlock(pos, state.setValue(POWER, newPower), Block.UPDATE_ALL);
 
         for (BlockPos connectorPos : inputBE.getConnections()) {
             var connectorBE = level.getBlockEntity(connectorPos);
@@ -150,7 +149,7 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
                 clearSavedPosition(heldItem);
 
                 var connectorBE = level.getBlockEntity(connectorPos);
-                if (connectorBE instanceof RedstoneWireBlockEntity connector) {
+                if (connectorBE instanceof RedstoneConnectorBlockEntity connector) {
                     connector.createBidirectionalConnection(level, connectorPos, pos, player);
                 } else {
                     player.displayClientMessage(
