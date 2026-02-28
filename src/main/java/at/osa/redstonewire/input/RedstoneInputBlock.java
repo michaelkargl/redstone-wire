@@ -86,6 +86,38 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
         return new RedstoneInputBlockEntity(pos, state);
     }
 
+    @Override
+    public boolean isSignalSource(BlockState state) {
+        return false;
+    }
+
+    @Override
+    public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, net.minecraft.core.Direction direction) {
+        return 0;
+    }
+
+    @Override
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, net.minecraft.core.Direction direction) {
+        return 0;
+    }
+
+    /**
+     * Tells if this block has an analog output signal.
+     * Analog signals are used for things like redstone lamps and comparators.
+     *
+     * @param state
+     * @return
+     */
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        return state.getValue(POWER);
+    }
+
     /**
      * Defines which properties this block's state can have.
      * In Minecraft, blocks can have various "states" (like whether a door is open or closed).
@@ -143,7 +175,8 @@ public class RedstoneInputBlock extends Block implements EntityBlock {
             return;
         }
 
-        level.setBlock(pos, state.setValue(POWER, newPower), Block.UPDATE_CLIENTS);
+        // UPDATE_ALL notifies adjacent blocks to update their redstone signal, which is necessary for things like redstone lamps or comparators
+        level.setBlock(pos, state.setValue(POWER, newPower), Block.UPDATE_ALL);
 
         var be = level.getBlockEntity(pos);
         if (!(be instanceof RedstoneInputBlockEntity inputBE)) return;
