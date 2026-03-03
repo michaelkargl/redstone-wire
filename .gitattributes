@@ -3,3 +3,9 @@
 # are changed when only line endings change.
 src/generated/**/.cache/cache text eol=lf
 src/generated/**/*.json text eol=lf
+
+# Treat JAR and other binary archives as binary to prevent autocrlf corruption
+*.jar binary
+*.zip binary
+*.png binary
+*.gif binary

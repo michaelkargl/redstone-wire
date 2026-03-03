@@ -30,3 +30,6 @@ repo
 .DS_Store
 .AppleDouble
 .LSOverride
+
+# Claude
+.claude/settings.local.json

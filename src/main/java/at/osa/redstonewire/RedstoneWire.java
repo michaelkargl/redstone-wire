@@ -25,7 +25,7 @@ public class RedstoneWire {
         ModBlockEntityTypes.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModDataComponents.DATA_COMPONENT_TYPES.register(modEventBus);
 
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        //modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
 }
