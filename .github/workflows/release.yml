@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Read mod properties
+        id: props
+        run: |
+          MOD_VERSION=$(grep '^mod_version=' gradle.properties | cut -d'=' -f2)
+          MOD_ID=$(grep '^mod_id=' gradle.properties | cut -d'=' -f2)
+          echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
+          echo "mod_id=$MOD_ID" >> $GITHUB_OUTPUT
+          echo "tag=v$MOD_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if release exists
+        id: check
+        run: |
+          if gh release view "${{ steps.props.outputs.tag }}" &>/dev/null; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Release ${{ steps.props.outputs.tag }} already exists, skipping."
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Setup JDK 21
+        if: steps.check.outputs.exists == 'false'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        if: steps.check.outputs.exists == 'false'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        if: steps.check.outputs.exists == 'false'
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        if: steps.check.outputs.exists == 'false'
+        run: ./gradlew build
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          gh release create "${{ steps.props.outputs.tag }}" \
+            --title "${{ steps.props.outputs.tag }}" \
+            --generate-notes \
+            "build/libs/${{ steps.props.outputs.mod_id }}-${{ steps.props.outputs.mod_version }}.jar"
+        env:
+          GH_TOKEN: ${{ github.token }}

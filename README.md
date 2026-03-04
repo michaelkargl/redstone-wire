@@ -13,8 +13,10 @@ Project Management
 This project uses [Backlog.md] for managing the project development.
 
 ```pwsh
-backlog board view
-backlog browser
+npm install
+
+npx backlog board view
+npx backlog browser
 ```
 
 [Backlog.md]: https://backlog.md

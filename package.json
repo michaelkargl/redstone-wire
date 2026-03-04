@@ -1,0 +1,26 @@
+{
+  "name": "redstone-wire",
+  "version": "1.0.0",
+  "description": "![Redstone Wire! Redstone in, Redstone out! Easy!](images/redstone-wire-text.png)",
+  "homepage": "https://github.com/michaelkargl/redstone-wire#readme",
+  "bugs": {
+    "url": "https://github.com/michaelkargl/redstone-wire/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaelkargl/redstone-wire.git"
+  },
+  "license": "MIT",
+  "author": "Michael Kargl",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "backlog.md": "^1.40.0"
+  }
+}

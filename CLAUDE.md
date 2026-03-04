@@ -24,6 +24,8 @@ These guides cover:
 
 You MUST read the overview resource to understand the complete workflow. The information is NOT summarized here.
 
+Backlog is installed as project dependency => use npx backlog instead of the global instance.
+
 </CRITICAL_INSTRUCTION>
 
 <!-- BACKLOG.MD MCP GUIDELINES END -->
