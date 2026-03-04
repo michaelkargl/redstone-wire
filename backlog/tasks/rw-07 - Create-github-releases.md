@@ -1,10 +1,10 @@
 ---
 id: RW-07
 title: Create github releases
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-02-08 08:17'
-updated_date: '2026-02-22 11:03'
+updated_date: '2026-03-04 07:37'
 labels: []
 dependencies: []
 ordinal: 1000
