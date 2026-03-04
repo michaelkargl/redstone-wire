@@ -1,10 +1,10 @@
 ---
 id: RW-08
 title: 'Refactor RedstoneChainBlock into Input, Output, and Connector blocks'
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-02-14 19:40'
-updated_date: '2026-02-22 06:21'
+updated_date: '2026-03-04 07:32'
 labels:
   - refactor
   - architecture
@@ -17,7 +17,7 @@ references:
 documentation:
   - /Users/kami/.claude/plans/concurrent-sniffing-rossum.md
 priority: high
-ordinal: 1000
+ordinal: 6000
 ---
 
 ## Description
