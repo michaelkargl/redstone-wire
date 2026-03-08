@@ -1,48 +1,59 @@
 {
+  "format_version": "1.9.0",
+  "credit": "Made with Blockbench",
   "parent": "block/block",
   "textures": {
-    "all": "redstone_wire:block/redstone_input_unpowered",
-    "particle": "redstone_wire:block/redstone_input_unpowered"
+    "1": "redstone_wire:block/redstone_input_unpowered/base_texture",
+    "2": "redstone_wire:block/redstone_input_unpowered/antennae_base",
+    "3": "redstone_wire:block/redstone_input_unpowered/antennae_texture"
   },
   "elements": [
     {
-      "__comment": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
+      "name": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
       "from": [0, 0, 0],
       "to": [16, 2, 16],
       "faces": {
-        "down":  { "texture": "#all", "cullface": "down" },
-        "up":    { "texture": "#all" },
-        "north": { "texture": "#all", "cullface": "north" },
-        "south": { "texture": "#all", "cullface": "south" },
-        "west":  { "texture": "#all", "cullface": "west" },
-        "east":  { "texture": "#all", "cullface": "east" }
+        "north": {"uv": [8, 0, 16, 1], "texture": "#1", "cullface": "north"},
+        "east": {"uv": [8, 1, 16, 2], "texture": "#1", "cullface": "east"},
+        "south": {"uv": [8, 2, 16, 3], "texture": "#1", "cullface": "south"},
+        "west": {"uv": [8, 3, 16, 4], "texture": "#1", "cullface": "west"},
+        "up": {"uv": [8, 8, 0, 0], "texture": "#1"},
+        "down": {"uv": [8, 8, 0, 16], "texture": "#1", "cullface": "down"}
       }
     },
     {
-      "__comment": "antenna base ring",
+      "name": "antenna base ring",
       "from": [5, 2, 5],
       "to": [11, 5, 11],
       "faces": {
-        "down":  { "texture": "#all" },
-        "up":    { "texture": "#all" },
-        "north": { "texture": "#all" },
-        "south": { "texture": "#all" },
-        "west":  { "texture": "#all" },
-        "east":  { "texture": "#all" }
+        "north": {"uv": [6, 0, 12, 3], "texture": "#2"},
+        "east": {"uv": [6, 3, 12, 6], "texture": "#2"},
+        "south": {"uv": [6, 6, 12, 9], "texture": "#2"},
+        "west": {"uv": [6, 9, 12, 12], "texture": "#2"},
+        "up": {"uv": [6, 6, 0, 0], "texture": "#2"},
+        "down": {"uv": [6, 6, 0, 12], "texture": "#2"}
       }
     },
     {
-      "__comment": "antenna shaft",
+      "name": "antenna shaft",
       "from": [7, 5, 7],
       "to": [9, 11, 9],
       "faces": {
-        "down":  { "texture": "#all" },
-        "up":    { "texture": "#all" },
-        "north": { "texture": "#all" },
-        "south": { "texture": "#all" },
-        "west":  { "texture": "#all" },
-        "east":  { "texture": "#all" }
+        "north": {"uv": [0, 0, 2, 6], "texture": "#3"},
+        "east": {"uv": [2, 0, 4, 6], "texture": "#3"},
+        "south": {"uv": [4, 0, 6, 6], "texture": "#3"},
+        "west": {"uv": [0, 6, 2, 12], "texture": "#3"},
+        "up": {"uv": [8, 2, 6, 0], "texture": "#3"},
+        "down": {"uv": [4, 6, 2, 8], "texture": "#3"}
       }
+    }
+  ],
+  "groups": [
+    {
+      "name": "redstone_input_unpowered",
+      "origin": [8, 8, 8],
+      "color": 0,
+      "children": [0, 1, 2]
     }
   ]
 }
