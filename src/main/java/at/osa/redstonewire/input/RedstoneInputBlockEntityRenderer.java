@@ -24,7 +24,7 @@ public class RedstoneInputBlockEntityRenderer implements BlockEntityRenderer<Red
 
         // Read power level from block state so the cable color reflects live signal strength
         int power = entity.getBlockState().getValue(RedstoneInputBlock.POWER);
-        var antennaeAttachmentPointY = 11.0 / 16.0;
+        var antennaeAttachmentPointY = 11 / 22.0;
 
         for (BlockPos connection : entity.getConnections()) {
             Vec3 start = new Vec3(0.5, antennaeAttachmentPointY, 0.5);

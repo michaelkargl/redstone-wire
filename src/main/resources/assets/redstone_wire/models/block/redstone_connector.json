@@ -1,48 +1,103 @@
 {
-  "parent": "block/block",
-  "textures": {
-    "all": "redstone_wire:block/redstone_connector",
-    "particle": "redstone_wire:block/redstone_connector"
-  },
-  "elements": [
-    {
-      "__comment": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
-      "from": [0, 0, 0],
-      "to": [16, 2, 16],
-      "faces": {
-        "down":  { "texture": "#all", "cullface": "down" },
-        "up":    { "texture": "#all" },
-        "north": { "texture": "#all", "cullface": "north" },
-        "south": { "texture": "#all", "cullface": "south" },
-        "west":  { "texture": "#all", "cullface": "west" },
-        "east":  { "texture": "#all", "cullface": "east" }
-      }
-    },
-    {
-      "__comment": "antenna base ring",
-      "from": [5, 2, 5],
-      "to": [11, 5, 11],
-      "faces": {
-        "down":  { "texture": "#all" },
-        "up":    { "texture": "#all" },
-        "north": { "texture": "#all" },
-        "south": { "texture": "#all" },
-        "west":  { "texture": "#all" },
-        "east":  { "texture": "#all" }
-      }
-    },
-    {
-      "__comment": "antenna shaft",
-      "from": [7, 5, 7],
-      "to": [9, 11, 9],
-      "faces": {
-        "down":  { "texture": "#all" },
-        "up":    { "texture": "#all" },
-        "north": { "texture": "#all" },
-        "south": { "texture": "#all" },
-        "west":  { "texture": "#all" },
-        "east":  { "texture": "#all" }
-      }
-    }
-  ]
+	"format_version": "1.9.0",
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"textures": {
+		"0": "redstone_wire:block/connector/antennae",
+		"1": "redstone_wire:block/connector/base",
+		"particle": "antennae"
+	},
+	"elements": [
+		{
+			"name": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
+			"from": [4, 11, 4],
+			"to": [12, 12, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 11, 0]},
+			"faces": {
+				"north": {"uv": [8, 0, 16, 1], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 1, 16, 2], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [8, 2, 16, 3], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [8, 3, 16, 4], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [8, 8, 0, 0], "texture": "#1"},
+				"down": {"uv": [8, 8, 0, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"name": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
+			"from": [4, 7, 4],
+			"to": [12, 8, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 7, 0]},
+			"faces": {
+				"north": {"uv": [8, 0, 16, 1], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 1, 16, 2], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [8, 2, 16, 3], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [8, 3, 16, 4], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [8, 8, 0, 0], "texture": "#1"},
+				"down": {"uv": [8, 8, 0, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"name": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
+			"from": [4, 5, 4],
+			"to": [12, 6, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 5, 0]},
+			"faces": {
+				"north": {"uv": [8, 0, 16, 1], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 1, 16, 2], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [8, 2, 16, 3], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [8, 3, 16, 4], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [8, 8, 0, 0], "texture": "#1"},
+				"down": {"uv": [8, 8, 0, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"name": "flat base slab. cullface skips rendering faces hidden by solid neighbours (performance optimization).",
+			"from": [4, 3, 4],
+			"to": [12, 4, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 3, 0]},
+			"faces": {
+				"north": {"uv": [8, 0, 16, 1], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 1, 16, 2], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [8, 2, 16, 3], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [8, 3, 16, 4], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [8, 8, 0, 0], "texture": "#1"},
+				"down": {"uv": [8, 8, 0, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"name": "flat base slab 1",
+			"from": [3, 0, 3],
+			"to": [13, 2, 13],
+			"faces": {
+				"north": {"uv": [8, 0, 16, 1], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [8, 1, 16, 2], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [8, 2, 16, 3], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [8, 3, 16, 4], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [8, 8, 0, 0], "texture": "#1"},
+				"down": {"uv": [8, 8, 0, 16], "texture": "#1", "cullface": "down"}
+			}
+		},
+		{
+			"name": "antenna",
+			"from": [5, 0, 5],
+			"to": [11, 13, 11],
+			"rotation": {"angle": 0, "axis": "y", "origin": [0, 7, 0]},
+			"faces": {
+				"north": {"uv": [6, 0, 12, 3], "texture": "#0"},
+				"east": {"uv": [6, 3, 12, 6], "texture": "#0"},
+				"south": {"uv": [6, 6, 12, 9], "texture": "#0"},
+				"west": {"uv": [6, 9, 12, 12], "texture": "#0"},
+				"up": {"uv": [6, 6, 0, 0], "texture": "#0"},
+				"down": {"uv": [6, 6, 0, 12], "texture": "#0"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "redstone_input_unpowered",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [0, 1, 2, 3, 4, 5]
+		}
+	]
 }
