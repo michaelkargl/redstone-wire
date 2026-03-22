@@ -19,5 +19,8 @@ Cable rendering on input and output blocks connects at the block center instead 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Cables on input blocks visually originate from the antennae tip for all 4 FACING directions,Cables on output blocks visually originate from the antennae tip for all 4 FACING directions,Output renderer regression (wrong BlockSize constant divisor and incomplete var anntenae line) is removed,Y attachment heights match current model geometry: input = 9/16 output = 7/16
+- [ ] Cables on input blocks visually originate from the antennae tip for all 4 FACING directions
+- [ ] Cables on output blocks visually originate from the antennae tip for all 4 FACING directions
+- [ ] Output renderer regression (wrong BlockSize constant divisor and incomplete `var anntenae` line) is removed
+- [ ] Y attachment heights match current model geometry: input = 9/16, output = 7/16
 <!-- AC:END -->

@@ -10,16 +10,19 @@ Project Management
 
 > To report issues, please use the "Issues" tab above
 
-This project uses [Backlog.md] for managing the project development.
+This project uses [Backlog.md] and [OpenSpec] for managing the project development.
 
 ```pwsh
 npm install
+npx openspec init
 
 npx backlog board view
 npx backlog browser
 ```
 
-[Backlog.md]: https://backlog.md
+[.vscode/extensions.json]: ./.vscode/extensions.json
+[OpenSpec]: openspec/README.md
+[Backlog.md]: backlog/README.md
 
 Configuration
 =============
