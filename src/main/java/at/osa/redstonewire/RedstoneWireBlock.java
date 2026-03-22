@@ -38,7 +38,7 @@ public abstract class RedstoneWireBlock extends Block implements EntityBlock {
      * Y coordinate of the antenna shaft tip in model space (block pixels / 16).
      * Used by block entity renderers to attach cable endpoints at the correct height.
      */
-    public static final float ANTENNA_TIP_Y = 11.0f / 16.0f;
+    public static final float ANTENNA_TIP_Y = 10.0f / 32.0f;
 
     // Antenna shape — slab + base ring + shaft.
     //
