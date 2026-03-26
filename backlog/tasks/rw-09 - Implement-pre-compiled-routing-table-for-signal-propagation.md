@@ -4,7 +4,7 @@ title: Implement pre-compiled routing table for signal propagation
 status: To Do
 assignee: []
 created_date: '2026-02-23 19:17'
-updated_date: '2026-03-26 09:08'
+updated_date: '2026-03-26 09:09'
 labels:
   - signal-propagation
   - performance
@@ -16,6 +16,7 @@ references:
   - src/main/java/at/osa/redstonewire/RedstoneInputBlock.java
   - src/main/java/at/osa/redstonewire/RedstoneOutputBlock.java
 priority: high
+ordinal: 4500
 ---
 
 ## Description
