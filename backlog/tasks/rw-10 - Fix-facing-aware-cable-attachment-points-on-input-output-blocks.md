@@ -1,16 +1,16 @@
 ---
 id: RW-10
 title: Fix facing-aware cable attachment points on input/output blocks
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-03-22 10:30'
-updated_date: '2026-03-26 09:09'
+updated_date: '2026-03-26 09:10'
 labels:
   - rendering
   - bug
 dependencies: []
 priority: high
-ordinal: 11000
+ordinal: 500
 ---
 
 ## Description
