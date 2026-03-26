@@ -71,15 +71,6 @@ public class RedstoneConnectorBlockEntity extends RedstoneWireBlockEntity {
     public void rebuildOutputCache(Level level, Set<BlockPos> visited, Set<BlockPos> outOutputBlocks) {
         visited.add(this.getBlockPos());
 
-        for (var direction : Direction.values()) {
-            var neighbor = this.getBlockPos().relative(direction);
-            var neighborState = level.getBlockState(neighbor);
-            var block = neighborState.getBlock();
-            if (block instanceof RedstoneOutputBlock) {
-                outOutputBlocks.add(neighbor);
-            }
-        }
-
         for (var neighbor : directConnections) {
             if (visited.contains(neighbor)) {
                 continue;
