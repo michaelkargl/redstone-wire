@@ -4,7 +4,7 @@ title: Implement pre-compiled routing table for signal propagation
 status: To Do
 assignee: []
 created_date: '2026-02-23 19:17'
-updated_date: '2026-02-24 04:11'
+updated_date: '2026-03-26 09:08'
 labels:
   - signal-propagation
   - performance
@@ -217,4 +217,7 @@ Lever ON
 
 ### NBT persistence:
 `directConnections` is serialized to disk. `reachableOutputs` (Phase 1) should NOT be persisted — it is derived/cached data. Rebuild it lazily on first `propagateSignal()` after world load.
+
+## Review 2026-03-26
+Routing table is ~95% implemented. Only remaining gap: `RedstoneConnectorBlock` lacks a `neighborChanged()` override to invalidate the cache when an output block is placed/broken adjacent to it. Verify if this is needed or if lazy-rebuild on next `propagateSignal()` is sufficient.
 <!-- SECTION:NOTES:END -->
