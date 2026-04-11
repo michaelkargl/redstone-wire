@@ -36,7 +36,7 @@ public final class CableRenderer {
 
     private static final double cableThickness = 0.02F;
     private static final double cableSegments = 12;
-    private static final double curveAmplitude = 0.4;
+    private static final double curveAmplitude = 0.75;
 
     /**
      * Renders a cable as segments with quad geometry between two points.
