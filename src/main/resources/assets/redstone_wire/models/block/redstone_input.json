@@ -1,6 +1,7 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
+	"parent": "block/block",
 	"ambientocclusion": false,
 	"texture_size": [32, 32],
 	"textures": {
@@ -11,7 +12,7 @@
 		"6": "redstone_wire:block/input/accumulator_top",
 		"7": "redstone_wire:block/input/texture",
 		"8": "redstone_wire:block/input/antennae_floor",
-		"particle": "block/texture"
+		"particle": "redstone_wire:block/input/texture"
 	},
 	"elements": [
 		{

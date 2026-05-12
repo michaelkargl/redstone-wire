@@ -1,12 +1,14 @@
 {
 	"format_version": "1.9.0",
 	"credit": "Made with Blockbench",
+	"parent": "block/block",
 	"textures": {
 		"1": "redstone_wire:block/output/antennae",
 		"2": "redstone_wire:block/output/antennae_base",
 		"3": "redstone_wire:block/output/texture",
 		"4": "redstone_wire:block/output/accumulator",
-		"5": "redstone_wire:block/output/accumulator_pack"
+		"5": "redstone_wire:block/output/accumulator_pack",
+		"particle": "redstone_wire:block/output/texture"
 	},
 	"elements": [
 		{

@@ -5,7 +5,7 @@
 	"textures": {
 		"0": "redstone_wire:block/connector/antennae",
 		"1": "redstone_wire:block/connector/base",
-		"particle": "antennae"
+		"particle": "redstone_wire:block/connector/antennae"
 	},
 	"elements": [
 		{
