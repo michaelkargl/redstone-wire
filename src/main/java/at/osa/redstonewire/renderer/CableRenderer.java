@@ -28,7 +28,7 @@ public final class CableRenderer {
             true,
             RenderType.CompositeState.builder()
                     .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorLightmapShader))
-                    .setCullState(new RenderStateShard.CullStateShard(false)) // Отключаем culling
+                    .setCullState(new RenderStateShard.CullStateShard(false)) // Disable culling so cables are visible from both sides
                     .setLightmapState(new RenderStateShard.LightmapStateShard(true))
                     .setOverlayState(new RenderStateShard.OverlayStateShard(true))
                     .createCompositeState(false)
@@ -36,7 +36,17 @@ public final class CableRenderer {
 
     private static final double cableThickness = 0.02F;
     private static final double cableSegments = 12;
-    private static final double curveAmplitude = 0.75;
+    /**
+     * Sag per block of horizontal distance.
+     * @example a value of 0.15 means that a 10-block cable sags 1.5 blocks at its midpoint
+     */
+    private static final double sagFactorInBlocks = 0.10;
+
+    /**
+     * Maximum allowed sag in Blocks.
+     * @example a value of 1.5 means that at cable midpoint the cable sags 1.5 blocks
+     */
+    private static final double maxSagAmountInBlocks = 1.0;
 
     /**
      * Renders a cable as segments with quad geometry between two points.
@@ -66,25 +76,29 @@ public final class CableRenderer {
     }
 
     private static Vec3 interpolateCurved(Vec3 from, Vec3 to, double t) {
-        Vec3 linear = from.lerp(to, t);
-        if (Math.abs(from.x - to.x) < 0.001 && Math.abs(from.z - to.z) < 0.001) {
+        var linear = from.lerp(to, t);
+        var distanceX = Math.abs(from.x - to.x);
+        var distanceZ =  Math.abs(from.z - to.z);
+
+        if (distanceX < 0.001 && distanceZ < 0.001) {
             return linear;
         }
-        double curve = Math.sin(t * Math.PI) * -curveAmplitude; // провисание вниз
+
+        var horizontalDistance = Math.sqrt(distanceX * distanceX + distanceZ * distanceZ);
+        var sagAmplitudeInBlocks = Math.min(sagFactorInBlocks * horizontalDistance, maxSagAmountInBlocks);
+        var curve = Math.sin(t * Math.PI) * -sagAmplitudeInBlocks; // negative = sags downward
         return new Vec3(linear.x, linear.y + curve, linear.z);
     }
 
 
     private static void drawThickSegment(VertexConsumer builder, Matrix4f matrix,
                                          Vec3 p1, Vec3 p2, double thickness, int light, int overlay) {
-        // Вычисляем вектор направления
         Vec3 dir = p2.subtract(p1).normalize();
-        //    Vec3 up = new Vec3(0, 1, 0);
+        // When dir is nearly vertical, use X as up to avoid a degenerate cross product
         Vec3 up = Math.abs(dir.y) > 0.999 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
         Vec3 right = dir.cross(up).normalize().scale(thickness);
         Vec3 forward = dir.cross(right).normalize().scale(thickness);
 
-        // Вершины прямоугольного параллелепипеда
         Vec3[] corners = new Vec3[]{
                 p1.add(right).add(forward),
                 p1.add(right).subtract(forward),

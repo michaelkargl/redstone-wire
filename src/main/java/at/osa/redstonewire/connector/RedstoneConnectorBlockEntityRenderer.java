@@ -26,7 +26,7 @@ public class RedstoneConnectorBlockEntityRenderer implements BlockEntityRenderer
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         BlockPos blockPos = entity.getBlockPos();
         int power = entity.getSignal();
-        var antennaeAttachmentPointY = 11.0 / 16.0;
+         var antennaeAttachmentPointY = 11.0 / 16.0; // Blockheight=16
 
         for (BlockPos connection : entity.getConnections()) {
             // Only render cable once per connection (compareTo ensures A->B is only rendered from A)

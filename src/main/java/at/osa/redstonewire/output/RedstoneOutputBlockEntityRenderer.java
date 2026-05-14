@@ -17,7 +17,6 @@ public class RedstoneOutputBlockEntityRenderer implements BlockEntityRenderer<Re
 
     // Distance from block center to the antennae X-axis center in the NORTH-facing model (12/16 - 0.5)
     private static final double ANTENNAE_X_OFFSET = 0.25;
-    private static final double ANTENNAE_Y_OFFSET = 10d / 16;
 
     public RedstoneOutputBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
         super();
