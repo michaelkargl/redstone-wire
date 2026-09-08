@@ -823,7 +823,7 @@
       </div>
 
       <div class="callout success">
-        <strong>Outcome:</strong> the dedicated 1.21.11 GameTest server ran this mod’s four tests—including the new removal regression—and all passed; the client registered the cable render pipeline; and Gradle assembled <code>build/libs/redstone_wire-1.0.8.jar</code>. The runner reports <em>five</em> because Minecraft itself ships one test instance, <code>minecraft:always_pass</code>, which always runs alongside them.
+        <strong>Outcome:</strong> the dedicated 1.21.11 GameTest server ran this mod’s four tests—including the new removal regression—and all passed; the client registered the cable render pipeline; and Gradle assembled <code>build/libs/redstone_wire-1.0.9.jar</code>. The runner reports <em>five</em> because Minecraft itself ships one test instance, <code>minecraft:always_pass</code>, which always runs alongside them.
       </div>
 
       <div class="bars" aria-label="Changed files by category">
@@ -849,7 +849,7 @@
         <div class="flow-node"><b><code>build.gradle</code></b><small>applies ModDevGradle and describes runs, sources, and build rules</small></div>
         <div class="flow-node"><b>Dev workspace</b><small>downloads and prepares Minecraft + NeoForge artifacts with mappings and browsable sources</small></div>
         <div class="flow-node"><b>IDE + Gradle tasks</b><small>compile, launch client/server, run GameTests, and generate data</small></div>
-        <div class="flow-node"><b>Mod JAR</b><small><code>build/libs/redstone_wire-1.0.8.jar</code></small></div>
+        <div class="flow-node"><b>Mod JAR</b><small><code>build/libs/redstone_wire-1.0.9.jar</code></small></div>
       </div>
 
       <div class="diagram-grid">
@@ -901,7 +901,7 @@
       </div>
 
       <div class="callout warning">
-        <strong>Why it changed from 2.0.139 to 2.0.144:</strong> this upgrades the build integration used by the 1.21.11 project setup. It does <em>not</em> change the game to Minecraft 2.0.144. Minecraft remains <code>1.21.11</code>, NeoForge remains <code>21.11.45</code>, and the mod remains <code>1.0.8</code>.
+        <strong>Why it changed from 2.0.139 to 2.0.144:</strong> this upgrades the build integration used by the 1.21.11 project setup. It does <em>not</em> change the game to Minecraft 2.0.144. Minecraft remains <code>1.21.11</code>, NeoForge remains <code>21.11.45</code>, and the mod is released as <code>1.0.9</code>.
       </div>
 
       <div class="callout success">
@@ -1059,7 +1059,7 @@ parchment_mappings_version=2025.12.20</div>
         </article>
         <article class="event good">
           <h3>7 · Distribution build completed</h3>
-          <p>Gradle’s full <code>build</code> lifecycle completed and produced the 1.0.8 JAR.</p>
+          <p>Gradle’s full <code>build</code> lifecycle completed and produced the 1.0.9 JAR.</p>
         </article>
       </div>
     </section>
@@ -1867,7 +1867,7 @@ registered Java function + NBT fixture</div>
         <article class="check"><b>✓ IntelliJ rebuild</b>No compiler problems after the final source edits.</article>
         <article class="check"><b>✓ GameTest server</b>Minecraft <code>1.21.11</code>, NeoForge <code>21.11.45</code>. This mod’s four tests all pass; the runner reports <code>All 5 required tests passed</code> because vanilla’s <code>minecraft:always_pass</code> instance is counted too. Re-verified after the post-review fixes: <code>5 GAME TESTS COMPLETE IN 1.180 s</code>.</article>
         <article class="check pending"><b>! Client rendering — partly unverified</b>A pipeline probe emitted <code>redstone_wire:pipeline/cable</code> with no error markers, so registration and client startup are proven. <strong>Cable appearance is not.</strong> No one has looked at a rendered cable since the geometry changed from <code>TRIANGLES</code> with per-face normals to <code>QUADS</code> with position+colour+light, and since the old render type’s <code>setOverlayState(true)</code> was dropped — which also removes the block-breaking crumbling overlay from cables. This needs eyes before release.</article>
-        <article class="check"><b>✓ Gradle build</b><code>BUILD SUCCESSFUL</code>; JAR assembled as version <code>1.0.8</code>.</article>
+        <article class="check"><b>✓ Gradle build</b><code>BUILD SUCCESSFUL</code>; JAR assembled as version <code>1.0.9</code>.</article>
       </div>
 
       <div class="callout">
@@ -1886,7 +1886,7 @@ registered Java function + NBT fixture</div>
         <li><strong>Reload the Gradle project in IntelliJ.</strong> The compiler is using 1.21.11, but the editor index previously retained pieces of the 1.21.1 model.</li>
         <li><strong>Run a visual cable test — release blocker.</strong> Place connector/input/output blocks, link them with redstone, rotate them, and inspect cables from all sides, including while breaking a linked block. Pipeline registration is proven; appearance is not, and the geometry and overlay state both changed.</li>
         <li><strong>Test an existing 1.21.1 world copy.</strong> The new GameTest proves fresh connected blocks clean up when broken; a copied old world is still needed to prove that previously saved relative connection lists migrate correctly. Never use the only copy of a real world for first migration testing.</li>
-        <li><strong>Choose a release version.</strong> The project remains <code>1.0.8</code> because changing product version is a release decision, not an API requirement.</li>
+        <li><strong>Release version: bumped to <code>1.0.9</code>.</strong> <code>1.0.8</code> shipped four months ago and its tag already exists on <code>origin</code>. Because <code>release.yml</code> skips when <code>gh release view</code> finds the tag, leaving the version at <code>1.0.8</code> would have made the release job pass while publishing nothing.</li>
         <li><strong>Review and commit.</strong> A post-review pass removed a redundant per-frame list copy in all three renderers, stripped a UTF-8 BOM from one test-instance JSON, documented the NBT fixture shared between <code>StructureTests</code> and the removal test, and noted why the datagen run is client-only. Tests were re-run green after those edits.</li>
       </ol>
 
