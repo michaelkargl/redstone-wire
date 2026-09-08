@@ -2,19 +2,16 @@ package tests;
 
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.gametest.GameTestHolder;
 
 
-@GameTestHolder("redstone_wire")
 public class RedstoneInputBlockTests {
-    @GameTest
+    // Registered in RedstoneWire.TEST_FUNCTIONS and described by a test_instance JSON file.
     public static void comparatorCanDetectInputBlockPowerLevel(GameTestHelper helper) {
-        var lowPowerLeverPosition = new BlockPos(8, 2, 1);
-        var highPowerLeverPosition = new BlockPos(8, 2, 2);
-        var lowPowerLampPosition = new BlockPos(2, 2, 0);
-        var highPowerLampPosition = new BlockPos(4, 2, 1);
+        var lowPowerLeverPosition = new BlockPos(8, 1, 1);
+        var highPowerLeverPosition = new BlockPos(8, 1, 2);
+        var lowPowerLampPosition = new BlockPos(2, 1, 0);
+        var highPowerLampPosition = new BlockPos(4, 1, 1);
 
         new SpecFlow(helper)
                 .given("A high power lever is placed in off position", () -> TestHelpers.assertLeverIsOff(helper, highPowerLeverPosition))

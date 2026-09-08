@@ -1,15 +1,23 @@
 package at.osa.redstonewire.renderer;
 
+import at.osa.redstonewire.RedstoneWire;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.rendertype.RenderSetup;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Matrix4f;
+import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
+
+import java.util.List;
 
 /**
  * Shared static utility for rendering sagging 3D cables between block positions.
@@ -19,20 +27,34 @@ import org.joml.Matrix4f;
  */
 public final class CableRenderer {
 
+    /** Values copied from a block entity for one frame of cable rendering. */
+    public static class CableBlockEntityRenderState extends BlockEntityRenderState {
+        public List<BlockPos> connections = List.of();
+        // Captured, but deliberately not used for cable colour yet: that is a separate change.
+        // Note connectors have no stored power at all - RedstoneWireBlockEntity.getSignal()
+        // returns 0 and RedstoneConnectorBlockEntity does not override it.
+        public int power;
+        public Direction facing = Direction.NORTH;
+    }
+
+    /**
+     * Rendering is pipeline-based as of Minecraft 1.21.9. This pipeline accepts
+     * position, color, and light-map data and draws groups of four vertices as quads.
+     */
+    public static final RenderPipeline CABLE_PIPELINE = RenderPipeline.builder(RenderPipelines.MATRICES_FOG_SNIPPET)
+            .withLocation(Identifier.fromNamespaceAndPath(RedstoneWire.MODID, "pipeline/cable"))
+            .withVertexShader("core/rendertype_leash")
+            .withFragmentShader("core/rendertype_leash")
+            .withSampler("Sampler2")
+            .withCull(false)
+            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS)
+            .build();
+
     public static final RenderType LIGHT_COLOR_RENDER = RenderType.create(
-            "light_color_render",
-            DefaultVertexFormat.NEW_ENTITY,
-            VertexFormat.Mode.TRIANGLES,
-            256,
-            false,
-            true,
-            RenderType.CompositeState.builder()
-                    .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionColorLightmapShader))
-                    .setCullState(new RenderStateShard.CullStateShard(false)) // Disable culling so cables are visible from both sides
-                    .setLightmapState(new RenderStateShard.LightmapStateShard(true))
-                    .setOverlayState(new RenderStateShard.OverlayStateShard(true))
-                    .createCompositeState(false)
-    );
+            "redstone_wire_cable",
+            RenderSetup.builder(CABLE_PIPELINE)
+                    .useLightmap()
+                    .createRenderSetup());
 
     private static final double cableThickness = 0.02F;
     private static final double cableSegments = 12;
@@ -52,18 +74,20 @@ public final class CableRenderer {
      * Renders a cable as segments with quad geometry between two points.
      * Breaks the cable into multiple segments and draws each as a small cylinder.
      */
-    public static void renderCable(PoseStack stack, MultiBufferSource buffer, Vec3 from, Vec3 to,
-                                   int power, int light, int overlay) {
-        renderCurvedCuboid(stack, buffer, from, to, light, overlay);
+    public static void registerRenderPipeline(RegisterRenderPipelinesEvent event) {
+        event.registerPipeline(CABLE_PIPELINE);
     }
 
-    private static void renderCurvedCuboid(PoseStack poseStack, MultiBufferSource buffer,
-                                          Vec3 from, Vec3 to, int light, int overlay) {
+    public static void renderCable(PoseStack stack, SubmitNodeCollector nodeCollector, Vec3 from, Vec3 to,
+                                   int power, int light) {
+        nodeCollector.submitCustomGeometry(
+                stack,
+                LIGHT_COLOR_RENDER,
+                (pose, builder) -> renderCurvedCuboid(pose, builder, from, to, light));
+    }
 
-        VertexConsumer builder = buffer.getBuffer(LIGHT_COLOR_RENDER);
-
-        Matrix4f matrix = poseStack.last().pose();
-
+    private static void renderCurvedCuboid(PoseStack.Pose pose, VertexConsumer builder,
+                                           Vec3 from, Vec3 to, int light) {
         for (int i = 0; i < cableSegments; i++) {
             var t1 = i / cableSegments;
             var t2 = (i + 1) / cableSegments;
@@ -71,7 +95,7 @@ public final class CableRenderer {
             Vec3 p1 = interpolateCurved(from, to, t1);
             Vec3 p2 = interpolateCurved(from, to, t2);
 
-            drawThickSegment(builder, matrix, p1, p2, cableThickness, light, overlay);
+            drawThickSegment(builder, pose, p1, p2, cableThickness, light);
         }
     }
 
@@ -91,8 +115,8 @@ public final class CableRenderer {
     }
 
 
-    private static void drawThickSegment(VertexConsumer builder, Matrix4f matrix,
-                                         Vec3 p1, Vec3 p2, double thickness, int light, int overlay) {
+    private static void drawThickSegment(VertexConsumer builder, PoseStack.Pose pose,
+                                         Vec3 p1, Vec3 p2, double thickness, int light) {
         Vec3 dir = p2.subtract(p1).normalize();
         // When dir is nearly vertical, use X as up to avoid a degenerate cross product
         Vec3 up = Math.abs(dir.y) > 0.999 ? new Vec3(1, 0, 0) : new Vec3(0, 1, 0);
@@ -121,20 +145,11 @@ public final class CableRenderer {
         };
 
         for (int[] face : faces) {
-            Vec3 normalVec = corners[face[1]].subtract(corners[face[0]])
-                    .cross(corners[face[2]].subtract(corners[face[1]]))
-                    .normalize();
-            float nx = (float) normalVec.x, ny = (float) normalVec.y, nz = (float) normalVec.z;
-
-            // Each quad face is split into 2 triangles: [0,1,2] and [0,2,3]
-            for (int idx : new int[]{face[0], face[1], face[2], face[0], face[2], face[3]}) {
+            for (int idx : face) {
                 Vec3 v = corners[idx];
-                builder.addVertex(matrix, (float) v.x, (float) v.y, (float) v.z)
+                builder.addVertex(pose, (float) v.x, (float) v.y, (float) v.z)
                         .setColor(0.3f, 0, 0, 1f)
-                        .setUv(0, 0)
-                        .setOverlay(overlay)
-                        .setLight(light)
-                        .setNormal(nx, ny, nz);
+                        .setLight(light);
             }
         }
     }

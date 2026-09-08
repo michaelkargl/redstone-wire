@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "function": "redstone_wire:structuretests.teststructurecomposition",
+  "environment": "minecraft:default",
+  "structure": "redstone_wire:structuretests.teststructurecomposition",
+  "max_ticks": 100
+}

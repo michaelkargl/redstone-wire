@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "function": "redstone_wire:redstoneoutputblocktests.testoutputblocktransmitspowerlevelfromwirenetwork",
+  "environment": "minecraft:default",
+  "structure": "redstone_wire:redstoneoutputblocktests.testoutputblocktransmitspowerlevelfromwirenetwork",
+  "max_ticks": 100
+}

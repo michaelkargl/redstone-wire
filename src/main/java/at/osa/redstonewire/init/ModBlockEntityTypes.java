@@ -17,13 +17,13 @@ public final class ModBlockEntityTypes {
 
     public static final Supplier<BlockEntityType<RedstoneConnectorBlockEntity>> REDSTONE_CONNECTOR_ENTITY = BLOCK_ENTITY_TYPES.register(
             "redstone_connector_entity",
-            () -> BlockEntityType.Builder.of(RedstoneConnectorBlockEntity::new, ModBlocks.REDSTONE_CONNECTOR_BLOCK.get()).build(null));
+            () -> new BlockEntityType<>(RedstoneConnectorBlockEntity::new, ModBlocks.REDSTONE_CONNECTOR_BLOCK.get()));
 
     public static final Supplier<BlockEntityType<RedstoneInputBlockEntity>> REDSTONE_INPUT_ENTITY = BLOCK_ENTITY_TYPES.register(
             "redstone_input_entity",
-            () -> BlockEntityType.Builder.of(RedstoneInputBlockEntity::new, ModBlocks.REDSTONE_INPUT_BLOCK.get()).build(null));
+            () -> new BlockEntityType<>(RedstoneInputBlockEntity::new, ModBlocks.REDSTONE_INPUT_BLOCK.get()));
 
     public static final Supplier<BlockEntityType<RedstoneOutputBlockEntity>> REDSTONE_OUTPUT_ENTITY = BLOCK_ENTITY_TYPES.register(
             "redstone_output_entity",
-            () -> BlockEntityType.Builder.of(RedstoneOutputBlockEntity::new, ModBlocks.REDSTONE_OUTPUT_BLOCK.get()).build(null));
+            () -> new BlockEntityType<>(RedstoneOutputBlockEntity::new, ModBlocks.REDSTONE_OUTPUT_BLOCK.get()));
 }

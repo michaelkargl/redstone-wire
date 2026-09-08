@@ -4,7 +4,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Player;
@@ -12,10 +11,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 public abstract class RedstoneWireBlockEntity extends BlockEntity {
@@ -26,35 +26,30 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
 
-        var list = new ListTag();
+        var connections = output.childrenList("Connections");
         var origin = this.getBlockPos();
         for (var position : directConnections) {
-            var posTag = new CompoundTag();
-            posTag.putInt("x", position.getX() - origin.getX());
-            posTag.putInt("y", position.getY() - origin.getY());
-            posTag.putInt("z", position.getZ() - origin.getZ());
-            list.add(posTag);
+            var positionOutput = connections.addChild();
+            positionOutput.putInt("x", position.getX() - origin.getX());
+            positionOutput.putInt("y", position.getY() - origin.getY());
+            positionOutput.putInt("z", position.getZ() - origin.getZ());
         }
-
-        tag.put("Connections", list);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
 
         var connections =
-                tag.getList("Connections", ListTag.TAG_COMPOUND)
+                input.childrenListOrEmpty("Connections")
                         .stream()
-                        .filter(t -> t instanceof CompoundTag)
-                        .map(t -> (CompoundTag) t)
-                        .map(positionTag -> this.getBlockPos().offset(
-                                positionTag.getInt("x"),
-                                positionTag.getInt("y"),
-                                positionTag.getInt("z")))
+                        .map(positionInput -> this.getBlockPos().offset(
+                                positionInput.getIntOr("x", 0),
+                                positionInput.getIntOr("y", 0),
+                                positionInput.getIntOr("z", 0)))
                         .toList();
 
         this.directConnections.clear();
@@ -68,9 +63,19 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
 
     @Override
     public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        var tag = new CompoundTag();
-        saveAdditional(tag, registries);
-        return tag;
+        return saveCustomOnly(registries);
+    }
+
+    /**
+     * Called immediately before Minecraft removes this block entity.
+     * In 1.21.11 this replaces the old Block#onRemove cleanup hook.
+     */
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (level != null && !level.isClientSide()) {
+            removeBidirectionalConnections(level, null, pos);
+        }
     }
 
     public void removeBidirectionalConnections(Level level, Player player, BlockPos pos) {
@@ -116,7 +121,8 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
         }
     }
 
-    public Collection<BlockPos> getConnections() {
+    /** @return an immutable snapshot; callers must not copy it again. */
+    public List<BlockPos> getConnections() {
         return List.copyOf(directConnections);
     }
 
@@ -131,7 +137,7 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
     }
 
     private void syncToClient() {
-        if (this.level == null || this.level.isClientSide) {
+        if (this.level == null || this.level.isClientSide()) {
             return;
         }
 

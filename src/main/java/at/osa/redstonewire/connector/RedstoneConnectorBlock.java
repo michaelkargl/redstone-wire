@@ -9,7 +9,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -36,23 +36,23 @@ public class RedstoneConnectorBlock extends RedstoneWireBlock {
      * We only care about redstone — all other items fall through to default behavior.
      */
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack heldItem, BlockState state, Level level,
-                                              BlockPos pos, Player player, InteractionHand hand,
-                                              BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack heldItem, BlockState state, Level level,
+                                          BlockPos pos, Player player, InteractionHand hand,
+                                          BlockHitResult hit) {
         if (!heldItem.is(Items.REDSTONE)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         var be = level.getBlockEntity(pos);
         if (!(be instanceof RedstoneConnectorBlockEntity connector)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             handleWireItemUse(level, pos, connector, player, heldItem);
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 
     /**
@@ -76,7 +76,7 @@ public class RedstoneConnectorBlock extends RedstoneWireBlock {
     }
 
     private void handleFirstClick(Level level, ItemStack itemStack, BlockPos clickedBlockPosition, Player player) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
 
@@ -94,7 +94,7 @@ public class RedstoneConnectorBlock extends RedstoneWireBlock {
             BlockPos clickedBlockPosition,
             Player player) {
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
 
