@@ -12,6 +12,13 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
+      # Artifact names may not contain / " : < > | * ? \r \n \
+      # github.ref_name keeps the slash from branches like release/mc-1.21.11,
+      # and GitHub Actions expressions have no string-replace function.
+      - name: Compute artifact slug
+        id: slug
+        run: echo "ref=${GITHUB_REF_NAME//\//-}" >> "$GITHUB_OUTPUT"
+
       - name: Setup JDK 21
         uses: actions/setup-java@v4
         with:
@@ -33,7 +40,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: success()
         with:
-          name: redstone-wire-${{ github.ref_name }}-${{ github.sha }}
+          name: redstone-wire-${{ steps.slug.outputs.ref }}-${{ github.sha }}
           path: build/libs/*.jar
           retention-days: 30
 
@@ -46,6 +53,10 @@ jobs:
         with:
           fetch-depth: 0
           fetch-tags: true
+
+      - name: Compute artifact slug
+        id: slug
+        run: echo "ref=${GITHUB_REF_NAME//\//-}" >> "$GITHUB_OUTPUT"
 
       - name: Setup JDK 21
         uses: actions/setup-java@v4
@@ -68,7 +79,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: test-logs-${{ github.ref_name }}-${{ github.sha }}
+          name: test-logs-${{ steps.slug.outputs.ref }}-${{ github.sha }}
           path: |
             logs/
             run/logs/
