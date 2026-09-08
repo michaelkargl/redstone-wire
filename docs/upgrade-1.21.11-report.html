@@ -1,0 +1,1965 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Redstone Wire — Minecraft 1.21.11 Upgrade Field Guide</title>
+  <style>
+    :root {
+      --sky: #88c9f9;
+      --sky-deep: #5aa6df;
+      --grass: #5f9f35;
+      --grass-light: #7cbd46;
+      --dirt: #76523a;
+      --dirt-dark: #4c3528;
+      --stone: #292d31;
+      --stone-2: #353a3f;
+      --stone-3: #454b51;
+      --paper: #f4efd8;
+      --ink: #20231f;
+      --muted: #667066;
+      --redstone: #d3302f;
+      --redstone-bright: #ff5650;
+      --gold: #f3c648;
+      --emerald: #39b56b;
+      --water: #4da4dc;
+      --danger: #e05a47;
+      --shadow: rgba(13, 19, 13, .24);
+      --pixel: 4px;
+      --radius: 2px;
+      --content: 1240px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(255,255,255,.84), rgba(255,255,255,.84)),
+        repeating-conic-gradient(#9ca39b 0 25%, #858d84 0 50%) 0 0 / 28px 28px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    code, pre, .pixel-font, .badge, .nav a, button, input {
+      font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace;
+    }
+
+    a { color: #176795; text-underline-offset: 3px; }
+    a:hover { color: #0c486d; }
+
+    #progress {
+      position: fixed;
+      inset: 0 auto auto 0;
+      width: 0;
+      height: 5px;
+      z-index: 100;
+      background: linear-gradient(90deg, #7a1010, var(--redstone-bright));
+      box-shadow: 0 0 12px var(--redstone-bright);
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 520px;
+      padding: 84px 24px 92px;
+      color: white;
+      background:
+        linear-gradient(180deg, rgba(54,128,190,.12), rgba(54,128,190,.34)),
+        repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 32px, transparent 32px 64px),
+        linear-gradient(var(--sky), var(--sky-deep));
+      border-bottom: 24px solid var(--grass);
+      text-shadow: 0 3px 0 rgba(24,50,70,.35);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -84px;
+      height: 84px;
+      background:
+        repeating-conic-gradient(#6f4b33 0 25%, #7d563a 0 50%) 0 0 / 32px 32px;
+      border-top: 8px solid var(--grass-light);
+    }
+
+    .cloud, .cloud::before, .cloud::after {
+      position: absolute;
+      width: 96px;
+      height: 30px;
+      background: rgba(255,255,255,.78);
+      box-shadow: 8px 8px 0 rgba(255,255,255,.3);
+    }
+    .cloud { top: 72px; left: 8%; }
+    .cloud::before { content: ""; left: 28px; top: -28px; width: 52px; }
+    .cloud::after { content: ""; left: 72px; top: 8px; width: 68px; }
+    .cloud.two { left: auto; right: 14%; top: 146px; transform: scale(.7); opacity: .75; }
+
+    .hero-inner {
+      position: relative;
+      z-index: 2;
+      max-width: var(--content);
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1.5fr .75fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 12px;
+      margin-bottom: 18px;
+      color: #fff9d5;
+      background: rgba(32,41,33,.66);
+      border: 3px solid rgba(255,255,255,.54);
+      box-shadow: 5px 5px 0 rgba(24,50,70,.3);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    h1, h2, h3, h4 {
+      line-height: 1.18;
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 820px;
+      margin-bottom: 20px;
+      font-size: clamp(2.5rem, 6vw, 5.6rem);
+      letter-spacing: -.055em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 0;
+      font-size: clamp(1.05rem, 2vw, 1.35rem);
+      color: #f7fbff;
+    }
+
+    .ore-block {
+      width: 220px;
+      aspect-ratio: 1;
+      justify-self: center;
+      position: relative;
+      background:
+        linear-gradient(135deg, transparent 0 20%, #d62f2d 21% 29%, transparent 30% 52%, #f34c43 53% 62%, transparent 63%),
+        linear-gradient(45deg, #555b60 0 25%, #656b70 25% 50%, #4a5055 50% 75%, #737a7f 75%);
+      background-size: 64px 64px;
+      border: 10px solid #353b40;
+      box-shadow:
+        16px 16px 0 rgba(42,52,45,.25),
+        inset 10px 10px 0 rgba(255,255,255,.12),
+        inset -12px -12px 0 rgba(0,0,0,.22);
+      transform: rotate(3deg);
+    }
+
+    .ore-block::before {
+      content: "1.21.11";
+      position: absolute;
+      inset: 50% auto auto 50%;
+      transform: translate(-50%, -50%) rotate(-3deg);
+      padding: 8px 12px;
+      background: #202426;
+      border: 3px solid #eae4c8;
+      color: white;
+      font: 900 1.1rem "Cascadia Code", monospace;
+      text-shadow: none;
+      box-shadow: 5px 5px 0 rgba(0,0,0,.38);
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      overflow-x: auto;
+      background: var(--stone);
+      border-bottom: 5px solid #171a1d;
+      box-shadow: 0 5px 0 rgba(0,0,0,.16);
+    }
+
+    .nav-inner {
+      max-width: var(--content);
+      min-width: max-content;
+      margin: auto;
+      display: flex;
+      gap: 4px;
+      padding: 0 16px;
+    }
+
+    .nav a {
+      display: block;
+      padding: 16px 14px 13px;
+      color: #eef3ea;
+      text-decoration: none;
+      font-size: .82rem;
+      border-bottom: 4px solid transparent;
+    }
+    .nav a:hover { background: var(--stone-2); border-color: var(--redstone); }
+
+    main {
+      max-width: var(--content);
+      margin: 0 auto;
+      padding: 64px 22px 100px;
+    }
+
+    section {
+      scroll-margin-top: 78px;
+      margin-bottom: 76px;
+    }
+
+    .section-kicker {
+      color: #6f371d;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      font: 800 .76rem "Cascadia Code", monospace;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: clamp(1.9rem, 4vw, 3.1rem);
+      letter-spacing: -.035em;
+    }
+
+    .lede {
+      max-width: 850px;
+      color: #515b51;
+      font-size: 1.08rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 30px;
+    }
+
+    .stat {
+      min-height: 150px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      background: var(--paper);
+      border: 3px solid #403d31;
+      box-shadow: 6px 6px 0 rgba(65,58,42,.18);
+    }
+    .stat::after {
+      content: "";
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      right: -16px;
+      bottom: -16px;
+      background: var(--accent, var(--grass));
+      opacity: .27;
+      box-shadow: -48px 0 0 var(--accent, var(--grass)), 0 -48px 0 var(--accent, var(--grass));
+    }
+    .stat strong {
+      display: block;
+      margin-bottom: 3px;
+      font: 900 2.35rem "Cascadia Code", monospace;
+    }
+    .stat span { color: #596159; }
+    .stat.green { --accent: var(--grass); }
+    .stat.red { --accent: var(--redstone); }
+    .stat.gold { --accent: var(--gold); }
+    .stat.blue { --accent: var(--water); }
+
+    .version-stack {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      margin-top: 28px;
+      border: 4px solid #2c312c;
+      box-shadow: 8px 8px 0 var(--shadow);
+    }
+    .version {
+      padding: 22px 15px;
+      text-align: center;
+      color: white;
+      background: var(--stone-2);
+      border-right: 2px solid #202420;
+    }
+    .version:last-child { border-right: 0; }
+    .version b { display: block; color: #fff5bf; font-size: 1.04rem; }
+    .version small { color: #cbd2ca; }
+
+    .callout {
+      margin: 28px 0;
+      padding: 20px 22px 20px 70px;
+      position: relative;
+      background: #fff8cf;
+      border: 3px solid #665a2f;
+      box-shadow: 6px 6px 0 rgba(102,90,47,.17);
+    }
+    .callout::before {
+      content: "!";
+      position: absolute;
+      left: 18px;
+      top: 18px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      color: #2a2411;
+      background: var(--gold);
+      border: 3px solid #6c5914;
+      font: 900 1.2rem monospace;
+    }
+    .callout.success { background: #dcf5dc; border-color: #39713e; }
+    .callout.success::before { content: "✓"; background: #67c16e; border-color: #24552a; }
+
+    .model-grid {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+    .model-card {
+      padding: 20px 16px;
+      background: white;
+      border: 3px solid #3a403a;
+      box-shadow: 5px 5px 0 rgba(42,49,42,.16);
+    }
+    .model-card .cube {
+      width: 42px;
+      height: 42px;
+      margin-bottom: 14px;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--cube, #777);
+      border: 4px solid rgba(0,0,0,.25);
+      box-shadow: inset 5px 5px 0 rgba(255,255,255,.17);
+      font: 900 1rem monospace;
+    }
+    .model-card h3 { margin-bottom: 7px; font-size: 1rem; }
+    .model-card p { margin: 0; color: #606960; font-size: .9rem; }
+
+    .flow {
+      margin: 28px 0;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(125px, 1fr));
+      align-items: stretch;
+      gap: 26px;
+    }
+    .flow-node {
+      min-height: 132px;
+      padding: 18px 14px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: white;
+      border: 3px solid #353b35;
+      box-shadow: 5px 5px 0 rgba(42,49,42,.16);
+    }
+    .flow-node:not(:last-child)::after {
+      content: "→";
+      position: absolute;
+      right: -27px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--redstone);
+      font: 900 1.7rem monospace;
+    }
+    .flow-node b { margin-bottom: 6px; }
+    .flow-node small { color: var(--muted); }
+
+    .timeline {
+      margin: 34px 0 0 16px;
+      padding-left: 34px;
+      position: relative;
+      border-left: 8px solid var(--redstone);
+    }
+    .event {
+      margin: 0 0 26px;
+      padding: 22px;
+      position: relative;
+      background: white;
+      border: 3px solid #383e38;
+      box-shadow: 6px 6px 0 rgba(42,49,42,.15);
+    }
+    .event::before {
+      content: "";
+      position: absolute;
+      left: -55px;
+      top: 24px;
+      width: 24px;
+      height: 24px;
+      background: var(--event-color, var(--redstone));
+      border: 4px solid #fff;
+      outline: 3px solid #333;
+    }
+    .event.good { --event-color: var(--emerald); }
+    .event h3 { margin-bottom: 8px; font-size: 1.04rem; }
+    .event p { margin: 0; color: #586158; }
+
+    .diagram-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      margin-top: 30px;
+    }
+    .diagram {
+      min-width: 0;
+      padding: 24px;
+      background: #fff;
+      border: 3px solid #333a33;
+      box-shadow: 7px 7px 0 var(--shadow);
+    }
+    .diagram h3 { margin-bottom: 18px; }
+    .diagram > .mini-code {
+      height: auto;
+      margin-bottom: 18px;
+      overflow-wrap: anywhere;
+    }
+    .compare {
+      display: grid;
+      grid-template-columns: 1fr 36px 1fr;
+      align-items: center;
+      gap: 8px;
+    }
+    .compare.two-up {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      gap: 22px;
+    }
+    .compare > .arrow { text-align: center; color: var(--redstone); font: 900 1.7rem monospace; }
+    .mini-code {
+      height: 100%;
+      padding: 14px;
+      color: #e7eee7;
+      background: #202523;
+      border: 3px solid #0f1211;
+      white-space: pre-wrap;
+      font: .76rem/1.5 "Cascadia Code", monospace;
+    }
+    .mini-code.old { border-color: #7d392f; }
+    .mini-code.new { border-color: #32734a; }
+
+    .deep-topic {
+      margin-top: 34px;
+      padding: 28px;
+      background: rgba(255,255,255,.92);
+      border: 3px solid #343b34;
+      border-left: 9px solid var(--topic, var(--redstone));
+      box-shadow: 8px 8px 0 var(--shadow);
+    }
+    .deep-topic h3 { margin-bottom: 10px; font-size: 1.45rem; }
+    .deep-topic h4 { margin: 24px 0 8px; }
+    .deep-topic > p:last-child { margin-bottom: 0; }
+    .deep-topic.render { --topic: #4b87be; }
+    .deep-topic.java { --topic: #d99935; }
+    .deep-topic.runtime { --topic: #7a62a8; }
+    .deep-topic.tests { --topic: #865bb5; }
+    .deep-topic.lifecycle { --topic: #b04b43; }
+    .deep-topic.resources { --topic: #488936; }
+    .flow.compact { grid-template-columns: repeat(3, minmax(150px, 1fr)); }
+    .flow.four { grid-template-columns: repeat(4, minmax(140px, 1fr)); }
+    .layer-stack { display: grid; gap: 8px; margin: 24px 0; }
+    .layer {
+      padding: 16px 18px;
+      color: white;
+      background: var(--layer, #3f4942);
+      border: 3px solid rgba(0,0,0,.42);
+      box-shadow: inset 5px 5px 0 rgba(255,255,255,.08);
+    }
+    .layer:nth-child(2) { margin-inline: 4%; --layer: #405e73; }
+    .layer:nth-child(3) { margin-inline: 8%; --layer: #654f78; }
+    .layer:nth-child(4) { margin-inline: 12%; --layer: #74433d; }
+    .layer b { color: #fff1a8; }
+    .truth-label {
+      display: inline-block;
+      margin-right: 7px;
+      padding: 2px 7px;
+      color: white;
+      background: #335f3b;
+      border: 2px solid #1e4125;
+      font: 800 .72rem "Cascadia Code", monospace;
+      text-transform: uppercase;
+    }
+    .truth-label.inference { background: #785c2d; border-color: #513b18; }
+    .mobile-table-hint { display: none; }
+
+    .coords {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
+      text-align: center;
+    }
+    .axis {
+      padding: 14px;
+      background: #eef3e9;
+      border: 3px solid #414841;
+    }
+    .voxel {
+      width: 128px;
+      margin: 8px auto;
+      padding: 10px;
+      color: white;
+      background: var(--voxel);
+      border: 4px solid rgba(0,0,0,.25);
+      box-shadow: inset 5px 5px 0 rgba(255,255,255,.15);
+      font: 800 .75rem monospace;
+    }
+    .voxel.air { --voxel: #77bce5; opacity: .74; }
+    .voxel.template { --voxel: #345cbb; }
+    .voxel.controller { --voxel: #7b5639; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border: 3px solid #343a34;
+      box-shadow: 7px 7px 0 var(--shadow);
+    }
+    th, td {
+      padding: 15px 16px;
+      text-align: left;
+      vertical-align: top;
+      border: 1px solid #b9c0b7;
+      overflow-wrap: anywhere;
+    }
+    th { color: white; background: var(--stone-2); }
+    tbody tr:nth-child(even) { background: #f2f4eb; }
+    td code { color: #79231f; font-size: .88em; }
+
+    .change-toolbar {
+      position: sticky;
+      top: 54px;
+      z-index: 30;
+      margin: 26px 0 18px;
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 9px;
+      background: var(--stone);
+      border: 4px solid #181b19;
+      box-shadow: 6px 6px 0 var(--shadow);
+    }
+    button, input {
+      min-height: 40px;
+      padding: 9px 12px;
+      border: 3px solid #111;
+      border-radius: 0;
+      font-size: .8rem;
+    }
+    button {
+      color: white;
+      background: var(--stone-3);
+      cursor: pointer;
+      box-shadow: 3px 3px 0 #111;
+    }
+    button:hover, button.active { color: #171b16; background: var(--gold); }
+    input {
+      min-width: min(310px, 100%);
+      flex: 1;
+      color: white;
+      background: #171b19;
+      border-color: #626b63;
+      outline: none;
+    }
+    input:focus { border-color: var(--redstone-bright); }
+    .visible-count { margin-left: auto; color: #dce5da; font: .78rem monospace; }
+
+    .change-list { display: grid; gap: 14px; }
+    details.change-card {
+      background: rgba(255,255,255,.94);
+      border: 3px solid #383e38;
+      box-shadow: 5px 5px 0 rgba(42,49,42,.14);
+    }
+    details.change-card[open] { border-color: var(--category, var(--grass)); }
+    details.change-card[hidden] { display: none; }
+    summary {
+      min-height: 62px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      list-style: none;
+      font-weight: 800;
+    }
+    summary::-webkit-details-marker { display: none; }
+    summary::before {
+      content: "+";
+      width: 27px;
+      height: 27px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      color: white;
+      background: var(--category, var(--grass));
+      border: 2px solid #252a25;
+      font: 900 1rem monospace;
+    }
+    details[open] summary::before { content: "−"; }
+    .file-name { overflow-wrap: anywhere; font: 800 .9rem "Cascadia Code", monospace; }
+    .badges { margin-left: auto; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .badge {
+      padding: 4px 7px;
+      color: white;
+      background: #667;
+      border: 2px solid rgba(0,0,0,.35);
+      font-size: .67rem;
+      text-transform: uppercase;
+    }
+    .badge.m { background: #8c6817; }
+    .badge.a { background: #267044; }
+    .badge.d { background: #8a302b; }
+
+    .change-body {
+      padding: 0 20px 22px 59px;
+      border-top: 2px dashed #c4c9c1;
+    }
+    .triad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .triad > div {
+      padding: 15px;
+      background: #f2f4ed;
+      border-left: 6px solid var(--category, var(--grass));
+    }
+    .triad h4 {
+      margin-bottom: 6px;
+      color: #3b443b;
+      font-size: .78rem;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .triad p, .triad ul { margin: 0; font-size: .91rem; }
+    .triad ul { padding-left: 19px; }
+    .lesson {
+      margin-top: 14px;
+      padding: 12px 14px;
+      color: #343b34;
+      background: #fff4c6;
+      border: 2px solid #a1842d;
+      font-size: .9rem;
+    }
+    .change-link { display: inline-block; margin-top: 13px; font-size: .82rem; }
+
+    .cat-build { --category: #b68221; }
+    .cat-core { --category: #488936; }
+    .cat-render { --category: #4b87be; }
+    .cat-tests { --category: #865bb5; }
+    .cat-resources { --category: #b04b43; }
+
+    .bars {
+      display: grid;
+      gap: 12px;
+      margin: 28px 0;
+    }
+    .bar {
+      display: grid;
+      grid-template-columns: 105px 1fr 38px;
+      align-items: center;
+      gap: 12px;
+      font: .82rem "Cascadia Code", monospace;
+    }
+    .bar-track {
+      height: 25px;
+      background: #d4d9d1;
+      border: 3px solid #3b413b;
+    }
+    .bar-fill {
+      height: 100%;
+      width: var(--w);
+      background: var(--c);
+      border-right: 3px solid rgba(0,0,0,.28);
+    }
+
+    .validation {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-top: 28px;
+    }
+    .check {
+      padding: 20px;
+      color: #edf8ed;
+      background: #294a30;
+      border: 4px solid #17311d;
+      box-shadow: 6px 6px 0 var(--shadow);
+    }
+    .check b { display: block; margin-bottom: 8px; color: #8cef97; }
+    .check code { color: #fff2b4; }
+    .check.pending { color: #2a2411; background: #fff8cf; border-color: #665a2f; }
+    .check.pending b { color: #6c5914; }
+    .check.pending code { color: #7a3d10; }
+
+    .references {
+      padding: 24px;
+      background: #e9eddf;
+      border: 3px solid #3c443c;
+    }
+    .references li { margin: 8px 0; }
+
+    footer {
+      padding: 48px 22px;
+      color: #dce4dc;
+      background:
+        repeating-conic-gradient(#2b302c 0 25%, #252a26 0 50%) 0 0 / 30px 30px;
+      border-top: 8px solid var(--redstone);
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .ore-block { width: 160px; justify-self: start; }
+      .summary-grid, .validation { grid-template-columns: 1fr 1fr; }
+      .version-stack, .model-grid { grid-template-columns: 1fr; }
+      .version { border-right: 0; border-bottom: 2px solid #202420; }
+      .flow { grid-template-columns: 1fr; }
+      .flow.compact, .flow.four { grid-template-columns: 1fr; }
+      .flow-node:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -31px; transform: translateX(50%); }
+      .diagram-grid { grid-template-columns: 1fr; }
+      .triad { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .summary-grid, .validation, .coords { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .compare.two-up { grid-template-columns: 1fr; }
+      .compare > .arrow { transform: rotate(90deg); }
+      .deep-topic { padding: 18px; }
+      .mobile-table-hint {
+        display: block;
+        padding: 10px 12px;
+        color: #59491f;
+        background: #fff5bf;
+        border: 2px solid #7a6427;
+        font: 700 .78rem "Cascadia Code", monospace;
+      }
+      table {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+      table > thead, table > tbody {
+        display: table;
+        width: 680px;
+        table-layout: fixed;
+      }
+      .change-body { padding-left: 20px; }
+      summary { align-items: flex-start; }
+      .badges { margin-left: 0; }
+      .visible-count { width: 100%; margin-left: 0; }
+      h1 { font-size: 2.55rem; }
+    }
+
+    @media print {
+      .nav, .change-toolbar, #progress, .cloud { display: none !important; }
+      body { background: white; }
+      details.change-card { break-inside: avoid; }
+      details.change-card > .change-body { display: block !important; }
+      .hero { min-height: auto; color: #111; background: white; border: 0; text-shadow: none; }
+      .hero p { color: #333; }
+      .ore-block { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div id="progress"></div>
+
+  <header class="hero">
+    <div class="cloud"></div>
+    <div class="cloud two"></div>
+    <div class="hero-inner">
+      <div>
+        <span class="eyebrow pixel-font">Upgrade field guide · generated 26 Aug 2026</span>
+        <h1>Redstone Wire<br>1.21.11 Upgrade</h1>
+        <p>A visual, C#-friendly walkthrough of every migration change: what moved, why Minecraft requires it, what it does at runtime, and how we proved it works.</p>
+      </div>
+      <div class="ore-block" aria-label="Pixel-art redstone ore showing version 1.21.11"></div>
+    </div>
+  </header>
+
+  <nav class="nav" aria-label="Report navigation">
+    <div class="nav-inner">
+      <a href="#overview">Overview</a>
+      <a href="#moddevgradle">ModDevGradle</a>
+      <a href="#parchment">Parchment</a>
+      <a href="#mental-model">Minecraft mental model</a>
+      <a href="#debug-story">Debug story</a>
+      <a href="#architecture">Visual diagrams</a>
+      <a href="#deep-dives">Deep dives</a>
+      <a href="#csharp-bridge">C# bridge</a>
+      <a href="#all-changes">Every file</a>
+      <a href="#validation">Validation</a>
+      <a href="#next-steps">Next steps</a>
+    </div>
+  </nav>
+
+  <main>
+    <section id="overview">
+      <span class="section-kicker">The result</span>
+      <h2>The mod is upgraded and buildable</h2>
+      <p class="lede">This was more than changing one version number. Minecraft, NeoForge, mappings, persistence, rendering, data packs, registration, and GameTests all evolved between 1.21.1 and 1.21.11.</p>
+
+      <div class="summary-grid">
+        <div class="stat green"><strong>30</strong><span>migration files documented</span></div>
+        <div class="stat gold"><strong>21</strong><span>modified files</span></div>
+        <div class="stat blue"><strong>8</strong><span>new implementation files</span></div>
+        <div class="stat red"><strong>1</strong><span>broken recipe removed — 0 now ship</span></div>
+      </div>
+
+      <div class="version-stack" aria-label="Version stack">
+        <div class="version"><b>Java 21</b><small>runtime language</small></div>
+        <div class="version"><b>Minecraft 1.21.11</b><small>game API</small></div>
+        <div class="version"><b>NeoForge 21.11.45</b><small>mod loader + hooks</small></div>
+        <div class="version"><b>ModDevGradle 2.0.144</b><small>build integration</small></div>
+        <div class="version"><b>Parchment 2025.12.20</b><small>parameter names + Javadocs</small></div>
+      </div>
+
+      <div class="callout success">
+        <strong>Outcome:</strong> the dedicated 1.21.11 GameTest server ran this mod’s four tests—including the new removal regression—and all passed; the client registered the cable render pipeline; and Gradle assembled <code>build/libs/redstone_wire-1.0.8.jar</code>. The runner reports <em>five</em> because Minecraft itself ships one test instance, <code>minecraft:always_pass</code>, which always runs alongside them.
+      </div>
+
+      <div class="bars" aria-label="Changed files by category">
+        <div class="bar"><span>Core Java</span><div class="bar-track"><div class="bar-fill" style="--w:88.9%;--c:#488936"></div></div><b>8</b></div>
+        <div class="bar"><span>Tests</span><div class="bar-track"><div class="bar-fill" style="--w:100%;--c:#865bb5"></div></div><b>9</b></div>
+        <div class="bar"><span>Rendering</span><div class="bar-track"><div class="bar-fill" style="--w:55.6%;--c:#4b87be"></div></div><b>5</b></div>
+        <div class="bar"><span>Resources</span><div class="bar-track"><div class="bar-fill" style="--w:55.6%;--c:#b04b43"></div></div><b>5</b></div>
+        <div class="bar"><span>Build</span><div class="bar-track"><div class="bar-fill" style="--w:33.3%;--c:#b68221"></div></div><b>3</b></div>
+      </div>
+    </section>
+
+    <section id="moddevgradle">
+      <span class="section-kicker">Build-tool tour</span>
+      <h2>What ModDevGradle actually is</h2>
+      <p class="lede"><strong>ModDevGradle is NeoForge's development plugin for Gradle.</strong> It turns an ordinary Java/Gradle project into a Minecraft mod development workspace: it prepares the Minecraft and NeoForge dependencies, gives Gradle the mod-specific build rules, creates runnable game configurations, and packages the finished mod.</p>
+
+      <div class="callout">
+        <strong>C# lens:</strong> think of <strong>Gradle</strong> as a mixture of the .NET CLI, MSBuild, and NuGet. <code>build.gradle</code> is roughly your <code>.csproj</code> plus custom build targets. <strong>ModDevGradle</strong> is the plugin that adds the Minecraft/NeoForge-specific targets and project model.
+      </div>
+
+      <div class="flow" aria-label="How ModDevGradle turns project settings into a mod jar">
+        <div class="flow-node"><b><code>gradle.properties</code></b><small>declares Minecraft, NeoForge, mappings, and mod versions</small></div>
+        <div class="flow-node"><b><code>build.gradle</code></b><small>applies ModDevGradle and describes runs, sources, and build rules</small></div>
+        <div class="flow-node"><b>Dev workspace</b><small>downloads and prepares Minecraft + NeoForge artifacts with mappings and browsable sources</small></div>
+        <div class="flow-node"><b>IDE + Gradle tasks</b><small>compile, launch client/server, run GameTests, and generate data</small></div>
+        <div class="flow-node"><b>Mod JAR</b><small><code>build/libs/redstone_wire-1.0.8.jar</code></small></div>
+      </div>
+
+      <div class="diagram-grid">
+        <article class="diagram">
+          <h3>The one line that switches it on</h3>
+          <div class="mini-code">plugins {
+    id 'net.neoforged.moddev' version '2.0.144'
+}</div>
+          <p><code>net.neoforged.moddev</code> identifies the plugin. <code>2.0.144</code> is the <em>build plugin's</em> version—not the Minecraft version, NeoForge version, Java version, or your mod's release version.</p>
+          <p>Applying it adds the <code>neoForge { ... }</code> configuration language used later in <code>build.gradle</code>. Without that plugin, plain Gradle would not understand settings such as <code>version</code>, <code>parchment</code>, <code>runs</code>, <code>client()</code>, <code>server()</code>, or <code>ideSyncTask</code> in that block.</p>
+        </article>
+
+        <article class="diagram">
+          <h3>Who owns which job?</h3>
+          <table>
+            <tbody>
+              <tr><th>Gradle Wrapper</th><td><code>gradlew</code> selects and downloads the agreed Gradle version.</td></tr>
+              <tr><th>ModDevGradle</th><td>Teaches Gradle how to develop, run, test, and package a NeoForge mod.</td></tr>
+              <tr><th>NeoForge</th><td>The mod loader and runtime API used when Minecraft actually runs.</td></tr>
+              <tr><th><a href="#parchment">Parchment</a></th><td>Supplies friendlier parameter names and documentation for mapped Minecraft code.</td></tr>
+              <tr><th>Your mod</th><td>The Java classes, resources, behavior, and version you own and ship.</td></tr>
+            </tbody>
+          </table>
+        </article>
+      </div>
+
+      <h3 style="margin-top:42px">What it does during normal development</h3>
+      <table>
+        <thead><tr><th>Moment</th><th>What ModDevGradle contributes</th><th>Familiar C# comparison</th></tr></thead>
+        <tbody>
+          <tr><td>Opening/importing the project</td><td>Resolves NeoForge and Minecraft, prepares the development artifacts, and exposes readable sources to the IDE.</td><td>NuGet restore plus generated SDK/reference assemblies.</td></tr>
+          <tr><td>Writing code</td><td>Provides the classpath and mapped Minecraft API against which IntelliJ and <code>javac</code> check your code.</td><td>The target framework reference assemblies used by Roslyn.</td></tr>
+          <tr><td>Running locally</td><td>Creates configured client, server, GameTest server, and data-generation launch tasks.</td><td>Several launch profiles backed by custom MSBuild targets.</td></tr>
+          <tr><td>Building</td><td>Connects mod metadata and prepared dependencies to Gradle's Java build so <code>gradlew build</code> produces the distributable JAR.</td><td><code>dotnet build</code>/<code>dotnet pack</code> with an SDK extension.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="compare two-up">
+        <div class="before">
+          <span class="label">It is not</span>
+          <h3>Part of the mod players install</h3>
+          <p>ModDevGradle is development/build tooling. It does not run inside a player's Minecraft instance and it is not a substitute for the NeoForge loader.</p>
+        </div>
+        <div class="after">
+          <span class="label">It is</span>
+          <h3>The workshop around the mod</h3>
+          <p>It prepares the workbench, tools, test launches, and packaging process that let your source code become a NeoForge-compatible JAR.</p>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <strong>Why it changed from 2.0.139 to 2.0.144:</strong> this upgrades the build integration used by the 1.21.11 project setup. It does <em>not</em> change the game to Minecraft 2.0.144. Minecraft remains <code>1.21.11</code>, NeoForge remains <code>21.11.45</code>, and the mod remains <code>1.0.8</code>.
+      </div>
+
+      <div class="callout success">
+        <strong>When to reload Gradle:</strong> after changing <code>build.gradle</code> or <code>gradle.properties</code>, use IntelliJ's <em>Reload All Gradle Projects</em>. That makes the editor, compiler classpath, and generated run configurations agree with the new build model. The official <a href="https://github.com/neoforged/ModDevGradle">ModDevGradle project</a> documents the plugin itself, while the <a href="https://github.com/neoforged/Documentation/blob/main/docs/gettingstarted/index.md">NeoForge getting-started guide</a> explains project import and Gradle builds.
+      </div>
+    </section>
+
+    <section id="parchment">
+      <span class="section-kicker">Making Minecraft source readable</span>
+      <h2>What Parchment is</h2>
+      <p class="lede"><strong>Parchment is a community-maintained, mod-loader-neutral data set of Minecraft parameter names and Javadocs.</strong> ModDevGradle layers that information over Mojang's official mappings so IntelliJ can show more meaningful method parameters and explanations while you work.</p>
+
+      <div class="callout">
+        <strong>First, “mapping” in plain English:</strong> released Minecraft is compiled Java bytecode, and production symbols are not designed to be pleasant source code. A mapping is translation metadata that helps development tools present those symbols meaningfully. Mojang's official mappings provide the main class, field, and method names; Parchment <em>augments</em> them with parameter names and documentation.
+      </div>
+
+      <div class="callout">
+        <strong>C# lens:</strong> imagine referencing a DLL where IntelliSense could only show <code>void Update(BlockState p0, Level p1, BlockPos p2)</code>. Parchment is like applying an external metadata/XML-documentation package that lets the IDE show meaningful names such as <code>state</code>, <code>level</code>, and <code>pos</code>, plus useful API comments. It improves the development view; it does not replace the DLL.
+      </div>
+
+      <div class="flow" aria-label="How Minecraft names and Parchment reach IntelliJ">
+        <div class="flow-node"><b>Minecraft bytecode</b><small>the compiled game that tools start from</small></div>
+        <div class="flow-node"><b>Mojang mappings</b><small>official class, method, and field names</small></div>
+        <div class="flow-node"><b>Parchment overlay</b><small>community parameter names + Javadocs</small></div>
+        <div class="flow-node"><b>ModDevGradle</b><small>applies the selected mapping layers to the dev workspace</small></div>
+        <div class="flow-node"><b>IntelliJ</b><small>shows more readable signatures, hints, and documentation</small></div>
+      </div>
+
+      <div class="diagram-grid">
+        <article class="diagram">
+          <h3>A small illustrative example</h3>
+          <p><strong>With only incomplete parameter information:</strong></p>
+          <div class="mini-code old">void update(
+    BlockState p0,
+    Level p1,
+    BlockPos p2
+)</div>
+          <p><strong>After the Parchment overlay:</strong></p>
+          <div class="mini-code new">/**
+ * Updates the block at the supplied position.
+ */
+void update(
+    BlockState state,
+    Level level,
+    BlockPos pos
+)</div>
+          <p><small>This is a teaching example, not a literal Minecraft method. The important difference is the developer-facing names and documentation.</small></p>
+        </article>
+
+        <article class="diagram">
+          <h3>How this project selects it</h3>
+          <div class="mini-code">neoForge {
+    parchment {
+        minecraftVersion =
+            project.parchment_minecraft_version
+        mappingsVersion =
+            project.parchment_mappings_version
+    }
+}
+
+# gradle.properties
+parchment_minecraft_version=1.21.11
+parchment_mappings_version=2025.12.20</div>
+          <p><code>parchment_minecraft_version</code> says which Minecraft code the data describes. <code>parchment_mappings_version</code> selects a particular published Parchment data release; its value is date-based.</p>
+          <p>Here both the mod and the mapping data target Minecraft <code>1.21.11</code>, while <code>2025.12.20</code> identifies the chosen Parchment release—not another Minecraft version.</p>
+        </article>
+      </div>
+
+      <table style="margin-top:32px">
+        <thead><tr><th>Parchment does</th><th>Parchment does not</th></tr></thead>
+        <tbody>
+          <tr><td>Improve parameter names shown in decompiled Minecraft source.</td><td>Add new methods, blocks, hooks, or gameplay behavior.</td></tr>
+          <tr><td>Attach community-written Javadocs that explain parts of the API.</td><td>Replace NeoForge, ModDevGradle, or Mojang's official mappings.</td></tr>
+          <tr><td>Help humans understand arguments while reading and calling methods.</td><td>Become a library that players must install with the mod.</td></tr>
+          <tr><td>Make API changes easier to reason about during an upgrade.</td><td>Change Java method identity: parameter types and order still define the callable signature.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warning">
+        <strong>Important:</strong> Parchment can make an API easier to understand, but it cannot make old code compatible with a changed Minecraft API. If a method was removed or its parameter types changed in 1.21.11, the Java code still needs a real migration.
+      </div>
+
+      <div class="callout success">
+        <strong>Why we use it here:</strong> readable names such as <code>state</code>, <code>level</code>, and <code>pos</code> make compiler errors and decompiled Minecraft source much easier to follow while learning the API. See the <a href="https://github.com/ParchmentMC/Parchment">official Parchment repository</a> and its <a href="https://parchmentmc.org/docs/getting-started">version and setup guide</a>.
+      </div>
+    </section>
+
+    <section id="mental-model">
+      <span class="section-kicker">Before the details</span>
+      <h2>A Minecraft modding mental model</h2>
+      <p class="lede">These five concepts explain most of the project. The names are Minecraft-specific, but the separation is familiar from application and game architecture.</p>
+
+      <div class="model-grid">
+        <article class="model-card">
+          <div class="cube" style="--cube:#777">B</div>
+          <h3>Block</h3>
+          <p>A singleton type definition: rules, shape, interaction methods. Roughly a registered service/type, not one placed instance.</p>
+        </article>
+        <article class="model-card">
+          <div class="cube" style="--cube:#567d46">S</div>
+          <h3>BlockState</h3>
+          <p>An immutable value describing a placed block variant, such as facing north or power level 7.</p>
+        </article>
+        <article class="model-card">
+          <div class="cube" style="--cube:#986633">BE</div>
+          <h3>BlockEntity</h3>
+          <p>Mutable data attached to a world position. Here it stores cable connections and synchronizes them.</p>
+        </article>
+        <article class="model-card">
+          <div class="cube" style="--cube:#397db2">R</div>
+          <h3>Renderer</h3>
+          <p>Client-only code that converts a safe snapshot of game state into geometry submitted to the GPU.</p>
+        </article>
+        <article class="model-card">
+          <div class="cube" style="--cube:#a6463f">{ }</div>
+          <h3>Resources</h3>
+          <p>JSON/NBT data for models, item definitions, recipes, translations, metadata, and GameTest instances.</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        <strong>Important:</strong> changing a <code>Block</code> API can break startup, changing a <code>BlockEntity</code> API can break saved worlds, changing a renderer can break only the client, and changing JSON can fail during resource loading. That is why the validation used several layers.
+      </div>
+    </section>
+
+    <section id="debug-story">
+      <span class="section-kicker">How the migration was proven</span>
+      <h2>The failure → evidence → fix timeline</h2>
+      <p class="lede">A successful compile is necessary, but it is not proof that a Minecraft mod can start. Each validation layer found a different class of problem.</p>
+
+      <div class="timeline">
+        <article class="event">
+          <h3>1 · Compiler/API migration</h3>
+          <p>Updated changed method signatures, storage interfaces, render interfaces, registries, and resource formats until a full IntelliJ rebuild succeeded.</p>
+        </article>
+        <article class="event">
+          <h3>2 · Real server startup found “Block id not set”</h3>
+          <p>The old generic registration constructed blocks before 1.21.11 had assigned their IDs. The stack trace led directly to <code>ModBlocks</code>.</p>
+        </article>
+        <article class="event good">
+          <h3>3 · ID-aware registration fixed startup</h3>
+          <p><code>DeferredRegister.Blocks.registerBlock</code> applies <code>Properties.setId(...)</code> before calling each constructor. The mod then loaded on Minecraft 1.21.11 and NeoForge 21.11.45.</p>
+        </article>
+        <article class="event">
+          <h3>4 · GameTests exposed the coordinate-system change</h3>
+          <p>Test fixtures loaded, but coordinates still included the old controller-block offset. Runtime evidence and the NBT templates showed every relevant Y coordinate was one too high.</p>
+        </article>
+        <article class="event good">
+          <h3>5 · All behavior and removal tests passed</h3>
+          <p>After correcting the fixture coordinates and adding the connected-block removal regression, the final server run completed this mod’s four tests successfully. (The runner prints “5 required tests”: Minecraft ships one test instance of its own, <code>minecraft:always_pass</code>, and it is counted too. Removing one mod instance drops the count to four, which is how that was confirmed.)</p>
+        </article>
+        <article class="event good">
+          <h3>6 · Client pipeline probe fired</h3>
+          <p>An IntelliJ non-suspending runtime probe at pipeline registration observed <code>redstone_wire:pipeline/cable</code>, with no client error markers and a normal shutdown.</p>
+        </article>
+        <article class="event good">
+          <h3>7 · Distribution build completed</h3>
+          <p>Gradle’s full <code>build</code> lifecycle completed and produced the 1.0.8 JAR.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <span class="section-kicker">Architecture pictures</span>
+      <h2>Four important before-and-after diagrams</h2>
+
+      <div class="diagram-grid">
+        <article class="diagram">
+          <h3>Block registration: identity comes first</h3>
+          <div class="compare">
+            <div class="mini-code old">OLD
+register(name, () -&gt;
+  new Block(Properties.of()))
+
+constructor runs
+before ID exists
+→ runtime NPE</div>
+            <div class="arrow">→</div>
+            <div class="mini-code new">NEW
+registerBlock(
+  name,
+  Block::new,
+  properties -&gt; ...
+)
+
+setId(...)
+→ constructor
+→ valid block</div>
+          </div>
+        </article>
+
+        <article class="diagram">
+          <h3>Persistence: format stays, API changes</h3>
+          <div class="compare">
+            <div class="mini-code old">CompoundTag
+  └─ ListTag "Connections"
+      ├─ {x,y,z}
+      └─ {x,y,z}
+
+manual NBT casting</div>
+            <div class="arrow">→</div>
+            <div class="mini-code new">ValueOutput / ValueInput
+  └─ childrenList
+      ├─ child {x,y,z}
+      └─ child {x,y,z}
+
+typed storage boundary</div>
+          </div>
+        </article>
+
+        <article class="diagram">
+          <h3>Rendering: snapshot, then submit</h3>
+          <div class="flow" style="grid-template-columns:repeat(4,1fr);gap:22px">
+            <div class="flow-node"><b>BlockEntity</b><small>mutable world data</small></div>
+            <div class="flow-node"><b>extractRenderState</b><small>copy connections, power, facing</small></div>
+            <div class="flow-node"><b>submit</b><small>create cable draw commands</small></div>
+            <div class="flow-node"><b>RenderPipeline</b><small>shader + vertex layout + GPU</small></div>
+          </div>
+          <p><strong>Why copy?</strong> Rendering may happen independently of world mutation. <code>List.copyOf</code> gives the render phase a stable frame snapshot.</p>
+        </article>
+
+        <article class="diagram">
+          <h3>GameTest coordinates: controller offset removed</h3>
+          <div class="coords">
+            <div class="axis">
+              <b>1.21.1 helper coordinates</b>
+              <div class="voxel air">Y=2 lever/lamp</div>
+              <div class="voxel template">Y=1 template block</div>
+              <div class="voxel controller">Y=0 structure controller</div>
+            </div>
+            <div class="axis">
+              <b>1.21.11 helper coordinates</b>
+              <div class="voxel air">Y=1 lever/lamp</div>
+              <div class="voxel template">Y=0 template origin</div>
+              <div class="voxel controller">outside helper space</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <h3 style="margin-top:42px">The new GameTest composition</h3>
+      <div class="flow">
+        <div class="flow-node"><b>Java method</b><small><code>void test(GameTestHelper)</code></small></div>
+        <div class="flow-node"><b>Function registry</b><small>stable namespaced ID</small></div>
+        <div class="flow-node"><b>test_instance JSON</b><small>function, structure, timeout</small></div>
+        <div class="flow-node"><b>NBT structure</b><small>blocks in the fixture</small></div>
+        <div class="flow-node"><b>GameTest server</b><small>places, runs, reports</small></div>
+      </div>
+    </section>
+
+    <section id="deep-dives">
+      <span class="section-kicker">The unfamiliar changes, unpacked</span>
+      <h2>Migration deep dives</h2>
+      <p class="lede">This section follows the actual 1.21.11 code path. Each explanation starts with the runtime behavior, then translates the Java or Minecraft terminology into a C#-friendly mental model.</p>
+      <p class="mobile-table-hint">Tip: wide comparison tables scroll sideways on a narrow screen.</p>
+
+      <article class="deep-topic render" id="renderer-migration">
+        <h3>1 · The renderer no longer draws directly from the block entity</h3>
+        <p>In 1.21.1 Minecraft called one method that both read the live block entity and immediately wrote vertices. In 1.21.11 those responsibilities are deliberately split into <strong>extraction</strong> and <strong>submission</strong>.</p>
+
+        <div class="compare">
+          <div class="mini-code old">1.21.1
+render(entity,
+       partialTicks,
+       PoseStack,
+       MultiBufferSource,
+       light,
+       overlay)
+
+read mutable entity
+and emit vertices now</div>
+          <div class="arrow">→</div>
+          <div class="mini-code new">1.21.11
+createRenderState()
+extractRenderState(entity, state, ...)
+submit(state, stack, collector, camera)
+
+copy first
+submit from snapshot later</div>
+        </div>
+
+        <div class="flow" aria-label="New block entity rendering flow">
+          <div class="flow-node"><b>Live block entity</b><small>mutable connections, power and facing in the client world</small></div>
+          <div class="flow-node"><b><code>extractRenderState</code></b><small>reads the entity during Minecraft’s extraction phase</small></div>
+          <div class="flow-node"><b>Snapshot</b><small><code>CableBlockEntityRenderState</code> owns copied values</small></div>
+          <div class="flow-node"><b><code>submit</code></b><small>calculates endpoints without touching the entity</small></div>
+          <div class="flow-node"><b>Render queue</b><small>geometry is collected, sorted and drawn later</small></div>
+        </div>
+
+        <table>
+          <thead><tr><th>Captured value</th><th>How it is captured</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td>Connections</td><td><code>entity.getConnections()</code></td><td>The submitted work cannot observe the list changing halfway through a frame. <code>getConnections()</code> already returns an immutable <code>List.copyOf</code>, so the render state stores that snapshot directly instead of copying it a second time per block entity per frame.</td></tr>
+            <tr><td>Power</td><td>Copied as an <code>int</code></td><td>Captured but deliberately unused: power-based cable colour is a separate change, held back for render-cost headroom on slower machines. Note it is not currently a usable signal for connectors either — <code>RedstoneWireBlockEntity.getSignal()</code> returns <code>0</code> and <code>RedstoneConnectorBlockEntity</code> does not override it, so a connector’s captured power is always zero.</td></tr>
+            <tr><td>Facing</td><td>Copied from the immutable <code>BlockState</code></td><td>Input/output renderers can place their antenna endpoint on the captured side.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <strong>C# lens:</strong> treat the render state like a small immutable DTO copied from a live domain object. <code>extractRenderState</code> maps entity → DTO; <code>submit</code> maps DTO → render commands. This is similar to preparing a render snapshot before another phase consumes it.
+        </div>
+        <p>The connector renderer also keeps its position comparison, so a connector-to-connector cable is submitted by only one endpoint instead of being drawn twice. See the <a href="#change-connector-renderer">connector</a>, <a href="#change-input-renderer">input</a>, and <a href="#change-output-renderer">output</a> file cards.</p>
+      </article>
+
+      <article class="deep-topic render" id="render-pipeline">
+        <h3>2 · What the new render pipeline is</h3>
+        <p>A <code>RenderPipeline</code> is the GPU-facing <strong>contract for a kind of drawing</strong>. It specifies which shaders run, what every vertex contains, which primitive topology joins those vertices, what samplers are available, and fixed state such as face culling. It does not contain this mod’s individual cable vertices.</p>
+
+        <div class="layer-stack" aria-label="Rendering layers from cable request to GPU">
+          <div class="layer"><b>Cable renderer</b> — calculates the cable’s four-sided shape and asks to submit custom geometry.</div>
+          <div class="layer"><b>SubmitNodeCollector</b> — records the geometry-producing callback for later rendering and ordering.</div>
+          <div class="layer"><b>RenderType / RenderSetup</b> — pairs the pipeline with runtime setup such as the lightmap.</div>
+          <div class="layer"><b>RenderPipeline</b> — declares shaders, vertex layout, quads, sampler and culling rules used by the GPU.</div>
+        </div>
+
+        <table>
+          <thead><tr><th>Cable pipeline setting</th><th>Meaning</th><th>C# / graphics analogy</th></tr></thead>
+          <tbody>
+            <tr><td><code>rendertype_leash</code> shaders</td><td>Minecraft shader programs transform and color cable vertices.</td><td>Vertex shader + pixel shader.</td></tr>
+            <tr><td><code>POSITION_COLOR_LIGHTMAP</code></td><td>Each vertex supplies position, color and packed light—nothing else.</td><td>Vertex declaration/input layout.</td></tr>
+            <tr><td><code>QUADS</code></td><td>Four submitted vertices form each cable face.</td><td>Primitive topology.</td></tr>
+            <tr><td><code>withCull(false)</code></td><td>Both sides remain visible, useful for thin geometry.</td><td>Rasterizer cull mode disabled.</td></tr>
+            <tr><td><code>Sampler2</code> + lightmap setup</td><td>The selected shader can read Minecraft’s lighting texture.</td><td>Bound texture/sampler resource.</td></tr>
+          </tbody>
+        </table>
+
+        <div class="compare">
+          <div class="mini-code old">OLD FACE
+triangle A = 3 vertices
+triangle B = 3 vertices
+
+6 submissions per face
+position + color + UV
++ overlay + light + normal</div>
+          <div class="arrow">→</div>
+          <div class="mini-code new">NEW FACE
+quad = 4 vertices
+
+4 submissions per face
+position + color + light
+
+matches the declared vertex format</div>
+        </div>
+
+        <div class="callout warning">
+          <strong>One subtle detail:</strong> the render-state snapshot currently captures <code>power</code>, and <code>CableRenderer.renderCable(...)</code> receives it, but the emitted cable color remains a fixed dark red. That is preserved behavior, not automatic power-based brightness.
+        </div>
+        <p><strong>C# lens:</strong> the pipeline is closest to a graphics Pipeline State Object, while <code>SubmitNodeCollector</code> behaves like a command-buffer builder. See <a href="#change-cable-renderer">CableRenderer’s file card</a>.</p>
+      </article>
+
+      <article class="deep-topic java" id="register-block">
+        <h3>3 · How <code>BLOCKS.registerBlock</code> and <code>::new</code> work</h3>
+        <p>The important point is that registration stores a factory now and constructs the block later, during NeoForge’s registry lifecycle.</p>
+
+        <div class="diagram-grid">
+          <div class="diagram">
+            <h3>Java constructor reference</h3>
+            <div class="mini-code new">RedstoneConnectorBlock::new</div>
+            <p>The compiler sees that <code>registerBlock</code> needs a function taking <code>Properties</code> and returning a block. It therefore binds the matching constructor.</p>
+          </div>
+          <div class="diagram">
+            <h3>Exactly equivalent lambda</h3>
+            <div class="mini-code new">properties -&gt;
+    new RedstoneConnectorBlock(properties)
+
+// C# spelling:
+properties =&gt;
+    new RedstoneConnectorBlock(properties)</div>
+            <p><code>::new</code> is concise Java syntax for passing a constructor as a callable value. It does not call the constructor at this line.</p>
+          </div>
+        </div>
+
+        <div class="flow" aria-label="Deferred block registration lifecycle">
+          <div class="flow-node"><b>Declaration</b><small>store name, constructor function and property customizer</small></div>
+          <div class="flow-node"><b>Registry event</b><small>NeoForge decides it is time to create blocks</small></div>
+          <div class="flow-node"><b>Fresh properties</b><small><code>Properties.of()</code>, then map color/no-occlusion lambda</small></div>
+          <div class="flow-node"><b>Assign ID</b><small><code>redstone_wire:redstone_connector</code> is set on properties</small></div>
+          <div class="flow-node"><b>Call constructor</b><small>factory returns the block; <code>DeferredBlock</code> becomes its handle</small></div>
+        </div>
+
+        <p>The third argument, <code>properties -&gt; properties.mapColor(...).noOcclusion()</code>, is a <code>UnaryOperator&lt;Properties&gt;</code>: it receives the fresh property object, configures it, and returns it. The helper then calls <code>setId</code> before invoking <code>RedstoneConnectorBlock::new</code>. That ordering fixes the startup error <code>Block id not set</code>.</p>
+        <div class="callout"><strong>C# lens:</strong> <code>DeferredBlock&lt;T&gt;</code> resembles a typed registration handle or <code>Lazy&lt;T&gt;</code>. Use <code>.get()</code> only after the registry has reached the appropriate lifecycle phase. See <a href="#change-mod-blocks">ModBlocks’ file card</a>.</div>
+      </article>
+
+      <article class="deep-topic runtime" id="loader-metadata">
+        <h3>4 · The mod loader was not removed</h3>
+        <p>Two optional lines disappeared from <code>neoforge.mods.toml</code>; NeoForge itself did not. There are three similarly named layers here:</p>
+
+        <div class="flow compact" aria-label="Build tool, language loader and runtime dependency">
+          <div class="flow-node"><b>ModDevGradle</b><small>development/build plugin; prepares runs and the JAR</small></div>
+          <div class="flow-node"><b>JavaFML language loader</b><small>finds the Java <code>@Mod</code> entry point; now selected by the default</small></div>
+          <div class="flow-node"><b>NeoForge dependency</b><small>runtime loader/API requirement remains explicitly versioned</small></div>
+        </div>
+
+        <table>
+          <thead><tr><th>Metadata</th><th>Before</th><th>Now</th></tr></thead>
+          <tbody>
+            <tr><td>Language loader choice</td><td><code>modLoader="javafml"</code></td><td>Omitted; the documented default is still <code>javafml</code>.</td></tr>
+            <tr><td>Language-loader version</td><td><code>loaderVersion="[1,)"</code></td><td>Omitted; an empty/default range accepts any version.</td></tr>
+            <tr><td>NeoForge runtime</td><td>NeoForge dependency</td><td>Still requires NeoForge <code>21.11.45+</code>.</td></tr>
+            <tr><td>Minecraft runtime</td><td>Minecraft dependency</td><td>Still pinned to <code>1.21.11</code>.</td></tr>
+          </tbody>
+        </table>
+        <div class="callout success"><strong>Runtime proof:</strong> the class still has <code>@Mod(RedstoneWire.MODID)</code>, NeoForge still creates it, and the metadata still declares dependencies on both NeoForge and Minecraft. This was cleanup of redundant configuration, not a loader migration.</div>
+      </article>
+
+      <article class="deep-topic render" id="pose">
+        <h3>5 · A <code>Pose</code> is a coordinate transformation snapshot</h3>
+        <p>Here “pose” does not mean a Steve animation. A <code>PoseStack</code> is a push/pop stack of coordinate transformations. Its current top element, <code>PoseStack.Pose</code>, contains the transform needed to move local model coordinates into the current render space, plus the related normal transform used for lighting.</p>
+
+        <div class="flow four" aria-label="How a local cable vertex is transformed">
+          <div class="flow-node"><b>Local cable vertex</b><small>for example <code>(0.5, 0.6, 0.5)</code> inside one block</small></div>
+          <div class="flow-node"><b>Current Pose</b><small>translation, rotation and scale accumulated on the stack</small></div>
+          <div class="flow-node"><b><code>addVertex(pose,…)</code></b><small>applies that transformation while writing the vertex</small></div>
+          <div class="flow-node"><b>Render-space vertex</b><small>ends up at the correct block/camera-relative location</small></div>
+        </div>
+
+        <div class="compare">
+          <div class="mini-code old">Matrix4f matrix =
+    poseStack.last().pose();
+
+consumer.addVertex(
+    matrix, x, y, z);</div>
+          <div class="arrow">→</div>
+          <div class="mini-code new">PoseStack.Pose pose =
+    poseStack.last();
+
+consumer.addVertex(
+    pose, x, y, z);</div>
+        </div>
+        <p><strong>C# lens:</strong> think <code>System.Numerics.Matrix4x4</code> or Unity’s local-to-world matrix, with a stack for nested transforms. The new API passes the complete current transform object instead of extracting only its raw 4×4 position matrix.</p>
+      </article>
+
+      <article class="deep-topic tests" id="gametest-coordinates">
+        <h3>6 · Why the GameTest coordinates changed</h3>
+        <p>These numbers are <strong>fixture-local coordinates</strong>, not permanent world coordinates. During this project’s migration, runtime failures and inspection of the unchanged NBT fixtures showed that the local reference frame had moved up by one block.</p>
+
+        <div class="compare">
+          <div class="mini-code old">OLD LOCAL FRAME
+Y=2  lever / lamp
+Y=1  first template layer
+Y=0  controller/origin layer
+
+controller counted by helper</div>
+          <div class="arrow">−1 Y</div>
+          <div class="mini-code new">NEW LOCAL FRAME
+Y=1  lever / lamp
+Y=0  first template layer
+
+controller is outside
+helper-relative template space</div>
+        </div>
+
+        <p>No fixture blocks were physically lowered. The same NBT structure is addressed from a different local origin—like changing a model’s pivot and then updating all local coordinates. <code>GameTestHelper.absolutePos(relativePos)</code> still converts those local positions into the actual rotated world positions.</p>
+        <div class="callout"><strong>C# lens:</strong> imagine changing a Unity prefab’s local origin from a helper object below the mesh to the mesh’s first voxel. The world can look identical while every stored local Y value changes by <code>-1</code>.</div>
+      </article>
+
+      <article class="deep-topic tests" id="gametest-registration">
+        <h3>7 · Why tests have to be registered now</h3>
+        <p><span class="truth-label">Documented fact</span> Since Minecraft 1.21.5, the old <code>@GameTest</code>/<code>@GameTestHolder</code> discovery was replaced by registry- and data-driven GameTests. A Java function is registered as a namespaced <code>Consumer&lt;GameTestHelper&gt;</code>, and a test-instance JSON describes how that function becomes a runnable scenario.</p>
+
+        <div class="flow" aria-label="Four parts of a registered GameTest">
+          <div class="flow-node"><b>Java method</b><small>the assertions and actions</small></div>
+          <div class="flow-node"><b>Function registry ID</b><small>a stable name for that callable</small></div>
+          <div class="flow-node"><b>Test-instance JSON</b><small>selects function, structure, environment and timeout</small></div>
+          <div class="flow-node"><b>NBT structure</b><small>the physical test fixture</small></div>
+          <div class="flow-node"><b>Runner</b><small>loads the data, places the fixture and invokes the function</small></div>
+        </div>
+
+        <p><span class="truth-label inference">Likely design benefits</span> Mojang’s API establishes the mechanism, but does not state every design motivation. Reasonable benefits are deterministic registry-time discovery instead of reflection scanning; stable resource IDs; datapack validation; the ability to pair behavior with different structures, rotations or environments; and a clean separation between executable Java and scenario configuration.</p>
+        <div class="callout"><strong>C# lens:</strong> the registry is a namespaced dictionary of <code>Action&lt;GameTestHelper&gt;</code>. Each JSON file is a test-case record that names one action and supplies its fixture/configuration.</div>
+      </article>
+
+      <article class="deep-topic lifecycle" id="block-removal">
+        <h3>8 · <code>onRemove</code> moved to the block entity lifecycle</h3>
+        <p>The cleanup was not deleted without replacement. It moved from the shared block class to <code>RedstoneWireBlockEntity.preRemoveSideEffects</code>, a hook Minecraft invokes immediately before removing that particular block entity.</p>
+
+        <div class="timeline" aria-label="Server-side connected block removal lifecycle">
+          <article class="event"><h3>1 · A connector is broken</h3><p>The server replaces its block state with air. Because the block type changed and the old state owned a block entity, removal begins.</p></article>
+          <article class="event"><h3>2 · Minecraft finds the old block entity</h3><p><code>LevelChunk.setBlockState</code> obtains it while it still exists at the old position.</p></article>
+          <article class="event good"><h3>3 · <code>preRemoveSideEffects</code> runs</h3><p>The wire block entity copies its connection list and removes both ends of every connection. The surviving neighbors are marked changed and synchronized.</p></article>
+          <article class="event good"><h3>4 · Minecraft removes the old block entity</h3><p>Only after the hook returns is the broken endpoint deleted from the chunk.</p></article>
+        </div>
+
+        <div class="callout success"><strong>Why this is safer:</strong> cleanup now lives beside the mutable connection data it owns. Ordinary POWER/FACING state updates keep the same block entity and therefore do not accidentally disconnect cables; replacing the block with air does.</div>
+        <p>The newly added GameTest creates two connectors, links them bidirectionally, breaks one through <code>GameTestHelper.destroyBlock</code>, and verifies that the survivor’s reverse reference is empty. It exercises the real server removal path rather than calling the cleanup method directly. See <a href="#change-removal-test">the test file card</a>.</p>
+      </article>
+
+      <article class="deep-topic resources" id="new-files">
+        <h3>9 · What the newly added files do</h3>
+        <div class="diagram-grid">
+          <div class="diagram">
+            <h3>Client item lookup</h3>
+            <div class="mini-code">registered item ID
+redstone_wire:redstone_connector
+        ↓
+assets/redstone_wire/items/
+  redstone_connector.json
+  (selection / decision layer)
+        ↓
+assets/redstone_wire/models/item/
+  redstone_connector.json
+  (existing geometry/model layer)
+        ↓
+block model + textures</div>
+            <p>The three new <code>assets/redstone_wire/items/*.json</code> files are not duplicate models. They are the modern top-level item definitions that select the existing models for inventory, GUI and hand rendering. They are client resources and do not affect placed-block behavior.</p>
+          </div>
+
+          <div class="diagram">
+            <h3>GameTest lookup</h3>
+            <div class="mini-code">test-instance resource ID
+        ↓
+data/redstone_wire/test_instance/*.json
+        ├─ function ID
+        ├─ structure ID
+        ├─ environment
+        └─ max_ticks
+             ↓
+registered Java function + NBT fixture</div>
+            <p>The test-instance files are data records that compose runnable tests. Registration names the Java callable; JSON supplies the scenario; NBT supplies blocks. The new removal test deliberately reuses the colored-grid NBT as a bounded sandbox and replaces two cells in Java, avoiding another opaque binary fixture.</p>
+          </div>
+        </div>
+
+        <table>
+          <thead><tr><th>New file group</th><th>Loaded by</th><th>Role</th></tr></thead>
+          <tbody>
+            <tr><td><code>assets/.../items/*.json</code> (3)</td><td>Minecraft client resource loader</td><td>Select the existing inventory/hand models.</td></tr>
+            <tr><td>Original <code>data/.../test_instance/*.json</code> (3)</td><td>GameTest data registry</td><td>Compose the migrated input, output and structure tests.</td></tr>
+            <tr><td>Removal test Java + JSON (2)</td><td>NeoForge registry + GameTest data registry</td><td>Prove that breaking one endpoint cleans the survivor.</td></tr>
+            <tr><td><code>docs/upgrade-1.21.11-report.html</code></td><td>Your browser only</td><td>This standalone learning and maintenance artifact; it is not packaged gameplay logic.</td></tr>
+          </tbody>
+        </table>
+      </article>
+    </section>
+
+    <section id="csharp-bridge">
+      <span class="section-kicker">Use what you already know</span>
+      <h2>Java ↔ C# translation table</h2>
+      <p class="lede">You already understand most of the underlying ideas. The syntax and Minecraft vocabulary are the unfamiliar parts.</p>
+
+      <table>
+        <thead><tr><th>Java in this mod</th><th>C# mental equivalent</th><th>How to read it</th></tr></thead>
+        <tbody>
+          <tr><td><code>Supplier&lt;T&gt;</code></td><td><code>Func&lt;T&gt;</code></td><td>A zero-argument factory that returns a T later.</td></tr>
+          <tr><td><code>Consumer&lt;T&gt;</code></td><td><code>Action&lt;T&gt;</code></td><td>A function taking T and returning nothing.</td></tr>
+          <tr><td><code>RedstoneInputBlock::new</code></td><td><code>properties =&gt; new RedstoneInputBlock(properties)</code></td><td>A constructor method reference.</td></tr>
+          <tr><td><code>static { ... }</code></td><td>A static constructor</td><td>Runs once when the class initializes.</td></tr>
+          <tr><td><code>@Override</code></td><td><code>override</code> plus compiler verification</td><td>The method signature must exactly match the base API—important during Minecraft upgrades.</td></tr>
+          <tr><td><code>@Nullable</code></td><td>Nullable reference annotations</td><td>Documents that a value may be null; Java does not have C#’s built-in nullable reference syntax.</td></tr>
+          <tr><td><code>DeferredRegister</code></td><td>Startup registration/DI collection of factories</td><td>Declare what should exist now; NeoForge creates and binds it at the correct lifecycle phase.</td></tr>
+          <tr><td><code>List.copyOf(source)</code></td><td><code>source.ToArray()</code> or an immutable copy</td><td>Creates a stable snapshot instead of sharing a mutable collection.</td></tr>
+          <tr><td><code>BlockState#setValue</code></td><td>A record-style <code>with</code> expression</td><td>Returns another immutable state value with one property changed.</td></tr>
+          <tr><td><code>ResourceLocation/Identifier</code></td><td>A strongly formatted key</td><td><code>namespace:path</code>, similar to a globally unique configuration/resource key.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="all-changes">
+      <span class="section-kicker">Complete inventory</span>
+      <h2>Every changed file, reason, and effect</h2>
+      <p class="lede">The list below contains all 30 migration and regression-test files covered by this report. Use the filters, search, or expand-all controls. Each card answers: <em>what changed?</em>, <em>why?</em>, and <em>what does it do?</em></p>
+
+      <div class="change-toolbar">
+        <button class="active" data-filter="all">All</button>
+        <button data-filter="build">Build</button>
+        <button data-filter="core">Core Java</button>
+        <button data-filter="render">Rendering</button>
+        <button data-filter="tests">Tests</button>
+        <button data-filter="resources">Resources</button>
+        <button id="expand-all">Expand</button>
+        <button id="collapse-all">Collapse</button>
+        <input id="change-search" type="search" placeholder="Search file or explanation…" aria-label="Search changes">
+        <span class="visible-count"><span id="visible-count">30</span>/30 shown</span>
+      </div>
+
+      <div class="change-list" id="change-list">
+        <details class="change-card cat-build" data-cat="build" data-search="build.gradle moddevgradle clientdata publishing metadata">
+          <summary><span class="file-name">build.gradle</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Build</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li>ModDevGradle 2.0.139 → 2.0.144.</li><li><code>data()</code> → <code>clientData()</code>.</li><li>Removed <code>loader_version_range</code> template expansion.</li><li>Changed Maven URL to assignment syntax.</li></ul></div>
+              <div><h4>Why</h4><p>The newer plugin understands Minecraft 1.21.11’s artifacts and run setup. The data-run helper and metadata template inputs changed in current ModDevGradle/NeoForge conventions.</p></div>
+              <div><h4>What it does</h4><p>Resolves and decompiles the correct game, creates compatible run files, generates valid mod metadata, and keeps local Maven publishing valid.</p></div>
+            </div>
+            <div class="lesson"><strong>C# lens:</strong> think of this as updating the SDK/MSBuild package and adapting changed target/property names.</div>
+            <a class="change-link" href="../build.gradle">Open build.gradle</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-build" data-cat="build" data-search="gradle.properties minecraft neoforge parchment versions">
+          <summary><span class="file-name">gradle.properties</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Build</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li>Minecraft 1.21.1 → 1.21.11.</li><li>Range pinned to <code>[1.21.11]</code>.</li><li>NeoForge 21.1.217 → 21.11.45.</li><li>Parchment target 1.21.11 / 2025.12.20.</li><li>Removed old loader range.</li></ul></div>
+              <div><h4>Why</h4><p>These versions form one compatible stack. Mixing a NeoForge release for one Minecraft version with another game version produces invalid artifacts or API mismatches.</p></div>
+              <div><h4>What it does</h4><p>Controls what Gradle compiles against and what version the produced mod declares compatible.</p></div>
+            </div>
+            <a class="change-link" href="../gradle.properties">Open gradle.properties</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-build" data-cat="build" data-search="neoforge.mods.toml metadata modloader loaderVersion">
+          <summary><span class="file-name">src/main/templates/META-INF/neoforge.mods.toml</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Build</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Removed the top-level <code>modLoader="javafml"</code> and <code>loaderVersion</code> fields.</p></div>
+              <div><h4>Why</h4><p>In 1.21.11 these fields are optional: <code>modLoader</code> defaults to <code>javafml</code>, while an omitted <code>loaderVersion</code> accepts any language-loader version. The current MDK omits those redundant values.</p></div>
+              <div><h4>What it does</h4><p>Produces shorter equivalent metadata. NeoForge is still required explicitly by the dependency entry below; only two optional declarations disappeared.</p></div>
+            </div>
+            <div class="lesson"><strong>Important:</strong> the mod loader was not removed. See <a href="#loader-metadata">the loader-versus-metadata deep dive</a>.</div>
+            <a class="change-link" href="../src/main/templates/META-INF/neoforge.mods.toml">Open metadata template</a>
+          </div>
+        </details>
+
+        <details id="change-redstone-wire" class="change-card cat-core" data-cat="core" data-search="RedstoneWire.java gametest registry test functions consumer">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/RedstoneWire.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li>Created a deferred registry for <code>Consumer&lt;GameTestHelper&gt;</code>.</li><li>Registered all four mod test methods under stable IDs, including the removal regression test.</li><li>Attached that registry to the mod event bus.</li><li>Removed an unused config import.</li></ul></div>
+              <div><h4>Why</h4><p>Since 1.21.5, GameTests are registry-driven rather than discovered from annotations.</p></div>
+              <div><h4>What it does</h4><p>Makes the Java test functions available to their four test-instance JSON records during data loading.</p></div>
+            </div>
+            <div class="lesson"><strong>C# lens:</strong> the static block is a static constructor; each registration stores an <code>Action&lt;GameTestHelper&gt;</code>-like delegate for later invocation. See <a href="#gametest-registration">why the registry and JSON are separate</a>.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/RedstoneWire.java">Open RedstoneWire.java</a>
+          </div>
+        </details>
+
+        <details id="change-mod-blocks" class="change-card cat-core" data-cat="core" data-search="ModBlocks registerBlock id properties constructor npe">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/init/ModBlocks.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Replaced generic <code>BLOCKS.register(...)</code> factories with <code>registerBlock(...)</code>, constructor references, and property-transform lambdas.</p></div>
+              <div><h4>Why</h4><p>In 1.21.11, <code>BlockBehaviour.Properties</code> needs the registry ID before the block constructor calculates ID-dependent behavior such as drops.</p></div>
+              <div><h4>What it does</h4><p>The helper calls <code>setId</code> before construction, preventing the runtime <strong>“Block id not set”</strong> crash.</p></div>
+            </div>
+            <div class="lesson"><strong>C# lens:</strong> NeoForge now supplies configured options into the constructor factory instead of your factory creating incomplete options itself. The <a href="#register-block"><code>registerBlock</code> walkthrough</a> expands <code>::new</code> and the deferred lifecycle.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/init/ModBlocks.java">Open ModBlocks.java</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-core" data-cat="core" data-search="ModBlockEntityTypes builder constructor BlockEntityType">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/init/ModBlockEntityTypes.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Replaced <code>BlockEntityType.Builder.of(...).build(null)</code> with the current direct <code>new BlockEntityType&lt;&gt;(factory, block)</code> constructor for all three types.</p></div>
+              <div><h4>Why</h4><p>The old builder path/signature is no longer the current API.</p></div>
+              <div><h4>What it does</h4><p>Associates each mutable block-entity class with the block that may host it.</p></div>
+            </div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/init/ModBlockEntityTypes.java">Open ModBlockEntityTypes.java</a>
+          </div>
+        </details>
+
+        <details id="change-wire-block" class="change-card cat-core" data-cat="core" data-search="RedstoneWireBlock facing EnumProperty onRemove getIntOr">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/RedstoneWireBlock.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li><code>DirectionProperty</code> → <code>EnumProperty&lt;Direction&gt;</code>.</li><li>Removed the old block-level <code>onRemove</code> cleanup.</li><li><code>getInt</code> → <code>getIntOr(..., 0)</code>.</li></ul></div>
+              <div><h4>Why</h4><p>The declared property type and NBT accessor changed. More importantly, 1.21.11 removes the block entity before the old block cleanup point.</p></div>
+              <div><h4>What it does</h4><p>Keeps facing state type-safe, safely reads optional coordinate keys, and delegates connection teardown to the block entity while it still exists.</p></div>
+            </div>
+            <div class="lesson"><strong>Removal path:</strong> see <a href="#block-removal">why <code>onRemove</code> moved and how breaking still cleans connections</a>.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/RedstoneWireBlock.java">Open RedstoneWireBlock.java</a>
+          </div>
+        </details>
+
+        <details id="change-wire-block-entity" class="change-card cat-core" data-cat="core" data-search="RedstoneWireBlockEntity ValueInput ValueOutput save load cleanup preRemoveSideEffects sync">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/RedstoneWireBlockEntity.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li>Raw <code>CompoundTag/ListTag</code> save/load → <code>ValueOutput/ValueInput</code>.</li><li>Update tag now uses <code>saveCustomOnly</code>.</li><li>Added <code>preRemoveSideEffects</code>.</li><li>Field-style <code>isClientSide</code> → method call.</li></ul></div>
+              <div><h4>Why</h4><p>Minecraft moved block-entity persistence behind its Value I/O abstraction, and removal ordering changed.</p></div>
+              <div><h4>What it does</h4><p>Preserves the same relative <code>x/y/z</code> connection list on disk, sends it to clients, and removes reverse links before this entity disappears—preventing ghost cables.</p></div>
+            </div>
+            <div class="lesson"><strong>C# lens:</strong> this resembles moving from manipulating <code>JObject</code>/<code>JArray</code> directly to a serializer-owned reader/writer while preserving the JSON shape. The <a href="#block-removal">removal lifecycle diagram</a> shows when cleanup runs.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/RedstoneWireBlockEntity.java">Open RedstoneWireBlockEntity.java</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-core" data-cat="core" data-search="RedstoneConnectorBlock InteractionResult client server link">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/connector/RedstoneConnectorBlock.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p><code>ItemInteractionResult</code> became <code>InteractionResult</code>; fallback became <code>TRY_WITH_EMPTY_HAND</code>; success became <code>SUCCESS</code>; client checks now call <code>isClientSide()</code>.</p></div>
+              <div><h4>Why</h4><p>The block-interaction result hierarchy and Level accessor changed.</p></div>
+              <div><h4>What it does</h4><p>Preserves the two-click redstone linking flow: non-redstone interactions continue normally, while redstone clicks are consumed and server-side state is mutated only on the server.</p></div>
+            </div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/connector/RedstoneConnectorBlock.java">Open RedstoneConnectorBlock.java</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-core" data-cat="core" data-search="RedstoneInputBlock signal Direction Orientation neighbor analog InteractionResult">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/input/RedstoneInputBlock.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li>Updated <code>Direction</code>-typed signal overrides.</li><li>Analog output now accepts a direction and is <code>protected</code>.</li><li><code>neighborChanged</code> now receives nullable <code>Orientation</code>.</li><li>Migrated interaction results and client accessor.</li></ul></div>
+              <div><h4>Why</h4><p>Override signatures must exactly match the 1.21.11 base class. Java’s <code>@Override</code> caught these contract changes.</p></div>
+              <div><h4>What it does</h4><p>Keeps comparator output, neighbor-driven power updates, and connector linking working under the new redstone API.</p></div>
+            </div>
+            <div class="lesson"><strong>C# lens:</strong> this is the same kind of breaking change as a virtual base method adding a parameter—you must update every override before dispatch works again.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/input/RedstoneInputBlock.java">Open RedstoneInputBlock.java</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-core" data-cat="core" data-search="RedstoneOutputBlock InteractionResult output link server">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/output/RedstoneOutputBlock.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Core Java</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Migrated the item interaction override to <code>InteractionResult</code>, new fallback/success values, method-style client check, and removed an unused import.</p></div>
+              <div><h4>Why</h4><p>The inherited interaction contract changed in Minecraft 1.21.11.</p></div>
+              <div><h4>What it does</h4><p>Maintains step two of linking: read the connector position stored on the redstone item, resolve that block entity, and create the bidirectional connection on the server.</p></div>
+            </div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/output/RedstoneOutputBlock.java">Open RedstoneOutputBlock.java</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-render" data-cat="render" data-search="RedstoneWireClient register render pipeline event">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/RedstoneWireClient.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Rendering</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added <code>CableRenderer::registerRenderPipeline</code> as a client mod-bus listener.</p></div>
+              <div><h4>Why</h4><p>Defining a pipeline object is not enough; NeoForge must be told about it during the dedicated registration event.</p></div>
+              <div><h4>What it does</h4><p>Registers the pipeline before any cable renderer tries to submit geometry. A runtime probe proved this listener fired.</p></div>
+            </div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/RedstoneWireClient.java">Open RedstoneWireClient.java</a>
+          </div>
+        </details>
+
+        <details id="change-connector-renderer" class="change-card cat-render" data-cat="render" data-search="RedstoneConnectorBlockEntityRenderer snapshot submit duplicate cable">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/connector/RedstoneConnectorBlockEntityRenderer.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Rendering</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>The renderer now has entity and render-state generic types, creates a state, copies connections/signal in <code>extractRenderState</code>, and draws from that state in <code>submit</code>.</p></div>
+              <div><h4>Why</h4><p>The old direct <code>render(entity, ..., MultiBufferSource)</code> contract was replaced with snapshot extraction and node submission.</p></div>
+              <div><h4>What it does</h4><p>Renders a stable connection list and still uses the position comparison so connector-to-connector cables are drawn once rather than twice.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#renderer-migration">renderer snapshot walkthrough</a> for the complete frame flow.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/connector/RedstoneConnectorBlockEntityRenderer.java">Open connector renderer</a>
+          </div>
+        </details>
+
+        <details id="change-input-renderer" class="change-card cat-render" data-cat="render" data-search="RedstoneInputBlockEntityRenderer snapshot facing power submit">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/input/RedstoneInputBlockEntityRenderer.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Rendering</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added render-state creation, copied connections/power/facing during extraction, and moved geometry requests into <code>submit</code> using <code>SubmitNodeCollector</code>.</p></div>
+              <div><h4>Why</h4><p>The renderer may no longer read its mutable block entity while generating submitted render commands.</p></div>
+              <div><h4>What it does</h4><p>Places the cable start point at the correct antenna side for the captured facing, then submits one cable per captured connection with current light coordinates.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#renderer-migration">renderer snapshot walkthrough</a> for the complete frame flow.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/input/RedstoneInputBlockEntityRenderer.java">Open input renderer</a>
+          </div>
+        </details>
+
+        <details id="change-output-renderer" class="change-card cat-render" data-cat="render" data-search="RedstoneOutputBlockEntityRenderer snapshot facing power submit">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/output/RedstoneOutputBlockEntityRenderer.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Rendering</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Applied the same create/extract/submit renderer lifecycle to output blocks, including immutable connections and captured power/facing.</p></div>
+              <div><h4>Why</h4><p>All block-entity renderers must use the new two-phase interface.</p></div>
+              <div><h4>What it does</h4><p>Keeps output-block antenna offsets and cable endpoints correct without consulting live world data during submission.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#renderer-migration">renderer snapshot walkthrough</a> for the complete frame flow.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/output/RedstoneOutputBlockEntityRenderer.java">Open output renderer</a>
+          </div>
+        </details>
+
+        <details id="change-cable-renderer" class="change-card cat-render" data-cat="render" data-search="CableRenderer pipeline shader quads SubmitNodeCollector geometry render state">
+          <summary><span class="file-name">src/main/java/at/osa/redstonewire/renderer/CableRenderer.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Rendering</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><ul><li>Added shared <code>CableBlockEntityRenderState</code>.</li><li>Created named pipeline <code>redstone_wire:pipeline/cable</code>.</li><li>Selected leash shaders, light-map sampler, no culling, and position/color/light-map vertices.</li><li>Changed TRIANGLES to QUADS.</li><li>Uses <code>submitCustomGeometry</code> and <code>PoseStack.Pose</code>.</li><li>Removed old UV, overlay, normal, and explicit triangle vertices.</li></ul></div>
+              <div><h4>Why</h4><p>Minecraft 1.21.9 introduced the pipeline-oriented rendering architecture used by 1.21.11. The vertex writer must exactly match the declared pipeline format and primitive mode.</p></div>
+              <div><h4>What it does</h4><p>Submits each curved cable segment as six four-vertex faces with color and lighting. Culling is disabled so thin cable faces remain visible from either side.</p></div>
+            </div>
+            <div class="lesson"><strong>Behavior note:</strong> power is retained in the render state and method signature, but cable color is still the fixed dark red used by the existing implementation. The <a href="#render-pipeline">pipeline and geometry deep dive</a> traces the complete stack.</div>
+            <a class="change-link" href="../src/main/java/at/osa/redstonewire/renderer/CableRenderer.java">Open CableRenderer.java</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="RedstoneInputBlockTests annotations coordinates y">
+          <summary><span class="file-name">src/main/java/tests/RedstoneInputBlockTests.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Removed <code>@GameTestHolder</code>/<code>@GameTest</code>, documented external registration, and changed all lever/lamp positions from Y=2 to Y=1.</p></div>
+              <div><h4>Why</h4><p>Annotations were removed, and helper coordinates now start at the template origin instead of the controller below it.</p></div>
+              <div><h4>What it does</h4><p>The test again addresses its real levers and lamps, checking low/high input-network behavior.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#gametest-coordinates">coordinate-frame explanation</a> and <a href="#gametest-registration">registration explanation</a>.</div>
+            <a class="change-link" href="../src/main/java/tests/RedstoneInputBlockTests.java">Open input tests</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="RedstoneOutputBlockTests annotations coordinates y">
+          <summary><span class="file-name">src/main/java/tests/RedstoneOutputBlockTests.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Removed old annotations and unused <code>Direction</code> import, added registration note, and moved both lever/output-wire positions from Y=2 to Y=1.</p></div>
+              <div><h4>Why</h4><p>Same registry and coordinate migration as the input test.</p></div>
+              <div><h4>What it does</h4><p>Verifies the cable network carries low power 7 and high power 14 to the output redstone wire.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#gametest-coordinates">coordinate-frame explanation</a> and <a href="#gametest-registration">registration explanation</a>.</div>
+            <a class="change-link" href="../src/main/java/tests/RedstoneOutputBlockTests.java">Open output tests</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="StructureTests origin controller blue wool grid y">
+          <summary><span class="file-name">src/main/java/tests/StructureTests.java</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Removed annotations, changed origin expectation from Structure Block to Blue Wool, explained the new controller location, and validates the colored grid at Y=0 instead of Y=1.</p></div>
+              <div><h4>Why</h4><p>The test-instance controller is outside <code>GameTestHelper</code>’s template-relative coordinate space.</p></div>
+              <div><h4>What it does</h4><p>Checks the actual first template layer rather than an infrastructure block that is no longer addressable as template coordinate zero.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#gametest-coordinates">coordinate-frame explanation</a> for why the unchanged fixture now uses Y=0.</div>
+            <a class="change-link" href="../src/main/java/tests/StructureTests.java">Open structure tests</a>
+          </div>
+        </details>
+
+        <details id="change-removal-test" class="change-card cat-tests" data-cat="tests" data-search="RedstoneWireBlockEntityTests breaking block removes reverse connection cleanup regression">
+          <summary><span class="file-name">src/main/java/tests/RedstoneWireBlockEntityTests.java</span><span class="badges"><span class="badge a">Added</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added a focused GameTest that places two connector blocks, creates a bidirectional connection, breaks one endpoint, and examines both the removed and surviving sides.</p></div>
+              <div><h4>Why</h4><p>Cleanup moved from <code>Block#onRemove</code> to <code>BlockEntity#preRemoveSideEffects</code>. A regression test proves that the new lifecycle hook is reached through real server-side destruction.</p></div>
+              <div><h4>What it does</h4><p>Fails if the broken endpoint’s block entity remains or if the survivor retains a ghost reverse connection. It succeeds only after both removal conditions hold.</p></div>
+            </div>
+            <div class="lesson"><strong>Fixture choice:</strong> it reuses the existing colored-grid NBT as an isolated test boundary, then replaces two cells programmatically. This avoids adding another opaque binary structure solely for two blocks. See the <a href="#block-removal">lifecycle walkthrough</a>.</div>
+            <a class="change-link" href="../src/main/java/tests/RedstoneWireBlockEntityTests.java">Open removal regression test</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="test_instance removal breaking block reverse connection json structure max ticks">
+          <summary><span class="file-name">data/redstone_wire/test_instance/redstonewireblockentitytests…json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added the function-based instance for <code>redstonewireblockentitytests.breakingblockremovesreverseconnection</code>.</p></div>
+              <div><h4>Why</h4><p>Registering the Java method makes it callable, but Minecraft still needs a test-instance resource that defines a runnable scenario.</p></div>
+              <div><h4>What it does</h4><p>Binds the regression function to the reusable colored-grid structure, default environment, and a 20-tick timeout.</p></div>
+            </div>
+            <a class="change-link" href="../src/main/resources/data/redstone_wire/test_instance/redstonewireblockentitytests.breakingblockremovesreverseconnection.json">Open removal test instance</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="test_instance input json function structure max ticks">
+          <summary><span class="file-name">data/redstone_wire/test_instance/redstoneinput…json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added a function-based test-instance record for <code>redstoneinputblocktests.comparatorcandetectinputblockpowerlevel</code>.</p></div>
+              <div><h4>Why</h4><p>A registered Java function alone does not define a runnable test. Minecraft needs data describing its fixture and execution settings.</p></div>
+              <div><h4>What it does</h4><p>Connects the function ID to the matching NBT structure, default environment, and 100-tick timeout.</p></div>
+            </div>
+            <div class="lesson">The <a href="#new-files">resource lookup trees</a> show where this file sits in the test chain.</div>
+            <a class="change-link" href="../src/main/resources/data/redstone_wire/test_instance/redstoneinputblocktests.comparatorcandetectinputblockpowerlevel.json">Open input test instance</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="test_instance output json function structure max ticks">
+          <summary><span class="file-name">data/redstone_wire/test_instance/redstoneoutput…json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added the function-based instance for <code>redstoneoutputblocktests.testoutputblocktransmitspowerlevelfromwirenetwork</code>.</p></div>
+              <div><h4>Why</h4><p>Required by the data-driven GameTest registry.</p></div>
+              <div><h4>What it does</h4><p>Binds the output test method to its existing NBT circuit and a 100-tick limit.</p></div>
+            </div>
+            <div class="lesson">The <a href="#new-files">resource lookup trees</a> show where this file sits in the test chain.</div>
+            <a class="change-link" href="../src/main/resources/data/redstone_wire/test_instance/redstoneoutputblocktests.testoutputblocktransmitspowerlevelfromwirenetwork.json">Open output test instance</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="test_instance structure json function structure max ticks">
+          <summary><span class="file-name">data/redstone_wire/test_instance/structuretests…json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added the function-based instance for <code>structuretests.teststructurecomposition</code>.</p></div>
+              <div><h4>Why</h4><p>Required to make the structure-composition function discoverable and runnable.</p></div>
+              <div><h4>What it does</h4><p>Points Minecraft at the matching colored-grid NBT template and uses the default environment/100 ticks.</p></div>
+            </div>
+            <div class="lesson">The <a href="#new-files">resource lookup trees</a> show where this file sits in the test chain.</div>
+            <a class="change-link" href="../src/main/resources/data/redstone_wire/test_instance/structuretests.teststructurecomposition.json">Open structure test instance</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-tests" data-cat="tests" data-search="docs testing commands create export runall">
+          <summary><span class="file-name">docs/testing.md</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Tests</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Replaced annotation instructions with the four-part function/registry/JSON/NBT workflow; updated creation, export, Gradle, and in-game commands.</p></div>
+              <div><h4>Why</h4><p>The previous instructions would lead a maintainer to APIs and commands removed or renamed since 1.21.5.</p></div>
+              <div><h4>What it does</h4><p>Provides a repeatable recipe for adding and running future tests on 1.21.11.</p></div>
+            </div>
+            <a class="change-link" href="testing.md">Open testing.md</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-resources" data-cat="resources" data-search="items redstone_connector item definition model">
+          <summary><span class="file-name">assets/redstone_wire/items/redstone_connector.json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Resources</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added an item-definition JSON selecting <code>redstone_wire:item/redstone_connector</code>.</p></div>
+              <div><h4>Why</h4><p>Modern Minecraft separates the item definition from the existing item model file.</p></div>
+              <div><h4>What it does</h4><p>Tells the game which model to use when the connector appears as an inventory item.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#new-files">item-definition lookup tree</a> for how this selects—not replaces—the existing model.</div>
+            <a class="change-link" href="../src/main/resources/assets/redstone_wire/items/redstone_connector.json">Open connector item definition</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-resources" data-cat="resources" data-search="items redstone_input item definition model">
+          <summary><span class="file-name">assets/redstone_wire/items/redstone_input.json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Resources</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added an item definition selecting <code>redstone_wire:item/redstone_input</code>.</p></div>
+              <div><h4>Why</h4><p>The existing model no longer acts as the top-level item definition by itself.</p></div>
+              <div><h4>What it does</h4><p>Restores the input block’s inventory/hand model lookup.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#new-files">item-definition lookup tree</a> for how this selects—not replaces—the existing model.</div>
+            <a class="change-link" href="../src/main/resources/assets/redstone_wire/items/redstone_input.json">Open input item definition</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-resources" data-cat="resources" data-search="items redstone_output item definition model">
+          <summary><span class="file-name">assets/redstone_wire/items/redstone_output.json</span><span class="badges"><span class="badge a">Added</span><span class="badge">Resources</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added an item definition selecting <code>redstone_wire:item/redstone_output</code>.</p></div>
+              <div><h4>Why</h4><p>Required by the modern item-model indirection layer.</p></div>
+              <div><h4>What it does</h4><p>Restores the output block’s inventory/hand model lookup.</p></div>
+            </div>
+            <div class="lesson">See the <a href="#new-files">item-definition lookup tree</a> for how this selects—not replaces—the existing model.</div>
+            <a class="change-link" href="../src/main/resources/assets/redstone_wire/items/redstone_output.json">Open output item definition</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-resources" data-cat="resources" data-search="en_us translation redstone connector language">
+          <summary><span class="file-name">assets/redstone_wire/lang/en_us.json</span><span class="badges"><span class="badge m">Modified</span><span class="badge">Resources</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Added <code>block.redstone_wire.redstone_connector = "Redstone Connector"</code>.</p></div>
+              <div><h4>Why</h4><p>The registered connector block had no English display-name entry.</p></div>
+              <div><h4>What it does</h4><p>Shows a readable name instead of a raw translation key in UI text.</p></div>
+            </div>
+            <a class="change-link" href="../src/main/resources/assets/redstone_wire/lang/en_us.json">Open English translations</a>
+          </div>
+        </details>
+
+        <details class="change-card cat-resources" data-cat="resources" data-search="recipe redstone_detector redstone_chain deleted orphan">
+          <summary><span class="file-name">data/redstone_wire/recipe/redstone_detector.json</span><span class="badges"><span class="badge d">Deleted</span><span class="badge">Resources</span></span></summary>
+          <div class="change-body">
+            <div class="triad">
+              <div><h4>What changed</h4><p>Deleted a shaped recipe whose filename said detector but whose result was the removed <code>redstone_wire:redstone_chain</code> item.</p></div>
+              <div><h4>Why</h4><p>Git history showed the RedstoneChain feature was deliberately deprecated, but this recipe was accidentally left behind.</p></div>
+              <div><h4>What it does</h4><p>Prevents the data pack from referencing an unregistered result. The deletion is recoverable from Git history if the feature returns. <strong>Consequence:</strong> the mod now ships no crafting recipes at all, so all three blocks are creative-tab only. That was already effectively true — the recipe’s result item did not exist — but it is now explicit rather than hidden behind a broken file.</p></div>
+            </div>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <section id="validation">
+      <span class="section-kicker">Evidence, not optimism</span>
+      <h2>Validation results</h2>
+      <div class="validation">
+        <article class="check"><b>✓ IntelliJ rebuild</b>No compiler problems after the final source edits.</article>
+        <article class="check"><b>✓ GameTest server</b>Minecraft <code>1.21.11</code>, NeoForge <code>21.11.45</code>. This mod’s four tests all pass; the runner reports <code>All 5 required tests passed</code> because vanilla’s <code>minecraft:always_pass</code> instance is counted too. Re-verified after the post-review fixes: <code>5 GAME TESTS COMPLETE IN 1.180 s</code>.</article>
+        <article class="check pending"><b>! Client rendering — partly unverified</b>A pipeline probe emitted <code>redstone_wire:pipeline/cable</code> with no error markers, so registration and client startup are proven. <strong>Cable appearance is not.</strong> No one has looked at a rendered cable since the geometry changed from <code>TRIANGLES</code> with per-face normals to <code>QUADS</code> with position+colour+light, and since the old render type’s <code>setOverlayState(true)</code> was dropped — which also removes the block-breaking crumbling overlay from cables. This needs eyes before release.</article>
+        <article class="check"><b>✓ Gradle build</b><code>BUILD SUCCESSFUL</code>; JAR assembled as version <code>1.0.8</code>.</article>
+      </div>
+
+      <div class="callout">
+        <strong>Why four layers?</strong> Compilation catches signature errors; server startup catches registry/data-loading errors; GameTests catch behavior; the client probe catches client-only rendering setup. No single layer replaces the others — and none of them covers how the cables actually <em>look</em>, which is the one gap left open before release.
+      </div>
+
+      <div class="callout success">
+        <strong>Report QA:</strong> IntelliJ found no HTML errors; all 30 change cards and 39 internal links resolve without duplicate IDs; desktop previews show topics 1–9 without overflow; and mobile tables now scroll sideways instead of collapsing into unreadable letter-by-letter columns. Corrected after review: the GameTest count (four mod tests, not five), the render-state copy, the power-capture rationale, the consequence of the recipe deletion, and the overstated client-rendering check.
+      </div>
+    </section>
+
+    <section id="next-steps">
+      <span class="section-kicker">Maintainer hand-off</span>
+      <h2>What I would do next</h2>
+      <ol>
+        <li><strong>Reload the Gradle project in IntelliJ.</strong> The compiler is using 1.21.11, but the editor index previously retained pieces of the 1.21.1 model.</li>
+        <li><strong>Run a visual cable test — release blocker.</strong> Place connector/input/output blocks, link them with redstone, rotate them, and inspect cables from all sides, including while breaking a linked block. Pipeline registration is proven; appearance is not, and the geometry and overlay state both changed.</li>
+        <li><strong>Test an existing 1.21.1 world copy.</strong> The new GameTest proves fresh connected blocks clean up when broken; a copied old world is still needed to prove that previously saved relative connection lists migrate correctly. Never use the only copy of a real world for first migration testing.</li>
+        <li><strong>Choose a release version.</strong> The project remains <code>1.0.8</code> because changing product version is a release decision, not an API requirement.</li>
+        <li><strong>Review and commit.</strong> A post-review pass removed a redundant per-frame list copy in all three renderers, stripped a UTF-8 BOM from one test-instance JSON, documented the NBT fixture shared between <code>StructureTests</code> and the removal test, and noted why the datagen run is client-only. Tests were re-run green after those edits.</li>
+      </ol>
+
+      <div class="references">
+        <h3>Official references used during the upgrade</h3>
+        <ul>
+          <li><a href="https://maven.neoforged.net/releases/net/neoforged/neoforge/">NeoForge release repository</a></li>
+          <li><a href="https://github.com/neoforged/ModDevGradle">Official ModDevGradle project and feature overview</a></li>
+          <li><a href="https://github.com/NeoForgeMDKs/MDK-1.21.11-ModDevGradle">NeoForge 1.21.11 ModDevGradle MDK</a></li>
+          <li><a href="https://github.com/ParchmentMC/Parchment">Official Parchment mappings project</a></li>
+          <li><a href="https://parchmentmc.org/docs/getting-started">Parchment versions and getting-started guide</a></li>
+          <li><a href="https://docs.neoforged.net/docs/1.21.11/misc/gametest/">NeoForge 1.21.11 GameTest documentation</a></li>
+          <li><a href="https://docs.neoforged.net/docs/1.21.11/gettingstarted/modfiles/">NeoForge 1.21.11 mod-file metadata documentation</a></li>
+          <li><a href="https://github.com/neoforged/Documentation/blob/main/docs/resources/client/models/items.md">NeoForge item-definition documentation source</a></li>
+          <li><a href="https://docs.neoforged.net/docs/datastorage/valueio/">NeoForge Value I/O documentation</a></li>
+          <li><a href="https://docs.neoforged.net/docs/1.21.11/blockentities/ber/">NeoForge block-entity renderer documentation</a></li>
+          <li><a href="https://docs.neoforged.net/primer/docs/1.21.9/">NeoForge 1.21.9 rendering migration primer</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <strong>Redstone Wire · Minecraft 1.21.11 Migration Field Guide</strong><br>
+    Standalone HTML, no external fonts, scripts, or image assets required.
+  </footer>
+
+  <script>
+    (function () {
+      const cards = Array.prototype.slice.call(document.querySelectorAll(".change-card"));
+      const filterButtons = Array.prototype.slice.call(document.querySelectorAll("[data-filter]"));
+      const search = document.getElementById("change-search");
+      const count = document.getElementById("visible-count");
+      let activeFilter = "all";
+
+      function applyFilters() {
+        const query = search.value.trim().toLowerCase();
+        let visible = 0;
+        cards.forEach(function (card) {
+          const categoryMatches = activeFilter === "all" || card.dataset.cat === activeFilter;
+          const haystack = (card.dataset.search + " " + card.textContent).toLowerCase();
+          const textMatches = !query || haystack.indexOf(query) !== -1;
+          card.hidden = !(categoryMatches && textMatches);
+          if (!card.hidden) visible++;
+        });
+        count.textContent = String(visible);
+      }
+
+      filterButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          filterButtons.forEach(function (item) { item.classList.remove("active"); });
+          button.classList.add("active");
+          activeFilter = button.dataset.filter;
+          applyFilters();
+        });
+      });
+
+      search.addEventListener("input", applyFilters);
+
+      document.getElementById("expand-all").addEventListener("click", function () {
+        cards.forEach(function (card) { if (!card.hidden) card.open = true; });
+      });
+
+      document.getElementById("collapse-all").addEventListener("click", function () {
+        cards.forEach(function (card) { card.open = false; });
+      });
+
+      window.addEventListener("scroll", function () {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        const ratio = max > 0 ? window.scrollY / max : 0;
+        document.getElementById("progress").style.width = (ratio * 100) + "%";
+      }, { passive: true });
+    }());
+  </script>
+</body>
+</html>
