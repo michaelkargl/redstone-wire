@@ -2,19 +2,15 @@ package tests;
 
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.gametest.GameTestHolder;
 
-@GameTestHolder("redstone_wire")
 public class RedstoneOutputBlockTests {
 
-    @GameTest()
+    // Registered in RedstoneWire.TEST_FUNCTIONS and described by a test_instance JSON file.
     public static void testOutputBlockTransmitsPowerLevelFromWireNetwork(GameTestHelper helper) {
-        var lowPowerLeverPosition = new BlockPos(1, 2, 4);
-        var highPowerLeverPosition = new BlockPos(1, 2, 1);
-        var outputRedstoneSignalPosition = new BlockPos(4, 2, 1);
+        var lowPowerLeverPosition = new BlockPos(1, 1, 4);
+        var highPowerLeverPosition = new BlockPos(1, 1, 1);
+        var outputRedstoneSignalPosition = new BlockPos(4, 1, 1);
 
         new SpecFlow(helper)
                 .given("A high power lever in off position", () -> TestHelpers.assertLeverIsOff(helper, highPowerLeverPosition))

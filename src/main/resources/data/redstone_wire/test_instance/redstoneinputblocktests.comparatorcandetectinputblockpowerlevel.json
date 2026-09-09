@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:function",
+  "function": "redstone_wire:redstoneinputblocktests.comparatorcandetectinputblockpowerlevel",
+  "environment": "minecraft:default",
+  "structure": "redstone_wire:redstoneinputblocktests.comparatorcandetectinputblockpowerlevel",
+  "max_ticks": 100
+}

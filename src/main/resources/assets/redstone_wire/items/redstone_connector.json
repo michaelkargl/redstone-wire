@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "redstone_wire:item/redstone_connector"
+  }
+}

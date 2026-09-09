@@ -5,10 +5,11 @@ import at.osa.redstonewire.connector.RedstoneConnectorBlockEntity;
 import at.osa.redstonewire.init.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,8 +21,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * A block that can be used to input redstone signals into the wire network.
@@ -39,7 +42,7 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(POWER, 0)
-                .setValue(FACING, net.minecraft.core.Direction.NORTH));
+                .setValue(FACING, Direction.NORTH));
     }
 
     @Override
@@ -53,12 +56,12 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
     }
 
     @Override
-    public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, net.minecraft.core.Direction direction) {
+    public int getDirectSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return 0;
     }
 
     @Override
-    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, net.minecraft.core.Direction direction) {
+    public int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
         return 0;
     }
 
@@ -72,7 +75,7 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         return state.getValue(POWER);
     }
 
@@ -94,8 +97,9 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
      * then pushes the signal into every linked ConnectorBlockEntity.
      */
     @Override
-    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-        if (level.isClientSide) {
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block,
+                                   @Nullable Orientation orientation, boolean isMoving) {
+        if (level.isClientSide()) {
             return;
         }
 
@@ -126,19 +130,19 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
      * Step 2: player clicks this InputBlock with REDSTONE → reads saved pos, creates link
      */
     @Override
-    protected ItemInteractionResult useItemOn(ItemStack heldItem, BlockState state, Level level,
-                                              BlockPos pos, Player player, InteractionHand hand,
-                                              BlockHitResult hit) {
+    protected InteractionResult useItemOn(ItemStack heldItem, BlockState state, Level level,
+                                          BlockPos pos, Player player, InteractionHand hand,
+                                          BlockHitResult hit) {
         if (!heldItem.is(Items.REDSTONE)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
         var be = level.getBlockEntity(pos);
         if (!(be instanceof RedstoneInputBlockEntity)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            return InteractionResult.TRY_WITH_EMPTY_HAND;
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             var linkData = heldItem.getOrDefault(ModDataComponents.CONNECTOR_LINK_DATA, new CompoundTag());
             if (!hasSavedPosition(linkData)) {
                 player.displayClientMessage(
@@ -159,6 +163,6 @@ public class RedstoneInputBlock extends RedstoneWireBlock {
             }
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return InteractionResult.SUCCESS;
     }
 }

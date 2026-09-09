@@ -1,17 +1,17 @@
 package tests;
 
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.neoforged.neoforge.gametest.GameTestHolder;
 
 import static tests.TestHelpers.assertBlockNameAtPosition;
 import static tests.TestHelpers.validate2DXZGrid;
 
-@GameTestHolder("redstone_wire")
-
 public class StructureTests {
 
-    @GameTest()
+    // NOTE: this test's NBT (structuretests.teststructurecomposition) is also used as the
+    // sandbox for RedstoneWireBlockEntityTests. Changing its size or its (0,0,0)/(1,0,0)
+    // cells affects that test too.
+
+    // Registered in RedstoneWire.TEST_FUNCTIONS and described by a test_instance JSON file.
     public static void testStructureComposition(GameTestHelper helper) {
         //
         //   x-axis: horizontal (west ← → east)
@@ -29,8 +29,10 @@ public class StructureTests {
         //   4│ OW  YW   Br  LW  GW
         //
 
-        assertBlockNameAtPosition(helper, "Structure Block", 0, 0, 0); // (0,0,0) - structure origin
-        assertBlockNameAtPosition(helper, "Air", 0, 2, 0);  // (0,2,0) - two blocks above origin
+        // Since 1.21.5, GameTest coordinates start at the first block in the template.
+        // The test-instance controller sits outside this coordinate space.
+        assertBlockNameAtPosition(helper, "Blue Wool", 0, 0, 0); // template origin
+        assertBlockNameAtPosition(helper, "Air", 0, 2, 0);       // two blocks above origin
 
         String[][] expectedGrid = {
                 {"Blue Wool", "Blue Concrete", "Light Blue Wool", "Purple Terracotta", "Magenta Terracotta"},   // z=0
@@ -41,7 +43,7 @@ public class StructureTests {
         };
 
         new SpecFlow(helper)
-                .given("The structure is set up correctly", () -> validate2DXZGrid(helper, expectedGrid, 0, 0, 1))
+                .given("The structure is set up correctly", () -> validate2DXZGrid(helper, expectedGrid, 0, 0, 0))
                 .then("Test succeeds", helper::succeed);
     }
 }

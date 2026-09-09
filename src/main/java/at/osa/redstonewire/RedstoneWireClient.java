@@ -4,6 +4,7 @@ import at.osa.redstonewire.connector.RedstoneConnectorBlockEntityRenderer;
 import at.osa.redstonewire.init.ModBlockEntityTypes;
 import at.osa.redstonewire.input.RedstoneInputBlockEntityRenderer;
 import at.osa.redstonewire.output.RedstoneOutputBlockEntityRenderer;
+import at.osa.redstonewire.renderer.CableRenderer;
 import net.minecraft.client.Minecraft;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -22,6 +23,7 @@ public class RedstoneWireClient {
         // Register mod bus events manually
         modEventBus.addListener(RedstoneWireClient::onClientSetup);
         modEventBus.addListener(RedstoneWireClient::registerRenderers);
+        modEventBus.addListener(CableRenderer::registerRenderPipeline);
 
         // Allows NeoForge to create a config screen for this mod's configs.
         // The config screen is accessed by going to the Mods screen > clicking on your mod > clicking on config.

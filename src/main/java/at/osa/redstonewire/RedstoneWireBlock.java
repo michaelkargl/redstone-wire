@@ -2,17 +2,17 @@ package at.osa.redstonewire;
 
 import at.osa.redstonewire.init.ModDataComponents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -24,7 +24,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * <ul>
  *   <li>The antenna {@link VoxelShape} (slab + ring + shaft)</li>
  *   <li>The {@link #FACING} block-state property</li>
- *   <li>Connection cleanup on block removal</li>
  *   <li>Position-tag helpers for the two-click REDSTONE linking flow</li>
  * </ul>
  * Subclasses that add extra state (e.g. {@code POWER}) must call
@@ -32,7 +31,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  */
 public abstract class RedstoneWireBlock extends Block implements EntityBlock {
 
-    public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
+    public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
 
     /**
      * Y coordinate of the antenna shaft tip in model space (block pixels / 16).
@@ -75,28 +74,6 @@ public abstract class RedstoneWireBlock extends Block implements EntityBlock {
         builder.add(FACING);
     }
 
-    /**
-     * Tears down all wire connections when this block is replaced.
-     * <p>
-     * Must call super last — the block entity must still be accessible
-     * during cleanup, and super.onRemove() is what removes it.
-     */
-    @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!state.is(newState.getBlock())) {
-            var blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof RedstoneWireBlockEntity wireEntity) {
-                // player is null when broken by piston/explosion — removeBidirectionalConnections
-                // already null-checks before sending feedback messages.
-                wireEntity.removeBidirectionalConnections(level, null, pos);
-            }
-        }
-
-        // Must be last. Even when the block is not replaced (only a state change),
-        // super.onRemove must still run its own cleanup. Both guards are independent.
-        super.onRemove(state, level, pos, newState, movedByPiston);
-    }
-
     // ── Position-tag helpers for the two-click REDSTONE linking flow ─────────
     // The held REDSTONE item carries a CONNECTOR_LINK_DATA component (CompoundTag)
     // with keys "x", "y", "z" to persist the first-clicked block position.
@@ -106,7 +83,10 @@ public abstract class RedstoneWireBlock extends Block implements EntityBlock {
     }
 
     protected static BlockPos readPositionFromTag(CompoundTag tag) {
-        return new BlockPos(tag.getInt("x"), tag.getInt("y"), tag.getInt("z"));
+        return new BlockPos(
+                tag.getIntOr("x", 0),
+                tag.getIntOr("y", 0),
+                tag.getIntOr("z", 0));
     }
 
     protected static void clearSavedPosition(ItemStack stack) {

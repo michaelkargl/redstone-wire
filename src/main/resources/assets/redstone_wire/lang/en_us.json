@@ -3,6 +3,7 @@
   "block.redstone_wire.example_block": "Example Block",
   "block.redstone_wire.redstone_detector": "Redstone Detector",
   "block.redstone_wire.redstone_chain": "Redstone Chain",
+  "block.redstone_wire.redstone_connector": "Redstone Connector",
   "block.redstone_wire.redstone_input": "Redstone Input",
   "block.redstone_wire.redstone_output": "Redstone Output",
   "block.redstone_wire.redstone_relay": "Redstone Relay",

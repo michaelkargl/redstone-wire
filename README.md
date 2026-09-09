@@ -24,26 +24,29 @@ npx backlog browser
 [OpenSpec]: openspec/README.md
 [Backlog.md]: backlog/README.md
 
+Documentation
+=============
+
+All documentation lives in [`docs/`](docs/README.md), which has a reading order
+for anyone new to NeoForge modding.
+
+| Document | Covers |
+| --- | --- |
+| [NeoForge Concepts](docs/neoforge-concepts.md) | Modding from scratch, with C#/F# analogies |
+| [Usage Guide](docs/usage.md) | Using the blocks in-game |
+| [Architecture](docs/architecture.md) | How the mod is built |
+| [Rendering](docs/rendering.md) | Block models and cable rendering |
+| [Textures](docs/textures.md) | Texture layout and resource packs |
+| [Testing](docs/testing.md) | Writing and running GameTests |
+| [Deployment](docs/deployment.md) | Cutting a release |
+
 Configuration
 =============
 
-This mod uses NeoForge's configuration system to provide runtime customization. After running Minecraft with this mod for the first time, a configuration file will be automatically generated.
-
-**Configuration File Location:**
-`config/redstone-wire-common.toml`
-
-### Editing the Configuration
-
-1. Stop Minecraft if it's running
-2. Open `config/redstone-wire-common.toml` in any text editor
-3. Modify values (validation ranges are enforced)
-4. Save the file
-5. Restart Minecraft for changes to take effect
-
-Testing
-=======
-
-Refer to the [Testing Guide](docs/testing.md) for more information.
+> **Not currently wired up.** The config screen factory is registered, but
+> `registerConfig` is commented out in `RedstoneWire`, so no config file is
+> generated and no values are read. The translation keys in `en_us.json` are
+> groundwork for a later change.
 
 Running
 =======

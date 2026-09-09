@@ -4,6 +4,7 @@
 # This script runs NeoForge game tests for the mod
 
 set -e  # Exit on error
+set -o pipefail  # gradle is piped into grep below; without this its failure is masked
 
 # Colors for output
 RED='\033[0;31m'
