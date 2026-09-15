@@ -410,7 +410,10 @@ See [Rendering](rendering.md) for this mod's actual implementation.
        .withLocation(Identifier.fromNamespaceAndPath(MODID, "pipeline/cable"))
        .withVertexShader("core/rendertype_leash")
        .withFragmentShader("core/rendertype_leash")
-       .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS)
+       .withBindGroupLayout(BindGroupLayouts.SAMPLER2)
+       .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_LIGHTMAP)
+       .withPrimitiveTopology(PrimitiveTopology.QUADS)
+       .withDepthStencilState(DepthStencilState.DEFAULT)
        .build();
 
    public static final RenderType RENDER = RenderType.create("my_render_type",
