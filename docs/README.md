@@ -3,7 +3,7 @@
 Everything written down about this mod, and a fair bit about NeoForge modding in
 general. Written to be read in order if you are new to modding.
 
-**Current target:** Minecraft 1.21.11 · NeoForge 21.11.45 · Java 21
+**Current target:** Minecraft 26.1 · NeoForge 26.1.0.19-beta · Java 25
 
 ---
 
@@ -62,6 +62,8 @@ refuses to compile. The three that matter most right now:
   and BERs split into extract/submit. See [Rendering](rendering.md).
 - **1.21.11** — block entity teardown moved from `Block#onRemove` to
   `preRemoveSideEffects`. See [Architecture](architecture.md).
+- **26.1** — Java 25 is required, Mojang names ship unobfuscated, overlay-message
+  and render-state APIs moved, and development runs use isolated directories.
 
 If you touch code that one of these documents describes, update the document in
 the same PR. The alternative is what this folder was cleaning up from.

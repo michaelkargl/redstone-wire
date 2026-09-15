@@ -6,7 +6,7 @@ this document assumes them.
 
 - **Mod id:** `redstone_wire` (underscore — it is a namespace, hyphens are illegal)
 - **Root package:** `at.osa.redstonewire`
-- **Target:** Minecraft 1.21.11 / NeoForge 21.11.45, Java 21
+- **Target:** Minecraft 26.1 / NeoForge 26.1.0.19-beta, Java 25
 
 ---
 

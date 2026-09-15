@@ -82,9 +82,8 @@ public class RedstoneConnectorBlock extends RedstoneWireBlock {
 
         savePositionToItem(itemStack, clickedBlockPosition);
 
-        player.displayClientMessage(
-                Component.literal("Selected " + clickedBlockPosition.toShortString() + " as source for connection").withStyle(ChatFormatting.GREEN),
-                true);
+        player.sendOverlayMessage(
+                Component.literal("Selected " + clickedBlockPosition.toShortString() + " as source for connection").withStyle(ChatFormatting.GREEN));
     }
 
     private void handleSecondClick(

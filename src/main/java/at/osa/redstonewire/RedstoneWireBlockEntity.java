@@ -96,9 +96,8 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
             endConnector.removeConnection(startPos);
 
             if (player != null) {
-                player.displayClientMessage(
-                        Component.literal("Disconnected " + startConnector.getBlockPos().toShortString() + " from " + endConnector.getBlockPos().toShortString()).withStyle(ChatFormatting.GREEN),
-                        true);
+                player.sendOverlayMessage(
+                        Component.literal("Disconnected " + startConnector.getBlockPos().toShortString() + " from " + endConnector.getBlockPos().toShortString()).withStyle(ChatFormatting.GREEN));
             }
         }
     }
@@ -114,9 +113,8 @@ public abstract class RedstoneWireBlockEntity extends BlockEntity {
             endConnector.addConnection(startPos);
 
             if (player != null) {
-                player.displayClientMessage(
-                        Component.literal("Connected " + startConnector.getBlockPos().toShortString() + " to " + endConnector.getBlockPos().toShortString()).withStyle(ChatFormatting.GREEN),
-                        true);
+                player.sendOverlayMessage(
+                        Component.literal("Connected " + startConnector.getBlockPos().toShortString() + " to " + endConnector.getBlockPos().toShortString()).withStyle(ChatFormatting.GREEN));
             }
         }
     }
