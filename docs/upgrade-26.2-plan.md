@@ -1,7 +1,9 @@
 # Minecraft 26.2 Upgrade Plan
 
-Status: **Planned — implementation has not started**
+Status: **Paused after applying the initial 26.2 configuration changes**
 Plan date: **2026-09-15**
+
+Pause recorded: **2026-09-15, at the user's request**
 
 ## Outcome
 
@@ -65,6 +67,70 @@ Primary references:
 Minecraft 26.2 raises the data-pack version to `107.1`, raises the resource-pack
 version to `88.0`, and changes rendering to use a reversed depth buffer. The
 custom cable renderer therefore remains a high-risk area even if Java compiles.
+
+## Current resume checkpoint
+
+Completed before the pause:
+
+- Re-verified the 26.1 parent commit on Java 25.0.2.
+- Regenerated correct 26.1 metadata for RedstoneWire `1.0.10`.
+- Passed the clean 26.1 `compileJava` and `build` tasks.
+- Discovered and passed all five required 26.1 GameTests.
+- Started the isolated 26.1 dedicated server successfully; it loaded
+  RedstoneWire `1.0.10` and reached `Done`.
+- Started the isolated 26.1 client successfully; it loaded Minecraft 26.1,
+  NeoForge, and RedstoneWire `1.0.10`, completed client setup, loaded resources
+  and texture atlases, and initialized audio without a RedstoneWire error.
+- Confirmed that `feat/upgrade-to-26.2` is based directly on the validated 26.1
+  lineage.
+- Created Backlog task `RW-11` with the required acceptance criteria.
+- Froze the target stack at Minecraft `26.2`, NeoForge `26.2.0.87`,
+  ModDevGradle `2.0.147`, and Java 25.
+- Applied, but did not yet verify, the following working-tree changes:
+  - Minecraft `26.1` → `26.2`
+  - Minecraft range `[26.1]` → `[26.2]`
+  - NeoForge `26.1.0.19-beta` → `26.2.0.87`
+  - ModDevGradle `2.0.146` → `2.0.147`
+  - RedstoneWire `1.0.10` → `26.2-1.0.0`
+  - development directories → `run/<minecraft-version>/<run-type>`
+- Updated the 26.1 plan with its final baseline-verification evidence.
+
+Not completed before the pause:
+
+- No Gradle task has run against Minecraft 26.2 yet.
+- The new dependency stack has not been resolved or generated.
+- The 26.2 metadata has not been expanded or inspected.
+- No 26.2 compilation pass has run, so API changes are still unknown.
+- Release-workflow version validation has not been implemented.
+- No Java source, resource, test, or living-document migration has begun.
+- No checkpoint commit has been created for the 26.2 configuration edits.
+
+Backlog CLI created
+`backlog/tasks/rw-11 - Upgrade-RedstoneWire-to-Minecraft-26.2.md`, but its
+configured automatic Git commit failed because the sandbox user considered the
+repository an unsafe Git directory. The valid task file remains untracked; use
+Backlog tooling to finalize its tracking state rather than editing it by hand.
+
+No Minecraft client or server process remains from the checks. The only Java
+process observed at the pause was the reusable Gradle daemon.
+
+### Exact resume action
+
+Keep the current working tree. Resume at the Step 4 verification gate, using
+Java 25:
+
+```powershell
+$jdk25Path = 'C:\Users\kami\.jdks\openjdk-25.0.2-1'
+$env:JAVA_HOME = $jdk25Path
+$env:Path = "$jdk25Path\bin;$env:Path"
+.\gradlew.bat generateModMetadata
+```
+
+Then inspect
+`build/generated/sources/modMetadata/META-INF/neoforge.mods.toml`. Continue to
+Step 5 only if it contains RedstoneWire `26.2-1.0.0`, Minecraft `[26.2]`, and
+NeoForge `[26.2.0.87,)`. If dependency resolution or metadata generation fails,
+record the first useful error and remain paused at Step 4.
 
 ## Versioning policy
 
@@ -570,10 +636,10 @@ Update this table during implementation so work can stop and resume safely.
 
 | Step | Status | Evidence / last result | Resume action |
 | --- | --- | --- | --- |
-| 1. Re-establish 26.1 baseline | Not started | — | Configure Java 25 and run the baseline gates |
-| 2. Isolate branch and runtime | Not started | — | Wait for Step 1 |
-| 3. Freeze stable stack | Not started | MDK showed `26.2.0.87` / `2.0.147` on 2026-09-15 | Recheck at implementation start |
-| 4. Platform/version properties | Not started | — | Wait for Step 3 |
+| 1. Re-establish 26.1 baseline | Complete | Java 25; clean build; 5/5 GameTests; server and client startup passed on 2026-09-15 | None |
+| 2. Isolate branch and runtime | In progress | Branch is correct and version-scoped directory changes are applied but not Gradle-verified | Resume with Step 4 metadata generation |
+| 3. Freeze stable stack | Complete | Frozen at NeoForge `26.2.0.87` / ModDevGradle `2.0.147` on 2026-09-15 | None |
+| 4. Platform/version properties | In progress | Target values and run-directory changes are in the working tree; no 26.2 Gradle task has run | Run `generateModMetadata` on Java 25 and inspect the result |
 | 5. Release consistency checks | Not started | — | Wait for Step 4 |
 | 6. Production compile | Not started | — | Wait for Step 4 |
 | 7. Package inspection | Not started | — | Wait for Step 6 |

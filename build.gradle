@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.146'
+    id 'net.neoforged.moddev' version '2.0.147'
     id 'idea'
 }
 
@@ -25,7 +25,7 @@ base {
     archivesName = mod_id
 }
 
-// Mojang ships Java 25 to end users in 26.1, so mods should target Java 25.
+// Mojang ships Java 25 to end users in 26.2, so mods should target Java 25.
 java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
@@ -40,8 +40,8 @@ neoForge {
     runs {
         client {
             client()
-            // Keep 26.1 client assets, worlds, and optional mods isolated from older dev runs.
-            gameDirectory = project.file('run/client')
+            // Keep assets, worlds, and optional mods isolated per Minecraft release.
+            gameDirectory = project.file("run/${project.minecraft_version}/client")
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
@@ -50,7 +50,7 @@ neoForge {
         server {
             server()
             // A clean directory keeps automated startup checks independent of client-only mods.
-            gameDirectory = project.file('run/server')
+            gameDirectory = project.file("run/${project.minecraft_version}/server")
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
@@ -61,7 +61,7 @@ neoForge {
         gameTestServer {
             type = "gameTestServer"
             // GameTests must not discover unrelated mods from the interactive client directory.
-            gameDirectory = project.file('run/gametest')
+            gameDirectory = project.file("run/${project.minecraft_version}/gametest")
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 
@@ -70,7 +70,7 @@ neoForge {
             // There are currently no data providers, so this is inert. Adding recipes,
             // loot tables or tags will need a serverData() run as well.
             clientData()
-            gameDirectory = project.file('run/data')
+            gameDirectory = project.file("run/${project.minecraft_version}/data")
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
