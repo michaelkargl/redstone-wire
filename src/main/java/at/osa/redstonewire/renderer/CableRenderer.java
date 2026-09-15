@@ -1,11 +1,13 @@
 package at.osa.redstonewire.renderer;
 
 import at.osa.redstonewire.RedstoneWire;
+import com.mojang.blaze3d.PrimitiveTopology;
+import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.renderer.BindGroupLayouts;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
@@ -45,9 +47,11 @@ public final class CableRenderer {
             .withLocation(Identifier.fromNamespaceAndPath(RedstoneWire.MODID, "pipeline/cable"))
             .withVertexShader("core/rendertype_leash")
             .withFragmentShader("core/rendertype_leash")
-            .withSampler("Sampler2")
+            .withBindGroupLayout(BindGroupLayouts.SAMPLER2)
             .withCull(false)
-            .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS)
+            .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_LIGHTMAP)
+            .withPrimitiveTopology(PrimitiveTopology.QUADS)
+            .withDepthStencilState(DepthStencilState.DEFAULT)
             .build();
 
     public static final RenderType LIGHT_COLOR_RENDER = RenderType.create(
