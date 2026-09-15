@@ -18,9 +18,9 @@ Two workflows in `.github/workflows/`:
 | `build.yml` | every push and pull request | builds with Gradle, uploads the jar as an artifact, then runs the GameTests via `./run_tests.sh all` |
 | `release.yml` | push to `master` | reads `mod_version` from `gradle.properties` and publishes a GitHub Release |
 
-Both run on JDK 21 (Temurin).
+Both run on JDK 25 (Temurin).
 
-> Branch names containing a slash (e.g. `release/mc-1.21.11`) are slugified before
+> Branch names containing a slash (e.g. `release/mc-26.1`) are slugified before
 > being used in artifact names — GitHub Actions rejects `/` in artifact names and
 > has no string-replace expression function, so the workflows compute a `slug`
 > output with bash parameter expansion.

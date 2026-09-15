@@ -91,9 +91,8 @@ public class RedstoneOutputBlock extends RedstoneWireBlock {
 
         var linkData = heldItem.getOrDefault(ModDataComponents.CONNECTOR_LINK_DATA, new CompoundTag());
         if (!hasSavedPosition(linkData)) {
-            player.displayClientMessage(
-                    Component.literal("Right-click a ConnectorBlock first to select it").withStyle(ChatFormatting.YELLOW),
-                    true);
+            player.sendOverlayMessage(
+                    Component.literal("Right-click a ConnectorBlock first to select it").withStyle(ChatFormatting.YELLOW));
         } else {
             var connectorPos = readPositionFromTag(linkData);
             clearSavedPosition(heldItem);
@@ -102,9 +101,8 @@ public class RedstoneOutputBlock extends RedstoneWireBlock {
             if (connectorBE instanceof RedstoneConnectorBlockEntity connector) {
                 connector.createBidirectionalConnection(level, connectorPos, pos, player);
             } else {
-                player.displayClientMessage(
-                        Component.literal("Saved position is not a ConnectorBlock").withStyle(ChatFormatting.RED),
-                        true);
+                player.sendOverlayMessage(
+                        Component.literal("Saved position is not a ConnectorBlock").withStyle(ChatFormatting.RED));
             }
         }
 

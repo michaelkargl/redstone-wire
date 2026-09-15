@@ -621,7 +621,7 @@ private void syncToClient() {
 
 - **NeoForge Docs:** https://docs.neoforged.net/
 - **Minecraft Wiki (Technical):** https://minecraft.wiki/
-- **Java 21 Docs:** https://docs.oracle.com/en/java/javase/21/
+- **Java 25 Docs:** https://docs.oracle.com/en/java/javase/25/
 - **NeoForge Discord:** https://discord.neoforged.net/
 - **McJty's Tutorial Series:** https://www.mcjty.eu/docs/1.20.4_neo/
 

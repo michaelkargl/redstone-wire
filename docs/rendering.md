@@ -55,7 +55,7 @@ misleading exception.
 
 > **Debugging tip.** A `FileNotFoundException` on a model path almost always means
 > JSON deserialization failed, not that the file is missing. Check
-> `run/logs/latest.log`.
+> `run/client/logs/latest.log`.
 
 ### The voxel shape
 

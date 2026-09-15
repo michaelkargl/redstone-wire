@@ -71,7 +71,9 @@ schedules, or the test times out before its last assertion runs.
 ```
 
 That wraps `./gradlew runGameTestServer`, which you can also call directly, or
-run via IntelliJ's `GameTestServer` run configuration.
+run via IntelliJ's `GameTestServer` run configuration. The Gradle run uses
+`run/gametest/`, isolated from optional mods installed for interactive client
+runs.
 
 ### In CI
 
@@ -96,6 +98,6 @@ or just press the button on the command block
    watch it play out — the structure is placed in the world and you can see it.
 2. `SpecFlow` logs every given/when/then step with its tick number, so the last
    line before the failure tells you how far it got.
-3. Check `run/logs/latest.log` for the full server-side output.
+3. Check `run/gametest/logs/latest.log` for the full server-side output.
 4. If the test fails only in `runGameTestServer` but passes in-game, suspect a
    client/server split — the headless server never runs client code.
