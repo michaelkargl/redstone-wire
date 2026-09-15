@@ -13,7 +13,7 @@ jobs:
           fetch-tags: true
 
       # Artifact names may not contain / " : < > | * ? \r \n \
-      # github.ref_name keeps the slash from branches like release/mc-26.1,
+      # github.ref_name keeps the slash from branches like release/mc-26.2,
       # and GitHub Actions expressions have no string-replace function.
       - name: Compute artifact slug
         id: slug
@@ -83,5 +83,5 @@ jobs:
           path: |
             logs/
             run/logs/
-            run/gametest/logs/
+            run/*/gametest/logs/
           retention-days: 7

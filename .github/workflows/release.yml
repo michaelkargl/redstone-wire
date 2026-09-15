@@ -20,11 +20,24 @@ jobs:
       - name: Read mod properties
         id: props
         run: |
+          set -euo pipefail
+          MINECRAFT_VERSION=$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2)
           MOD_VERSION=$(grep '^mod_version=' gradle.properties | cut -d'=' -f2)
           MOD_ID=$(grep '^mod_id=' gradle.properties | cut -d'=' -f2)
-          echo "mod_version=$MOD_VERSION" >> $GITHUB_OUTPUT
-          echo "mod_id=$MOD_ID" >> $GITHUB_OUTPUT
-          echo "tag=v$MOD_VERSION" >> $GITHUB_OUTPUT
+
+          VERSION_PREFIX="${MINECRAFT_VERSION}-"
+          MOD_SEMVER="${MOD_VERSION#"$VERSION_PREFIX"}"
+          if [[ "$MOD_VERSION" != "${VERSION_PREFIX}${MOD_SEMVER}" ]] ||
+             [[ ! "$MOD_SEMVER" =~ ^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "mod_version '$MOD_VERSION' must match '${MINECRAFT_VERSION}-<major>.<minor>.<patch>'" >&2
+            exit 1
+          fi
+
+          echo "minecraft_version=$MINECRAFT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "mod_version=$MOD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "mod_id=$MOD_ID" >> "$GITHUB_OUTPUT"
+          echo "tag=v$MOD_VERSION" >> "$GITHUB_OUTPUT"
+          echo "jar_path=build/libs/${MOD_ID}-${MOD_VERSION}.jar" >> "$GITHUB_OUTPUT"
 
       - name: Check if release exists
         id: check
@@ -55,14 +68,25 @@ jobs:
 
       - name: Build with Gradle
         if: steps.check.outputs.exists == 'false'
-        run: ./gradlew build
+        run: ./gradlew clean build
+
+      - name: Verify release artifact
+        if: steps.check.outputs.exists == 'false'
+        env:
+          RELEASE_JAR: ${{ steps.props.outputs.jar_path }}
+        run: |
+          if [[ ! -f "$RELEASE_JAR" ]]; then
+            echo "Expected release artifact '$RELEASE_JAR' was not produced" >&2
+            exit 1
+          fi
 
       - name: Create GitHub Release
         if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_JAR: ${{ steps.props.outputs.jar_path }}
         run: |
           gh release create "${{ steps.props.outputs.tag }}" \
             --title "${{ steps.props.outputs.tag }}" \
             --generate-notes \
-            "build/libs/${{ steps.props.outputs.mod_id }}-${{ steps.props.outputs.mod_version }}.jar"
-        env:
-          GH_TOKEN: ${{ github.token }}
+            "$RELEASE_JAR"

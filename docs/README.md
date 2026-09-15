@@ -3,7 +3,7 @@
 Everything written down about this mod, and a fair bit about NeoForge modding in
 general. Written to be read in order if you are new to modding.
 
-**Current target:** Minecraft 26.1 · NeoForge 26.1.0.19-beta · Java 25
+**Current target:** Minecraft 26.2 · NeoForge 26.2.0.87 · Java 25
 
 ---
 
@@ -64,6 +64,8 @@ refuses to compile. The three that matter most right now:
   `preRemoveSideEffects`. See [Architecture](architecture.md).
 - **26.1** — Java 25 is required, Mojang names ship unobfuscated, overlay-message
   and render-state APIs moved, and development runs use isolated directories.
+- **26.2** — render pipelines declare bind-group layouts, vertex bindings, and
+  primitive topology separately, and the renderer uses a reversed depth buffer.
 
 If you touch code that one of these documents describes, update the document in
 the same PR. The alternative is what this folder was cleaning up from.

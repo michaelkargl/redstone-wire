@@ -1,6 +1,6 @@
 # Minecraft 26.1 Upgrade Plan
 
-Status: **Paused after the first compile-and-fix pass**
+Status: **Validated as the Minecraft 26.2 migration baseline**
 
 ## Scope
 
@@ -44,14 +44,23 @@ Gradle `9.2.1` was already new enough and was left unchanged.
   - `Player.displayClientMessage(message, true)` became
     `Player.sendOverlayMessage(message)`.
 
-## Current checkpoint
+## Final baseline verification
 
-The fixes from the first compiler pass have **not been recompiled yet**.
-No build, GameTest, dedicated-server, or client visual verification has been run
-against the modified sources. No commit has been created.
+The 26.1 upgrade was committed as `34636ac` and re-verified on 2026-09-15 before
+starting the Minecraft 26.2 port:
 
-The working tree intentionally contains the in-progress upgrade edits plus this
-plan. Do not discard them when resuming.
+- Gradle 9.2.1 ran on Java 25.0.2.
+- Freshly generated metadata reported RedstoneWire `1.0.10`, Minecraft `[26.1]`,
+  and NeoForge `[26.1.0.19-beta,)`.
+- `compileJava` and `build` completed successfully.
+- `runGameTestServer` discovered and passed all five required tests.
+- The isolated dedicated server loaded RedstoneWire `1.0.10` and reached `Done`.
+- The isolated client loaded Minecraft 26.1, NeoForge, and RedstoneWire `1.0.10`,
+  then completed client setup, resource loading, texture-atlas creation, and
+  audio startup without a RedstoneWire error.
+
+This establishes a sound migration baseline. The complete manual cable visual
+check is intentionally carried forward as a required release gate for 26.2.
 
 ## Resume checklist
 

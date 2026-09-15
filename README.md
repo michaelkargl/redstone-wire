@@ -62,5 +62,5 @@ Usage
 
 1. Build the mod jar => `reload_gradle.sh`
 2. copy the mod jar into your server **and** client `mods` folder
-3. cp build/libs/redstone-wire-*.jar /path/to/minecraft-client/mods/
-4. cp build/libs/redstone-wire-*.jar /path/to/minecraft-server/mods/
+3. cp build/libs/redstone_wire-26.2-1.0.0.jar /path/to/minecraft-client/mods/
+4. cp build/libs/redstone_wire-26.2-1.0.0.jar /path/to/minecraft-server/mods/

@@ -55,7 +55,7 @@ misleading exception.
 
 > **Debugging tip.** A `FileNotFoundException` on a model path almost always means
 > JSON deserialization failed, not that the file is missing. Check
-> `run/client/logs/latest.log`.
+> `run/<minecraft-version>/client/logs/latest.log`.
 
 ### The voxel shape
 
@@ -87,9 +87,11 @@ public static final RenderPipeline CABLE_PIPELINE =
         .withLocation(Identifier.fromNamespaceAndPath(MODID, "pipeline/cable"))
         .withVertexShader("core/rendertype_leash")
         .withFragmentShader("core/rendertype_leash")
-        .withSampler("Sampler2")
+        .withBindGroupLayout(BindGroupLayouts.SAMPLER2)
         .withCull(false)
-        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR_LIGHTMAP, VertexFormat.Mode.QUADS)
+        .withVertexBinding(0, DefaultVertexFormat.POSITION_COLOR_LIGHTMAP)
+        .withPrimitiveTopology(PrimitiveTopology.QUADS)
+        .withDepthStencilState(DepthStencilState.DEFAULT)
         .build();
 ```
 
@@ -100,7 +102,11 @@ Points worth understanding:
   Writing a custom shader here would be work for no gain.
 - **Culling is off.** The cable is a very thin cuboid; with backface culling on it
   disappears at grazing angles.
+- `SAMPLER2` is the lightmap bind-group layout; `RenderSetup.useLightmap()` binds
+  the actual lightmap texture when the render type is prepared.
 - The format is `POSITION_COLOR_LIGHTMAP` — no UVs, because there is no texture.
+- `DepthStencilState.DEFAULT` uses Minecraft 26.2's reversed-depth comparison and
+  keeps cables depth-tested against world geometry.
 - The pipeline must be registered on `RegisterRenderPipelinesEvent`
   (`RedstoneWireClient` wires up `CableRenderer::registerRenderPipeline`).
 
