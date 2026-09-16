@@ -1,6 +1,7 @@
 package at.osa.redstonewire.renderer;
 
 import at.osa.redstonewire.RedstoneWire;
+import at.osa.redstonewire.RedstoneWireBlockEntity;
 import com.mojang.blaze3d.PrimitiveTopology;
 import com.mojang.blaze3d.pipeline.DepthStencilState;
 import com.mojang.blaze3d.pipeline.RenderPipeline;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RegisterRenderPipelinesEvent;
 
@@ -75,11 +77,42 @@ public final class CableRenderer {
     private static final double maxSagAmountInBlocks = 1.0;
 
     /**
+     * How far the camera may be from a cable endpoint before its renderer is skipped.
+     * The vanilla default of 64 is a per-block-entity distance check, which drops cables
+     * long before the blocks themselves stop rendering. 256 blocks matches a render
+     * distance of 16 chunks.
+     *
+     * @see net.minecraft.client.renderer.blockentity.BlockEntityRenderer#getViewDistance()
+     */
+    public static final int CABLE_VIEW_DISTANCE = 256;
+
+    /**
      * Renders a cable as segments with quad geometry between two points.
      * Breaks the cable into multiple segments and draws each as a small cylinder.
      */
     public static void registerRenderPipeline(RegisterRenderPipelinesEvent event) {
         event.registerPipeline(CABLE_PIPELINE);
+    }
+
+    /**
+     * Bounding box covering every cable this block entity draws.
+     *
+     * <p>Minecraft frustum-culls a block entity renderer against this box
+     * ({@code BlockEntityRenderDispatcher#tryExtractRenderState}). The NeoForge default is the
+     * unit cube at the block position, so cables spanning many blocks were dropped the moment
+     * their anchor block left the screen. The box must therefore span every endpoint, plus the
+     * downward sag added by {@link #interpolateCurved}.
+     */
+    public static AABB cableBounds(RedstoneWireBlockEntity entity) {
+        var bounds = new AABB(entity.getBlockPos());
+
+        for (BlockPos connection : entity.getConnections()) {
+            bounds = bounds.minmax(new AABB(connection));
+        }
+
+        // Cables hang below the straight line between their endpoints. Expanding by the cap
+        // rather than the per-cable amount over-estimates slightly, which is the safe direction.
+        return bounds.expandTowards(0, -maxSagAmountInBlocks, 0);
     }
 
     public static void renderCable(PoseStack stack, SubmitNodeCollector nodeCollector, Vec3 from, Vec3 to,

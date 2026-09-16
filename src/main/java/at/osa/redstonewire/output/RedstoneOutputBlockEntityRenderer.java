@@ -11,6 +11,7 @@ import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -30,6 +31,17 @@ public class RedstoneOutputBlockEntityRenderer
     @Override
     public CableBlockEntityRenderState createRenderState() {
         return new CableBlockEntityRenderState();
+    }
+
+    /** Cables reach well past this block; the default unit cube would cull them off-screen. */
+    @Override
+    public AABB getRenderBoundingBox(RedstoneOutputBlockEntity entity) {
+        return CableRenderer.cableBounds(entity);
+    }
+
+    @Override
+    public int getViewDistance() {
+        return CableRenderer.CABLE_VIEW_DISTANCE;
     }
 
     @Override
