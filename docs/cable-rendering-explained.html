@@ -1,0 +1,1241 @@
+<title>Why the Cables Vanish</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --ground:    #ece6d8;
+    --surface:   #f7f3ea;
+    --sunken:    #e2dac8;
+    --ink:       #241f1b;
+    --ink-soft:  #60584e;
+    --ink-faint: #8b8173;
+    --line:      #cdc3ae;
+    --line-hard: #a99c83;
+    --redstone:  #b8382c;
+    --lapis:     #29579c;
+    --copper:    #a65f32;
+    --moss:      #4a7c47;
+    --shadow:    0 2px 0 var(--line-hard);
+
+    --display: "Silkscreen", "Courier New", monospace;
+    --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "Consolas", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:    #1b1917;
+      --surface:   #262320;
+      --sunken:    #151312;
+      --ink:       #ede7d9;
+      --ink-soft:  #a79d8c;
+      --ink-faint: #7a7164;
+      --line:      #3d3833;
+      --line-hard: #554e46;
+      --redstone:  #e2604f;
+      --lapis:     #7ba4e6;
+      --copper:    #d4884f;
+      --moss:      #7fbc77;
+      --shadow:    0 2px 0 #0f0e0d;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:    #1b1917;
+    --surface:   #262320;
+    --sunken:    #151312;
+    --ink:       #ede7d9;
+    --ink-soft:  #a79d8c;
+    --ink-faint: #7a7164;
+    --line:      #3d3833;
+    --line-hard: #554e46;
+    --redstone:  #e2604f;
+    --lapis:     #7ba4e6;
+    --copper:    #d4884f;
+    --moss:      #7fbc77;
+    --shadow:    0 2px 0 #0f0e0d;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.65;
+    padding-inline: 16px;
+    padding-block: 0 72px;
+  }
+
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .col {
+    max-width: 660px;
+    width: 100%;
+  }
+
+  /* ---------- type ---------- */
+
+  .eyebrow {
+    font-family: var(--display);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--copper);
+    margin: 0 0 10px;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-size: clamp(30px, 7vw, 54px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+    color: var(--ink);
+  }
+
+  h2 {
+    font-family: var(--display);
+    font-size: clamp(19px, 3.6vw, 26px);
+    line-height: 1.3;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+
+  h3 {
+    font-family: var(--body);
+    font-weight: 600;
+    font-size: 17px;
+    margin: 0 0 8px;
+  }
+
+  p { margin: 0 0 16px; }
+  p:last-child { margin-bottom: 0; }
+
+  .lede {
+    font-size: clamp(17px, 2.4vw, 20px);
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+
+  strong { font-weight: 600; color: var(--ink); }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.87em;
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    padding: 1px 5px;
+    color: var(--copper);
+    word-break: break-word;
+  }
+
+  /* ---------- sections ---------- */
+
+  section {
+    padding-block: 44px;
+    border-top: 2px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+
+  section > * { width: 100%; max-width: 660px; }
+  section > .wide { max-width: 1000px; }
+
+  header.hero {
+    padding-block: 56px 44px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 28px;
+  }
+  header.hero > * { width: 100%; max-width: 660px; }
+  header.hero > .wide { max-width: 1000px; }
+
+  .num {
+    font-family: var(--display);
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.1em;
+  }
+
+  /* ---------- blocks of note ---------- */
+
+  .note {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-left: 6px solid var(--copper);
+    padding: 18px 20px;
+  }
+
+  .note.bad  { border-left-color: var(--redstone); }
+  .note.good { border-left-color: var(--moss); }
+
+  .note h3 { margin-bottom: 6px; }
+  .note p { font-size: 15px; color: var(--ink-soft); }
+
+  /* ---------- figures ---------- */
+
+  figure {
+    margin: 0;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  figure svg { display: block; width: 100%; height: auto; max-width: 100%; }
+
+  figcaption {
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+
+  /* ---------- the interactive rig ---------- */
+
+  .rig {
+    background: var(--surface);
+    border: 2px solid var(--line-hard);
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .rig-head {
+    padding: 16px 20px;
+    border-bottom: 2px solid var(--line);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .rig-head .t {
+    font-family: var(--display);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+  }
+
+  .rig-head .s { font-size: 13px; color: var(--ink-faint); }
+
+  .rig-stage { padding: 16px; background: var(--sunken); }
+
+  .rig-controls {
+    padding: 16px 20px;
+    border-top: 2px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .ctl { display: flex; flex-direction: column; gap: 7px; }
+
+  .ctl-label {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--lapis);
+    height: 26px;
+    cursor: grab;
+  }
+  input[type="range"]:active { cursor: grabbing; }
+
+  .toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    cursor: pointer;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .toggle input {
+    accent-color: var(--moss);
+    width: 19px;
+    height: 19px;
+    margin: 2px 0 0;
+    flex: none;
+    cursor: pointer;
+  }
+
+  .toggle span small { display: block; color: var(--ink-faint); font-size: 13px; }
+
+  :focus-visible { outline: 3px solid var(--lapis); outline-offset: 2px; }
+
+  /* ---------- verdict readout ---------- */
+
+  .verdict {
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.7;
+    background: var(--sunken);
+    border: 1px solid var(--line);
+    padding: 12px 14px;
+    overflow-x: auto;
+  }
+
+  .verdict .k { color: var(--ink-faint); }
+  .verdict .yes { color: var(--moss); font-weight: 500; }
+  .verdict .no  { color: var(--redstone); font-weight: 500; }
+
+  .banner {
+    font-family: var(--display);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    padding: 11px 14px;
+    text-align: center;
+    border: 2px solid;
+  }
+
+  .banner.on  { color: var(--moss);     border-color: var(--moss);     background: color-mix(in srgb, var(--moss) 12%, transparent); }
+  .banner.off { color: var(--redstone); border-color: var(--redstone); background: color-mix(in srgb, var(--redstone) 12%, transparent); }
+
+  /* ---------- gates ---------- */
+
+  .gates { display: flex; flex-direction: column; gap: 12px; }
+
+  .gate {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 16px;
+    align-items: start;
+    background: var(--surface);
+    border: 2px solid var(--line);
+    padding: 16px 18px;
+  }
+
+  .gate .torch { width: 44px; height: 44px; }
+  .gate h3 { margin-bottom: 4px; }
+  .gate p { font-size: 14.5px; color: var(--ink-soft); margin-bottom: 8px; }
+  .gate .src { font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+
+  /* ---------- code ---------- */
+
+  .codepair { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 760px) { .codepair { grid-template-columns: 1fr 1fr; } }
+
+  .codebox { display: flex; flex-direction: column; border: 2px solid var(--line); background: var(--sunken); }
+
+  .codebox .tag {
+    font-family: var(--display);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 9px 14px;
+    border-bottom: 2px solid var(--line);
+    background: var(--surface);
+  }
+  .codebox.bad  .tag { color: var(--redstone); }
+  .codebox.good .tag { color: var(--moss); }
+
+  pre {
+    margin: 0;
+    padding: 14px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  pre .c { color: var(--ink-faint); font-style: italic; }
+  pre .kw { color: var(--lapis); }
+  pre .ty { color: var(--copper); }
+  pre .st { color: var(--moss); }
+
+  /* ---------- the three-step build ---------- */
+
+  .growgrid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 800px) { .growgrid { grid-template-columns: repeat(3, 1fr); } }
+
+  .step {
+    background: var(--surface);
+    border: 2px solid var(--line);
+    border-top: 5px solid var(--stepcol, var(--line-hard));
+    display: flex;
+    flex-direction: column;
+  }
+
+  .step-head {
+    padding: 13px 16px 11px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .step-head .n {
+    font-family: var(--display);
+    font-size: 19px;
+    color: var(--stepcol, var(--ink));
+    line-height: 1;
+  }
+
+  .step-head .h {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .step svg { display: block; width: 100%; height: auto; }
+
+  .step-foot {
+    padding: 12px 16px 14px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .step-foot code {
+    background: var(--sunken);
+    border-color: var(--line);
+    font-size: 11.5px;
+    padding: 5px 7px;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    color: var(--stepcol, var(--copper));
+  }
+
+  .step-foot p { font-size: 13.5px; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+
+  /* ---------- misc ---------- */
+
+  ul.plain { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 9px; }
+  ul.plain li { font-size: 15.5px; color: var(--ink-soft); }
+  ul.plain li strong { color: var(--ink); }
+
+  .foot {
+    border-top: 2px solid var(--line);
+    padding-top: 22px;
+    font-size: 13.5px;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+    line-height: 1.7;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <div>
+      <p class="eyebrow">RedstoneWire · Minecraft 26.2 · rendering</p>
+      <h1>Why the Cables Vanish</h1>
+      <p class="lede">
+        Your mod strings redstone cables between blocks. Walk around and they blink out for no
+        obvious reason. The cause is one invisible crate that nobody ever resized — and once you
+        can see the crate, the behaviour stops being random.
+      </p>
+    </div>
+
+    <figure class="wide">
+      <svg viewBox="0 0 900 260" role="img" aria-label="Three RedstoneWire blocks with sagging cables strung between them">
+        <defs>
+          <pattern id="sky" width="18" height="18" patternUnits="userSpaceOnUse">
+            <rect width="18" height="18" fill="var(--sunken)"/>
+            <rect width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+            <rect x="9" y="9" width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+          </pattern>
+        </defs>
+        <rect width="900" height="260" fill="url(#sky)"/>
+
+        <!-- ground -->
+        <rect x="0" y="212" width="900" height="48" fill="var(--moss)" opacity="0.28"/>
+        <rect x="0" y="212" width="900" height="5" fill="var(--moss)" opacity="0.6"/>
+
+        <!-- cables (sagging) -->
+        <path d="M 148 92 Q 330 176 512 92" fill="none" stroke="var(--redstone)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M 512 92 Q 640 140 768 92" fill="none" stroke="var(--redstone)" stroke-width="5" stroke-linecap="round"/>
+
+        <!-- block 1: input -->
+        <g>
+          <rect x="112" y="112" width="72" height="72" fill="var(--lapis)" opacity="0.85"/>
+          <rect x="112" y="112" width="72" height="72" fill="none" stroke="var(--ink)" stroke-width="3" opacity="0.5"/>
+          <rect x="140" y="92" width="16" height="24" fill="var(--line-hard)"/>
+          <circle cx="148" cy="92" r="7" fill="var(--redstone)"/>
+          <text x="148" y="206" font-family="Silkscreen, monospace" font-size="12" fill="var(--ink-soft)" text-anchor="middle">INPUT</text>
+        </g>
+
+        <!-- block 2: connector -->
+        <g>
+          <rect x="476" y="112" width="72" height="72" fill="var(--copper)" opacity="0.85"/>
+          <rect x="476" y="112" width="72" height="72" fill="none" stroke="var(--ink)" stroke-width="3" opacity="0.5"/>
+          <rect x="504" y="92" width="16" height="24" fill="var(--line-hard)"/>
+          <circle cx="512" cy="92" r="7" fill="var(--redstone)"/>
+          <text x="512" y="206" font-family="Silkscreen, monospace" font-size="12" fill="var(--ink-soft)" text-anchor="middle">CONNECTOR</text>
+        </g>
+
+        <!-- block 3: output -->
+        <g>
+          <rect x="732" y="112" width="72" height="72" fill="var(--moss)" opacity="0.85"/>
+          <rect x="732" y="112" width="72" height="72" fill="none" stroke="var(--ink)" stroke-width="3" opacity="0.5"/>
+          <rect x="760" y="92" width="16" height="24" fill="var(--line-hard)"/>
+          <circle cx="768" cy="92" r="7" fill="var(--redstone)"/>
+          <text x="768" y="206" font-family="Silkscreen, monospace" font-size="12" fill="var(--ink-soft)" text-anchor="middle">OUTPUT</text>
+        </g>
+      </svg>
+      <figcaption>
+        What the mod draws: an antenna on each block, and a cable that sags between the antenna tips.
+        The blocks are real Minecraft blocks. The cables are not — they are drawn by hand, every frame,
+        by code you wrote. That distinction is the whole story.
+      </figcaption>
+    </figure>
+  </header>
+
+  <!-- ============================================================ -->
+  <section>
+    <div>
+      <p class="num">01 / THE SETUP</p>
+      <h2>A cable is not a block</h2>
+      <p>
+        Minecraft is very good at drawing blocks. It bakes a whole chunk of them into one big
+        pre-built mesh and throws it at the graphics card in a single go. Fast, and nothing you
+        need to think about.
+      </p>
+      <p>
+        But a cable stretching from one block to another doesn't fit in any single block's square.
+        So it can't be baked. Instead your mod registers a <strong>block entity renderer</strong> —
+        a small piece of code attached to a block that says <em>"every frame, give me a moment and
+        I'll draw something extra."</em> Three of them, in fact:
+        <code>RedstoneConnectorBlockEntityRenderer</code>, and the input and output equivalents.
+      </p>
+      <p>
+        That per-frame budget is precious, so Minecraft is aggressive about skipping renderers it
+        believes you can't see. Which brings us to the crate.
+      </p>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 620 200" role="img" aria-label="A cable broken into twelve straight segments, one segment shown enlarged as a six-sided box">
+        <rect width="620" height="200" fill="none"/>
+
+        <text x="16" y="24" font-family="Silkscreen, monospace" font-size="11" fill="var(--ink-faint)">12 SEGMENTS</text>
+
+        <!-- segmented curve -->
+        <g>
+          <path d="M 30 62 Q 190 148 350 62" fill="none" stroke="var(--line)" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <g id="segdots"></g>
+        </g>
+
+        <!-- arrow -->
+        <path d="M 372 96 L 408 96" stroke="var(--ink-faint)" stroke-width="2"/>
+        <path d="M 400 90 L 408 96 L 400 102" fill="none" stroke="var(--ink-faint)" stroke-width="2"/>
+
+        <text x="424" y="24" font-family="Silkscreen, monospace" font-size="11" fill="var(--ink-faint)">EACH IS A BOX</text>
+
+        <!-- exploded segment: a tiny cuboid -->
+        <g transform="translate(430 52)">
+          <polygon points="18,30 78,12 138,30 78,48" fill="var(--redstone)" opacity="0.5"/>
+          <polygon points="18,30 78,48 78,78 18,60" fill="var(--redstone)" opacity="0.8"/>
+          <polygon points="138,30 78,48 78,78 138,60" fill="var(--redstone)" opacity="0.65"/>
+          <g stroke="var(--ink)" stroke-width="1.6" fill="none" opacity="0.55">
+            <polygon points="18,30 78,12 138,30 78,48"/>
+            <polygon points="18,30 78,48 78,78 18,60"/>
+            <polygon points="138,30 78,48 78,78 138,60"/>
+          </g>
+          <text x="78" y="102" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-soft)" text-anchor="middle">6 faces · 24 corners</text>
+        </g>
+
+        <text x="30" y="176" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink-soft)">
+          <tspan font-weight="600" fill="var(--ink)">12 × 24 = 288</tspan> corners per cable, recomputed every frame.
+        </text>
+      </svg>
+      <figcaption>
+        <code>CableRenderer.renderCurvedCuboid()</code> chops the curve into 12 straight pieces and
+        wraps each in a six-sided box. Graphics cards only draw flat triangles, so every curve you
+        have ever seen in a game is a lie made of flat pieces — enough of them that your eye stops
+        noticing.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div>
+      <p class="num">02 / THE CONCEPT</p>
+      <h2>Every object gets an invisible crate</h2>
+      <p>
+        Working out whether a complicated shape is on screen is expensive. So the game doesn't.
+        Instead, every drawable object declares a simple rectangular box — a crate — that is
+        <em>supposed to</em> contain everything it draws. The proper name is an
+        <strong>axis-aligned bounding box</strong>; in the code it's <code>AABB</code>.
+      </p>
+      <p>
+        Then the game asks one cheap question per object: <em>is any corner of that crate inside
+        what the camera can see?</em> No → skip the object entirely, don't even call its draw code.
+        This is called <strong>culling</strong>, and it is why Minecraft runs at all.
+      </p>
+      <div class="note bad">
+        <h3>The rule that got broken</h3>
+        <p>
+          The crate must be at least as big as what you actually draw. Draw outside your crate and
+          the game will happily throw you away while your geometry was still on screen. It has no
+          way to know it was wrong.
+        </p>
+      </div>
+    </div>
+
+    <figure>
+      <svg viewBox="0 0 620 230" role="img" aria-label="Left: a cable with a one-block crate around only its left end. Right: the same cable inside a crate that spans both ends.">
+        <!-- LEFT: broken -->
+        <g>
+          <text x="20" y="22" font-family="Silkscreen, monospace" font-size="11" fill="var(--redstone)">WHAT THE CODE SAID</text>
+          <path d="M 44 74 Q 140 156 236 74" fill="none" stroke="var(--redstone)" stroke-width="4" stroke-linecap="round"/>
+          <rect x="30" y="60" width="28" height="28" fill="var(--lapis)" opacity="0.8"/>
+          <rect x="222" y="60" width="28" height="28" fill="var(--copper)" opacity="0.8"/>
+          <rect x="30" y="60" width="28" height="28" fill="none" stroke="var(--redstone)" stroke-width="2.5" stroke-dasharray="5 4"/>
+          <text x="140" y="196" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink-soft)" text-anchor="middle">crate = 1 block</text>
+          <text x="140" y="214" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--redstone)" text-anchor="middle" font-weight="600">cable sticks out</text>
+        </g>
+
+        <line x1="310" y1="40" x2="310" y2="200" stroke="var(--line)" stroke-width="2"/>
+
+        <!-- RIGHT: fixed -->
+        <g transform="translate(340 0)">
+          <text x="20" y="22" font-family="Silkscreen, monospace" font-size="11" fill="var(--moss)">WHAT IT DRAWS</text>
+          <rect x="24" y="54" width="234" height="108" fill="var(--moss)" opacity="0.13"/>
+          <rect x="24" y="54" width="234" height="108" fill="none" stroke="var(--moss)" stroke-width="2.5" stroke-dasharray="5 4"/>
+          <path d="M 44 74 Q 140 156 236 74" fill="none" stroke="var(--redstone)" stroke-width="4" stroke-linecap="round"/>
+          <rect x="30" y="60" width="28" height="28" fill="var(--lapis)" opacity="0.8"/>
+          <rect x="222" y="60" width="28" height="28" fill="var(--copper)" opacity="0.8"/>
+          <!-- sag annotation -->
+          <line x1="140" y1="74" x2="140" y2="156" stroke="var(--ink-faint)" stroke-width="1.5" stroke-dasharray="2 3"/>
+          <text x="148" y="120" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--ink-faint)">sag</text>
+          <text x="140" y="196" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--ink-soft)" text-anchor="middle">crate spans both ends</text>
+          <text x="140" y="214" font-family="IBM Plex Sans, sans-serif" font-size="13" fill="var(--moss)" text-anchor="middle" font-weight="600">+ 1 block for the sag</text>
+        </g>
+      </svg>
+      <figcaption>
+        The cable hangs <em>below</em> the straight line between its ends, so the crate needs an extra
+        block of headroom underneath. That number is <code>maxSagAmountInBlocks</code> in
+        <code>CableRenderer.java</code> — the cap on how far a cable is allowed to droop.
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div>
+      <p class="num">03 / SEE IT HAPPEN</p>
+      <h2>The camera's cone</h2>
+      <p>
+        What the camera can see is a pyramid spreading out from your eyes. The jargon word is
+        <strong>frustum</strong>. You don't need the word — just picture a cone of vision.
+      </p>
+      <p>
+        Below is a map view, looking straight down. Turn your head with the slider. The
+        <strong style="color:var(--lapis)">blue wedge</strong> is what's on screen; the dashed box is
+        the crate the cable's renderer declares. The cable is drawn only when the crate and the
+        wedge overlap.
+      </p>
+    </div>
+
+    <div class="rig wide">
+      <div class="rig-head">
+        <span class="t">FRUSTUM CULL · TOP-DOWN VIEW</span>
+        <span class="s">drag the slider to look around</span>
+      </div>
+
+      <div class="rig-stage">
+        <svg id="stage" viewBox="0 0 640 430" role="img" aria-label="Interactive top-down map: a player with a cone of vision, two blocks joined by a cable, and the bounding box that decides whether the cable is drawn">
+          <rect width="640" height="430" fill="none"/>
+          <g id="grid"></g>
+
+          <!-- vision wedge -->
+          <polygon id="cone" fill="var(--lapis)" opacity="0.15"/>
+          <path id="coneEdge" fill="none" stroke="var(--lapis)" stroke-width="2" stroke-dasharray="6 5" opacity="0.7"/>
+
+          <!-- bounding box -->
+          <rect id="bbox" fill="none" stroke-width="2.5" stroke-dasharray="6 5"/>
+          <text id="bboxLabel" font-family="Silkscreen, monospace" font-size="10"></text>
+
+          <!-- cable + blocks -->
+          <line id="cable" stroke="var(--redstone)" stroke-width="5" stroke-linecap="round"/>
+          <g id="blockA">
+            <rect x="174" y="150" width="30" height="30" fill="var(--lapis)"/>
+            <rect x="174" y="150" width="30" height="30" fill="none" stroke="var(--ink)" stroke-width="2" opacity="0.5"/>
+            <text x="189" y="142" font-family="Silkscreen, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="middle">INPUT</text>
+          </g>
+          <g id="blockB">
+            <rect x="465" y="95" width="30" height="30" fill="var(--copper)"/>
+            <rect x="465" y="95" width="30" height="30" fill="none" stroke="var(--ink)" stroke-width="2" opacity="0.5"/>
+            <text x="480" y="87" font-family="Silkscreen, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="middle">CONNECTOR</text>
+          </g>
+
+          <!-- player -->
+          <g id="player">
+            <circle cx="320" cy="388" r="15" fill="var(--surface)" stroke="var(--ink)" stroke-width="2.5"/>
+            <path id="nose" fill="var(--ink)"/>
+          </g>
+          <text x="320" y="422" font-family="Silkscreen, monospace" font-size="10" fill="var(--ink-faint)" text-anchor="middle">YOU</text>
+        </svg>
+      </div>
+
+      <div class="rig-controls">
+        <div class="ctl">
+          <label class="ctl-label" for="yaw">Look direction</label>
+          <input type="range" id="yaw" min="-62" max="62" value="-30" step="1" aria-describedby="verdict">
+        </div>
+
+        <label class="toggle" for="fixed">
+          <input type="checkbox" id="fixed">
+          <span>
+            Use the fixed bounding box
+            <small>off = the NeoForge default (one block). on = the crate this page is about.</small>
+          </span>
+        </label>
+
+        <div class="verdict" id="verdict" aria-live="polite"></div>
+        <div class="banner" id="banner"></div>
+      </div>
+    </div>
+
+    <div>
+      <p>
+        With the toggle <strong>off</strong>, swing the view so the blue input block slips past the
+        edge of the wedge. The cable disappears all at once — including the stretch of it that is
+        still plainly inside the wedge. That is the bug, exactly as you saw it in game.
+      </p>
+      <p>
+        Turn the toggle <strong>on</strong> and swing again. Now the crate covers the whole cable, so
+        the cable survives until the last of it genuinely leaves the view.
+      </p>
+      <div class="note">
+        <h3>Why it felt like it had no pattern</h3>
+        <p>
+          A cable between blocks A and B is drawn by only <em>one</em> of them — whichever position
+          sorts lower (<code>blockPos.compareTo(connection) &lt; 0</code> in the connector renderer).
+          So each cable's fate is tied to one specific end, and which end is essentially arbitrary
+          from where you're standing. One cable dies when you turn left, the next when you turn right.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div>
+      <p class="num">04 / THE FULL CIRCUIT</p>
+      <h2>Three gates, wired in series</h2>
+      <p>
+        The crate is one of three checks a cable has to pass before a single triangle reaches your
+        screen. Like redstone torches in a line: all three have to be lit.
+      </p>
+    </div>
+
+    <div class="gates">
+      <div class="gate">
+        <svg class="torch" viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="18" y="18" width="8" height="22" fill="var(--copper)"/>
+          <circle cx="22" cy="14" r="8" fill="var(--moss)"/>
+        </svg>
+        <div>
+          <h3>1 · Is the block's chunk on screen at all?</h3>
+          <p>
+            Minecraft culls whole 16×16×16 chunk sections first. If the cable's anchor block sits in
+            a section that's off screen or fully hidden behind terrain, nothing downstream runs.
+            Rare for cables strung overhead — and not something a bounding box can fix.
+          </p>
+          <p class="src">LevelRenderer#extractVisibleBlockEntities → this.visibleSections</p>
+        </div>
+      </div>
+
+      <div class="gate">
+        <svg class="torch" viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="18" y="18" width="8" height="22" fill="var(--copper)"/>
+          <circle cx="22" cy="14" r="8" fill="var(--redstone)"/>
+          <path d="M 10 30 L 34 6" stroke="var(--redstone)" stroke-width="3"/>
+        </svg>
+        <div>
+          <h3>2 · Does the crate overlap the view cone?</h3>
+          <p>
+            <strong>This was the bug.</strong> Nothing overrode the crate, so NeoForge handed the game
+            its default: <code>new AABB(blockEntity.getBlockPos())</code> — a single 1×1×1 cube.
+            Cables 30 blocks long, judged by a one-block crate.
+          </p>
+          <p class="src">BlockEntityRenderDispatcher:97 → frustum.isVisible(getRenderBoundingBox(..))</p>
+        </div>
+      </div>
+
+      <div class="gate">
+        <svg class="torch" viewBox="0 0 44 44" aria-hidden="true">
+          <rect x="18" y="18" width="8" height="22" fill="var(--copper)"/>
+          <circle cx="22" cy="14" r="8" fill="var(--redstone)"/>
+          <path d="M 10 30 L 34 6" stroke="var(--redstone)" stroke-width="3"/>
+        </svg>
+        <div>
+          <h3>3 · Is the camera within 64 blocks?</h3>
+          <p>
+            A second, quieter cut. <code>getViewDistance()</code> defaults to 64, so cables stopped
+            drawing well before their blocks did. Raised to 256 — a render distance of 16 chunks.
+          </p>
+          <p class="src">BlockEntityRenderer#shouldRender → closerThan(cameraPos, getViewDistance())</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div>
+      <p class="num">05 / THE FIX</p>
+      <h2>Tell the truth about the crate</h2>
+      <p>
+        One shared helper in <code>CableRenderer</code>, and three small overrides — one per renderer.
+        Start from the block's own cube, stretch it to swallow every connected block, then drop the
+        floor by the sag cap.
+      </p>
+    </div>
+
+    <div class="growgrid wide">
+
+      <!-- STEP 1 -->
+      <div class="step" style="--stepcol: var(--redstone);">
+        <div class="step-head">
+          <span class="n">1</span>
+          <span class="h">Start with the block's own cube</span>
+        </div>
+        <svg viewBox="0 0 300 210" role="img" aria-label="Side view: the crate covers only the input block, while the cable runs off to the right and sags below it">
+          <defs>
+            <pattern id="sky1" width="18" height="18" patternUnits="userSpaceOnUse">
+              <rect width="18" height="18" fill="var(--sunken)"/>
+              <rect width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+              <rect x="9" y="9" width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+            </pattern>
+          </defs>
+          <rect width="300" height="210" fill="url(#sky1)"/>
+          <rect x="0" y="182" width="300" height="28" fill="var(--moss)" opacity="0.28"/>
+          <rect x="0" y="182" width="300" height="4" fill="var(--moss)" opacity="0.6"/>
+
+          <path d="M 58 84 Q 150 196 242 84" fill="none" stroke="var(--redstone)" stroke-width="4.5" stroke-linecap="round"/>
+
+          <g>
+            <rect x="36" y="70" width="44" height="44" fill="var(--lapis)" opacity="0.9"/>
+            <rect x="36" y="70" width="44" height="44" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity="0.5"/>
+            <rect x="52" y="76" width="12" height="10" fill="var(--line-hard)"/>
+            <circle cx="58" cy="84" r="5" fill="var(--redstone)"/>
+          </g>
+          <g>
+            <rect x="220" y="70" width="44" height="44" fill="var(--copper)" opacity="0.9"/>
+            <rect x="220" y="70" width="44" height="44" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity="0.5"/>
+            <rect x="236" y="76" width="12" height="10" fill="var(--line-hard)"/>
+            <circle cx="242" cy="84" r="5" fill="var(--redstone)"/>
+          </g>
+
+          <rect x="36" y="70" width="44" height="44" fill="var(--redstone)" opacity="0.14"/>
+          <rect x="36" y="70" width="44" height="44" fill="none" stroke="var(--redstone)" stroke-width="3" stroke-dasharray="6 5"/>
+
+          <text x="150" y="30" font-family="Silkscreen, monospace" font-size="10" fill="var(--redstone)" text-anchor="middle">CABLE ESCAPES ON 3 SIDES</text>
+        </svg>
+        <div class="step-foot">
+          <code>new AABB(entity.getBlockPos())</code>
+          <p>One 1×1×1 cube. This is the default the game hands you, and where the vanishing came from.</p>
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step" style="--stepcol: var(--copper);">
+        <div class="step-head">
+          <span class="n">2</span>
+          <span class="h">Stretch it over every connection</span>
+        </div>
+        <svg viewBox="0 0 300 210" role="img" aria-label="Side view: the crate now spans both blocks, but the cable still sags out through the bottom">
+          <defs>
+            <pattern id="sky2" width="18" height="18" patternUnits="userSpaceOnUse">
+              <rect width="18" height="18" fill="var(--sunken)"/>
+              <rect width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+              <rect x="9" y="9" width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+            </pattern>
+          </defs>
+          <rect width="300" height="210" fill="url(#sky2)"/>
+          <rect x="0" y="182" width="300" height="28" fill="var(--moss)" opacity="0.28"/>
+          <rect x="0" y="182" width="300" height="4" fill="var(--moss)" opacity="0.6"/>
+
+          <path d="M 58 84 Q 150 196 242 84" fill="none" stroke="var(--redstone)" stroke-width="4.5" stroke-linecap="round"/>
+
+          <g>
+            <rect x="36" y="70" width="44" height="44" fill="var(--lapis)" opacity="0.9"/>
+            <rect x="36" y="70" width="44" height="44" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity="0.5"/>
+            <rect x="52" y="76" width="12" height="10" fill="var(--line-hard)"/>
+            <circle cx="58" cy="84" r="5" fill="var(--redstone)"/>
+          </g>
+          <g>
+            <rect x="220" y="70" width="44" height="44" fill="var(--copper)" opacity="0.9"/>
+            <rect x="220" y="70" width="44" height="44" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity="0.5"/>
+            <rect x="236" y="76" width="12" height="10" fill="var(--line-hard)"/>
+            <circle cx="242" cy="84" r="5" fill="var(--redstone)"/>
+          </g>
+
+          <rect x="36" y="70" width="228" height="44" fill="var(--copper)" opacity="0.14"/>
+          <rect x="36" y="70" width="228" height="44" fill="none" stroke="var(--copper)" stroke-width="3" stroke-dasharray="6 5"/>
+
+          <!-- the stretch -->
+          <path d="M 92 92 L 208 92" stroke="var(--copper)" stroke-width="2"/>
+          <path d="M 100 86 L 92 92 L 100 98" fill="none" stroke="var(--copper)" stroke-width="2"/>
+          <path d="M 200 86 L 208 92 L 200 98" fill="none" stroke="var(--copper)" stroke-width="2"/>
+
+          <text x="150" y="30" font-family="Silkscreen, monospace" font-size="10" fill="var(--copper)" text-anchor="middle">SAG STILL HANGS OUT</text>
+          <path d="M 150 142 L 150 162" stroke="var(--copper)" stroke-width="2" stroke-dasharray="3 3"/>
+          <path d="M 144 154 L 150 162 L 156 154" fill="none" stroke="var(--copper)" stroke-width="2"/>
+        </svg>
+        <div class="step-foot">
+          <code>bounds = bounds.minmax(new AABB(c))</code>
+          <p>Once per connection. <code style="display:inline;padding:0 3px;border:0;background:none;">minmax</code> returns the smallest crate holding both.</p>
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step" style="--stepcol: var(--moss);">
+        <div class="step-head">
+          <span class="n">3</span>
+          <span class="h">Drop the floor for the sag</span>
+        </div>
+        <svg viewBox="0 0 300 210" role="img" aria-label="Side view: the crate now spans both blocks and reaches below the lowest point of the sagging cable">
+          <defs>
+            <pattern id="sky3" width="18" height="18" patternUnits="userSpaceOnUse">
+              <rect width="18" height="18" fill="var(--sunken)"/>
+              <rect width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+              <rect x="9" y="9" width="9" height="9" fill="var(--surface)" opacity="0.35"/>
+            </pattern>
+          </defs>
+          <rect width="300" height="210" fill="url(#sky3)"/>
+          <rect x="0" y="182" width="300" height="28" fill="var(--moss)" opacity="0.28"/>
+          <rect x="0" y="182" width="300" height="4" fill="var(--moss)" opacity="0.6"/>
+
+          <rect x="36" y="70" width="228" height="78" fill="var(--moss)" opacity="0.16"/>
+
+          <path d="M 58 84 Q 150 196 242 84" fill="none" stroke="var(--redstone)" stroke-width="4.5" stroke-linecap="round"/>
+
+          <g>
+            <rect x="36" y="70" width="44" height="44" fill="var(--lapis)" opacity="0.9"/>
+            <rect x="36" y="70" width="44" height="44" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity="0.5"/>
+            <rect x="52" y="76" width="12" height="10" fill="var(--line-hard)"/>
+            <circle cx="58" cy="84" r="5" fill="var(--redstone)"/>
+          </g>
+          <g>
+            <rect x="220" y="70" width="44" height="44" fill="var(--copper)" opacity="0.9"/>
+            <rect x="220" y="70" width="44" height="44" fill="none" stroke="var(--ink)" stroke-width="2.5" opacity="0.5"/>
+            <rect x="236" y="76" width="12" height="10" fill="var(--line-hard)"/>
+            <circle cx="242" cy="84" r="5" fill="var(--redstone)"/>
+          </g>
+
+          <rect x="36" y="70" width="228" height="78" fill="none" stroke="var(--moss)" stroke-width="3" stroke-dasharray="6 5"/>
+          <line x1="36" y1="114" x2="264" y2="114" stroke="var(--moss)" stroke-width="1.5" stroke-dasharray="2 4" opacity="0.8"/>
+
+          <!-- the dropped floor -->
+          <path d="M 278 114 L 278 148" stroke="var(--moss)" stroke-width="2"/>
+          <path d="M 272 122 L 278 114 L 284 122" fill="none" stroke="var(--moss)" stroke-width="2"/>
+          <path d="M 272 140 L 278 148 L 284 140" fill="none" stroke="var(--moss)" stroke-width="2"/>
+          <text x="272" y="136" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--moss)" text-anchor="end">1 blk</text>
+
+          <text x="150" y="30" font-family="Silkscreen, monospace" font-size="10" fill="var(--moss)" text-anchor="middle">FULLY CONTAINED</text>
+        </svg>
+        <div class="step-foot">
+          <code>bounds.expandTowards(0, -maxSag, 0)</code>
+          <p>Negative Y is down. Now nothing the renderer draws lives outside the crate.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="codepair wide">
+      <div class="codebox bad">
+        <span class="tag">BEFORE · INHERITED DEFAULT</span>
+<pre><span class="c">// nothing overridden, so NeoForge
+// supplied this for every renderer:</span>
+
+<span class="kw">default</span> <span class="ty">AABB</span> getRenderBoundingBox(T be) {
+    <span class="kw">return new</span> <span class="ty">AABB</span>(be.getBlockPos());
+}
+<span class="c">//                    ^^^^^^^^^^^^^
+//         one 1x1x1 cube. that's it.</span>
+
+<span class="kw">default int</span> getViewDistance() {
+    <span class="kw">return</span> <span class="st">64</span>;
+}</pre>
+      </div>
+
+      <div class="codebox good">
+        <span class="tag">AFTER · CableRenderer.cableBounds()</span>
+<pre><span class="kw">public static</span> <span class="ty">AABB</span> cableBounds(
+        <span class="ty">RedstoneWireBlockEntity</span> entity) {
+
+    <span class="kw">var</span> bounds = <span class="kw">new</span> <span class="ty">AABB</span>(entity.getBlockPos());
+
+    <span class="c">// swallow every connected block</span>
+    <span class="kw">for</span> (<span class="ty">BlockPos</span> c : entity.getConnections()) {
+        bounds = bounds.minmax(<span class="kw">new</span> <span class="ty">AABB</span>(c));
+    }
+
+    <span class="c">// drop the floor for the sag</span>
+    <span class="kw">return</span> bounds.expandTowards(
+            <span class="st">0</span>, -maxSagAmountInBlocks, <span class="st">0</span>);
+}</pre>
+      </div>
+    </div>
+
+    <div>
+      <ul class="plain">
+        <li><strong><code>new AABB(blockPos)</code></strong> — the 1×1×1 cube sitting at that block.</li>
+        <li><strong><code>minmax(other)</code></strong> — the smallest crate containing both crates. Call it once per connection and the crate grows to cover the lot.</li>
+        <li><strong><code>expandTowards(0, -1, 0)</code></strong> — push the bottom face down one block. Negative Y is down in Minecraft.</li>
+      </ul>
+      <div class="note good">
+        <h3>Deliberately too big</h3>
+        <p>
+          A cable only sags the full block if it's long; shorter ones droop less. The crate uses the
+          cap for all of them. Over-sized is the safe direction to be wrong in — you waste a few
+          cheap overlap tests. Under-sized is the bug you just spent an evening chasing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div>
+      <p class="num">06 / STILL OPEN</p>
+      <h2>One thing this doesn't fix</h2>
+      <p>
+        While reading the three renderers, a second bug turned up. The connector guards against
+        drawing a cable from both ends with that <code>compareTo</code> check. The input and output
+        renderers have no such guard — they draw every connection unconditionally.
+      </p>
+      <p>
+        So an input-to-connector cable gets drawn <strong>twice</strong>: once by the input, and again
+        by the connector whenever the connector's position happens to sort lower. You'd see it as
+        slightly darker cables and a faint shimmer where the two copies fight over the same pixels.
+      </p>
+      <p>
+        That's a separate defect from the vanishing, so it's filed separately as
+        <code>RW-12</code> rather than smuggled into this fix.
+      </p>
+    </div>
+
+    <div class="foot">
+      RedstoneWire · Minecraft 26.2 · NeoForge 26.2.0.87<br>
+      Touched: CableRenderer.java, RedstoneConnectorBlockEntityRenderer.java,<br>
+      RedstoneInputBlockEntityRenderer.java, RedstoneOutputBlockEntityRenderer.java
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- decorate the segment figure ---------- */
+  var segdots = document.getElementById("segdots");
+  if (segdots) {
+    var A = { x: 30, y: 62 }, C = { x: 190, y: 148 }, B = { x: 350, y: 62 };
+    var pts = [];
+    for (var i = 0; i <= 12; i++) {
+      var t = i / 12, u = 1 - t;
+      pts.push({
+        x: u * u * A.x + 2 * u * t * C.x + t * t * B.x,
+        y: u * u * A.y + 2 * u * t * C.y + t * t * B.y
+      });
+    }
+    var frag = "";
+    for (var j = 0; j < pts.length - 1; j++) {
+      frag += '<line x1="' + pts[j].x.toFixed(1) + '" y1="' + pts[j].y.toFixed(1) +
+              '" x2="' + pts[j + 1].x.toFixed(1) + '" y2="' + pts[j + 1].y.toFixed(1) +
+              '" stroke="var(--redstone)" stroke-width="5" stroke-linecap="butt"/>';
+    }
+    for (var k = 0; k < pts.length; k++) {
+      frag += '<circle cx="' + pts[k].x.toFixed(1) + '" cy="' + pts[k].y.toFixed(1) +
+              '" r="3" fill="var(--surface)" stroke="var(--ink)" stroke-width="1.5"/>';
+    }
+    segdots.innerHTML = frag;
+  }
+
+  /* ---------- the interactive rig ---------- */
+
+  var EYE = { x: 320, y: 388 };
+  var HALF_FOV = 30 * Math.PI / 180;
+  var REACH = 560;
+
+  var BLOCK = 30;
+  var Apos = { x: 174, y: 150 };   // input block, top-left
+  var Bpos = { x: 465, y: 95 };    // connector block, top-left
+  var SAG_PAD = 26;                // the extra block of headroom, to scale
+
+  var yaw = document.getElementById("yaw");
+  var fixed = document.getElementById("fixed");
+  var cone = document.getElementById("cone");
+  var coneEdge = document.getElementById("coneEdge");
+  var bbox = document.getElementById("bbox");
+  var bboxLabel = document.getElementById("bboxLabel");
+  var cable = document.getElementById("cable");
+  var nose = document.getElementById("nose");
+  var verdict = document.getElementById("verdict");
+  var banner = document.getElementById("banner");
+  var grid = document.getElementById("grid");
+
+  if (!yaw) return;
+
+  /* faint block grid, so distances read as Minecraft blocks */
+  var g = "";
+  for (var gx = 0; gx <= 640; gx += 32) {
+    g += '<line x1="' + gx + '" y1="0" x2="' + gx + '" y2="430" stroke="var(--line)" stroke-width="1" opacity="0.4"/>';
+  }
+  for (var gy = 0; gy <= 430; gy += 32) {
+    g += '<line x1="0" y1="' + gy + '" x2="640" y2="' + gy + '" stroke="var(--line)" stroke-width="1" opacity="0.4"/>';
+  }
+  grid.innerHTML = g;
+
+  /* --- geometry helpers --- */
+
+  function cross(ox, oy, ax, ay, bx, by) {
+    return (ax - ox) * (by - oy) - (ay - oy) * (bx - ox);
+  }
+
+  function pointInTri(p, t) {
+    var d1 = cross(t[0].x, t[0].y, t[1].x, t[1].y, p.x, p.y);
+    var d2 = cross(t[1].x, t[1].y, t[2].x, t[2].y, p.x, p.y);
+    var d3 = cross(t[2].x, t[2].y, t[0].x, t[0].y, p.x, p.y);
+    var neg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+    var pos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+    return !(neg && pos);
+  }
+
+  function pointInRect(p, r) {
+    return p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h;
+  }
+
+  function segsCross(p1, p2, p3, p4) {
+    var d1 = cross(p3.x, p3.y, p4.x, p4.y, p1.x, p1.y);
+    var d2 = cross(p3.x, p3.y, p4.x, p4.y, p2.x, p2.y);
+    var d3 = cross(p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+    var d4 = cross(p1.x, p1.y, p2.x, p2.y, p4.x, p4.y);
+    return ((d1 > 0) !== (d2 > 0)) && ((d3 > 0) !== (d4 > 0));
+  }
+
+  /* exact convex overlap test: corner-in, vertex-in, or any edges crossing */
+  function rectMeetsTri(r, t) {
+    var corners = [
+      { x: r.x, y: r.y },
+      { x: r.x + r.w, y: r.y },
+      { x: r.x + r.w, y: r.y + r.h },
+      { x: r.x, y: r.y + r.h }
+    ];
+    var i, j;
+    for (i = 0; i < 4; i++) { if (pointInTri(corners[i], t)) return true; }
+    for (i = 0; i < 3; i++) { if (pointInRect(t[i], r)) return true; }
+    for (i = 0; i < 4; i++) {
+      for (j = 0; j < 3; j++) {
+        if (segsCross(corners[i], corners[(i + 1) % 4], t[j], t[(j + 1) % 3])) return true;
+      }
+    }
+    return false;
+  }
+
+  /* --- draw --- */
+
+  function render() {
+    var a = parseFloat(yaw.value) * Math.PI / 180;
+    var useFixed = fixed.checked;
+
+    /* the vision wedge: straight up the screen, rotated by yaw */
+    var lA = -Math.PI / 2 + a - HALF_FOV;
+    var rA = -Math.PI / 2 + a + HALF_FOV;
+    var L = { x: EYE.x + Math.cos(lA) * REACH, y: EYE.y + Math.sin(lA) * REACH };
+    var R = { x: EYE.x + Math.cos(rA) * REACH, y: EYE.y + Math.sin(rA) * REACH };
+    var tri = [EYE, L, R];
+
+    var pts = EYE.x + "," + EYE.y + " " + L.x.toFixed(1) + "," + L.y.toFixed(1) +
+              " " + R.x.toFixed(1) + "," + R.y.toFixed(1);
+    cone.setAttribute("points", pts);
+    coneEdge.setAttribute("d",
+      "M " + L.x.toFixed(1) + " " + L.y.toFixed(1) +
+      " L " + EYE.x + " " + EYE.y +
+      " L " + R.x.toFixed(1) + " " + R.y.toFixed(1));
+
+    /* the player's little nose points where they look */
+    var nx = EYE.x + Math.cos(-Math.PI / 2 + a) * 22;
+    var ny = EYE.y + Math.sin(-Math.PI / 2 + a) * 22;
+    var px = EYE.x + Math.cos(a) * 9;
+    var py = EYE.y + Math.sin(a) * 9;
+    var qx = EYE.x - Math.cos(a) * 9;
+    var qy = EYE.y - Math.sin(a) * 9;
+    nose.setAttribute("d", "M " + px.toFixed(1) + " " + py.toFixed(1) +
+                           " L " + nx.toFixed(1) + " " + ny.toFixed(1) +
+                           " L " + qx.toFixed(1) + " " + qy.toFixed(1) + " Z");
+
+    /* the crate under test */
+    var box;
+    if (useFixed) {
+      var minX = Math.min(Apos.x, Bpos.x), minY = Math.min(Apos.y, Bpos.y);
+      var maxX = Math.max(Apos.x, Bpos.x) + BLOCK, maxY = Math.max(Apos.y, Bpos.y) + BLOCK;
+      box = { x: minX, y: minY - SAG_PAD, w: maxX - minX, h: (maxY - minY) + SAG_PAD * 2 };
+    } else {
+      box = { x: Apos.x, y: Apos.y, w: BLOCK, h: BLOCK };
+    }
+
+    var col = useFixed ? "var(--moss)" : "var(--redstone)";
+    bbox.setAttribute("x", box.x);
+    bbox.setAttribute("y", box.y);
+    bbox.setAttribute("width", box.w);
+    bbox.setAttribute("height", box.h);
+    bbox.setAttribute("stroke", col);
+    bboxLabel.setAttribute("x", box.x);
+    bboxLabel.setAttribute("y", box.y - 7);
+    bboxLabel.setAttribute("fill", col);
+    bboxLabel.textContent = useFixed ? "cableBounds()" : "new AABB(pos)";
+
+    /* the verdict, and the cable */
+    var visible = rectMeetsTri(box, tri);
+    cable.setAttribute("x1", Apos.x + BLOCK / 2);
+    cable.setAttribute("y1", Apos.y + BLOCK / 2);
+    cable.setAttribute("x2", Bpos.x + BLOCK / 2);
+    cable.setAttribute("y2", Bpos.y + BLOCK / 2);
+    cable.style.display = visible ? "" : "none";
+
+    var boxDesc = useFixed ? "spans both blocks + sag" : "1 block, at the input";
+    verdict.innerHTML =
+      '<span class="k">getRenderBoundingBox()</span> → ' + boxDesc + '<br>' +
+      '<span class="k">frustum.isVisible(box)</span> → ' +
+      (visible ? '<span class="yes">true</span>' : '<span class="no">false</span>') + '<br>' +
+      '<span class="k">submit()</span> → ' +
+      (visible ? '<span class="yes">288 corners drawn</span>'
+               : '<span class="no">never called</span>');
+
+    banner.textContent = visible ? "CABLE VISIBLE" : "CABLE CULLED";
+    banner.className = "banner " + (visible ? "on" : "off");
+  }
+
+  yaw.addEventListener("input", render);
+  fixed.addEventListener("change", render);
+  render();
+})();
+</script>
